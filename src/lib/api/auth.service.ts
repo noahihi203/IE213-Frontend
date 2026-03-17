@@ -3,47 +3,54 @@ import { ApiResponse, LoginData, RegisterData, LoginResponse } from "../types";
 
 export const authService = {
   // Register new user
-  register: async (data: RegisterData): Promise<ApiResponse<LoginResponse>> => {
-    return await axiosClient.post("/register", data);
+  register: async (
+    data: RegisterData
+  ): Promise<ApiResponse<LoginResponse>> => {
+    const response = await axiosClient.post("/register", data);
+    return response.data;
   },
 
   // Login user
-  login: async (data: LoginData): Promise<ApiResponse<LoginResponse>> => {
+  login: async (
+    data: LoginData
+  ): Promise<ApiResponse<LoginResponse>> => {
     const response = await axiosClient.post("/login", data);
+
+    const dataRes = response.data as ApiResponse<LoginResponse>;
 
     // Store tokens after successful login
     if (
-      response.metadata?.tokens?.accessToken &&
-      response.metadata?.user?._id
+      dataRes?.metadata?.tokens?.accessToken &&
+      dataRes?.metadata?.user?._id
     ) {
       apiClient.setTokens(
-        response.metadata.tokens.accessToken,
-        response.metadata.user._id,
+        dataRes.metadata.tokens.accessToken,
+        dataRes.metadata.user._id
       );
 
-      // Store user data
+      // Store user data (client only)
       if (typeof window !== "undefined") {
-        localStorage.setItem("user", JSON.stringify(response.metadata.user));
+        localStorage.setItem("user", JSON.stringify(dataRes.metadata.user));
       }
     }
 
-    return response;
+    return dataRes;
   },
 
   // Logout user
   logout: async (): Promise<ApiResponse> => {
     try {
       const response = await axiosClient.post("/logout");
-      return response;
+      return response.data;
     } finally {
-      // Clear tokens regardless of API response
+      // Always clear tokens
       apiClient.clearTokens();
     }
   },
 
   // Refresh token
   refreshToken: async (
-    refreshToken: string,
+    refreshToken: string
   ): Promise<ApiResponse<LoginResponse>> => {
     const response = await axiosClient.post(
       "/refresh-token",
@@ -52,21 +59,22 @@ export const authService = {
         headers: {
           Authorization: refreshToken,
         },
-      },
+      }
     );
 
-    // Update stored tokens
+    const dataRes = response.data as ApiResponse<LoginResponse>;
+
     if (
-      response.metadata?.tokens?.accessToken &&
-      response.metadata?.user?._id
+      dataRes?.metadata?.tokens?.accessToken &&
+      dataRes?.metadata?.user?._id
     ) {
       apiClient.setTokens(
-        response.metadata.tokens.accessToken,
-        response.metadata.user._id,
+        dataRes.metadata.tokens.accessToken,
+        dataRes.metadata.user._id
       );
     }
 
-    return response;
+    return dataRes;
   },
 
   // Get current user from localStorage
