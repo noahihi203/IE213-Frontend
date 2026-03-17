@@ -10,18 +10,23 @@ import { PenTool, FileText, Eye, Settings, LogOut } from "lucide-react";
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { user, isAuthenticated, logout } = useAuthStore();
+  const { user, isAuthenticated, authInitialized, logout } = useAuthStore();
   const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    if (!authInitialized) {
+      return;
+    }
+
     if (!isAuthenticated) {
+      setIsLoading(false);
       router.push("/login");
       return;
     }
 
     loadMyPosts();
-  }, [isAuthenticated, router]);
+  }, [authInitialized, isAuthenticated, router]);
 
   const loadMyPosts = async () => {
     try {
@@ -48,7 +53,7 @@ export default function DashboardPage() {
     router.push("/login");
   };
 
-  if (!user) {
+  if (!authInitialized || !user) {
     return <div className="container mx-auto px-4 py-8">Loading...</div>;
   }
 
@@ -79,7 +84,7 @@ export default function DashboardPage() {
                   <span>My Posts</span>
                 </Link>
 
-                {(user.role === "poster" || user.role === "admin") && (
+                {(user.role === "author" || user.role === "admin") && (
                   <Link
                     href="/posts/create"
                     className="flex items-center space-x-2 px-4 py-2 hover:bg-gray-100 rounded-lg"
@@ -128,7 +133,7 @@ export default function DashboardPage() {
                 <p className="text-gray-600 mb-6">
                   Start writing your first blog post
                 </p>
-                {(user.role === "poster" || user.role === "admin") && (
+                {(user.role === "author" || user.role === "admin") && (
                   <Link
                     href="/posts/create"
                     className="btn-primary inline-block"

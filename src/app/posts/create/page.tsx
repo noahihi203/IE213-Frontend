@@ -11,7 +11,7 @@ import { Save, Eye } from "lucide-react";
 
 export default function CreatePostPage() {
   const router = useRouter();
-  const { user, isAuthenticated } = useAuthStore();
+  const { user, isAuthenticated, authInitialized } = useAuthStore();
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -27,18 +27,22 @@ export default function CreatePostPage() {
   });
 
   useEffect(() => {
+    if (!authInitialized) {
+      return;
+    }
+
     if (!isAuthenticated) {
       router.push("/login");
       return;
     }
 
-    if (user && user.role !== "poster" && user.role !== "admin") {
+    if (user && user.role !== "author" && user.role !== "admin") {
       router.push("/dashboard");
       return;
     }
 
     loadCategories();
-  }, [isAuthenticated, user, router]);
+  }, [authInitialized, isAuthenticated, user, router]);
 
   const loadCategories = async () => {
     try {
@@ -89,7 +93,11 @@ export default function CreatePostPage() {
     }));
   };
 
-  if (!user || (user.role !== "poster" && user.role !== "admin")) {
+  if (!authInitialized || !user) {
+    return null;
+  }
+
+  if (user.role !== "author" && user.role !== "admin") {
     return null;
   }
 

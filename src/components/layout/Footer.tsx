@@ -29,7 +29,7 @@ export function Footer() {
             <ul className="space-y-2">
               <li>
                 <Link
-                  href="/categories"
+                  href="/about/faq"
                   className="text-sm hover:text-white transition-colors"
                 >
                   Khối ĐHQG

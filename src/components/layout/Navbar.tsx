@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuthStore } from "@/store/authStore";
-import { BookOpen, LogOut, User, PenTool, Home } from "lucide-react";
+import { BookOpen, LogOut, User, PenTool, Home, GraduationCap } from "lucide-react";
 
 export function Navbar() {
   const pathname = usePathname();
@@ -21,10 +21,10 @@ export function Navbar() {
           {/* Logo */}
           <Link
             href="/"
-            className="flex items-center space-x-2 text-primary-600 font-bold text-xl"
+            className="flex items-center gap-2 font-bold text-lg hover:opacity-80"
           >
-            <BookOpen className="w-8 h-8" />
-            <span>IE213 Blog</span>
+            <GraduationCap className="w-8 h-8 text-sky-600" />
+            <span className="hidden sm:inline">UniScope HCM</span>
           </Link>
 
           {/* Navigation Links */}

@@ -6,6 +6,7 @@ import apiClient from "@/lib/api/client";
 interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
+  authInitialized: boolean;
   isLoading: boolean;
   error: string | null;
 
@@ -20,6 +21,7 @@ interface AuthState {
 export const useAuthStore = create<AuthState>((set) => ({
   user: null,
   isAuthenticated: false,
+  authInitialized: false,
   isLoading: false,
   error: null,
 
@@ -31,6 +33,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       set({
         user: response.metadata.user,
         isAuthenticated: true,
+        authInitialized: true,
         isLoading: false,
       });
     } catch (error: any) {
@@ -49,6 +52,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       set({
         user: response.metadata.user,
         isAuthenticated: true,
+        authInitialized: true,
         isLoading: false,
       });
     } catch (error: any) {
@@ -70,6 +74,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       set({
         user: null,
         isAuthenticated: false,
+        authInitialized: true,
         isLoading: false,
         error: null,
       });
@@ -77,14 +82,14 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   checkAuth: () => {
+    apiClient.restoreTokens();
     const user = authService.getCurrentUser();
     const isAuthenticated = authService.isAuthenticated();
 
     if (user && isAuthenticated) {
-      apiClient.restoreTokens();
-      set({ user, isAuthenticated: true });
+      set({ user, isAuthenticated: true, authInitialized: true });
     } else {
-      set({ user: null, isAuthenticated: false });
+      set({ user: null, isAuthenticated: false, authInitialized: true });
     }
   },
 
