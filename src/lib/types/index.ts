@@ -13,7 +13,7 @@ export interface User {
   fullName: string;
   avatar?: string | null;
   bio?: string | null;
-  role: "user" | "poster" | "admin";
+  role: "user" | "author" | "admin";
   status: "active" | "inactive";
   tokenVersion?: number;
   createdOn: Date;

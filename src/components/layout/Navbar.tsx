@@ -38,7 +38,7 @@ export function Navbar() {
               }`}
             >
               <Home className="w-4 h-4" />
-              <span>Home</span>
+              <span>Trang chủ</span>
             </Link>
 
             <Link
@@ -49,7 +49,7 @@ export function Navbar() {
                   : "text-gray-700"
               }`}
             >
-              All Posts
+              Bài viết
             </Link>
 
             <Link
@@ -60,11 +60,11 @@ export function Navbar() {
                   : "text-gray-700"
               }`}
             >
-              Categories
+              Trường Đại học
             </Link>
 
             {isAuthenticated &&
-              (user?.role === "poster" || user?.role === "admin") && (
+              (user?.role === "author" || user?.role === "admin") && (
                 <Link
                   href="/posts/create"
                   className="flex items-center space-x-1 text-primary-600 hover:text-primary-700 font-medium"
@@ -92,7 +92,7 @@ export function Navbar() {
                     href="/admin"
                     className="hidden md:inline bg-primary-100 text-primary-700 px-3 py-1 rounded-md text-sm font-medium hover:bg-primary-200 transition-colors"
                   >
-                    Admin
+                    Quản trị viên
                   </Link>
                 )}
 
@@ -101,7 +101,7 @@ export function Navbar() {
                   className="flex items-center space-x-1 text-red-600 hover:text-red-700 transition-colors"
                 >
                   <LogOut className="w-5 h-5" />
-                  <span className="hidden md:inline">Logout</span>
+                  <span className="hidden md:inline">Đăng xuất</span>
                 </button>
               </>
             ) : (
@@ -110,10 +110,10 @@ export function Navbar() {
                   href="/login"
                   className="text-gray-700 hover:text-primary-600 font-medium"
                 >
-                  Login
+                  Đăng nhập
                 </Link>
                 <Link href="/register" className="btn-primary">
-                  Sign Up
+                  Đăng ký
                 </Link>
               </>
             )}

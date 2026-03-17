@@ -1,120 +1,142 @@
 import Link from "next/link";
-import { BookOpen, Github, Twitter, Linkedin } from "lucide-react";
+import { BookOpen, Github, Twitter, Linkedin, Instagram, Facebook, GraduationCap } from "lucide-react";
 
 export function Footer() {
+  const currentYear = new Date().getFullYear();
+
   return (
     <footer className="bg-gray-900 text-gray-300">
       <div className="container mx-auto px-4 py-12">
-        <div className="grid md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Brand */}
           <div>
-            <div className="flex items-center space-x-2 text-white font-bold text-xl mb-4">
-              <BookOpen className="w-8 h-8" />
-              <span>IE213 Blog</span>
+            <div className="flex items-center gap-2 mb-4">
+              <GraduationCap className="w-8 h-8 text-sky-500" />
+              <span className="text-white font-bold text-lg">UniScope HCM</span>
             </div>
+            <p className="text-sm text-gray-400 mb-4">
+              Khám phá đại học — Kết nối sinh viên
+            </p>
             <p className="text-sm text-gray-400">
-              A modern blog platform for sharing knowledge and connecting with
-              amazing writers.
+              Diễn đàn trao đổi của sinh viên các trường đại học tại TP. Hồ Chí
+              Minh
             </p>
           </div>
 
-          {/* Quick Links */}
+          {/* Danh Mục */}
           <div>
-            <h3 className="text-white font-semibold mb-4">Quick Links</h3>
-            <ul className="space-y-2 text-sm">
+            <h3 className="text-white font-semibold mb-4">Danh Mục</h3>
+            <ul className="space-y-2">
               <li>
                 <Link
-                  href="/posts"
-                  className="hover:text-white transition-colors"
+                  href="/categories"
+                  className="text-sm hover:text-white transition-colors"
                 >
-                  All Posts
+                  Khối ĐHQG
                 </Link>
               </li>
               <li>
                 <Link
                   href="/categories"
-                  className="hover:text-white transition-colors"
+                  className="text-sm hover:text-white transition-colors"
                 >
-                  Categories
+                  Trường Khác
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/about"
-                  className="hover:text-white transition-colors"
+                  href="/categories"
+                  className="text-sm hover:text-white transition-colors"
                 >
-                  About
+                  Đời Sống Sinh Viên
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/contact"
-                  className="hover:text-white transition-colors"
+                  href="/categories"
+                  className="text-sm hover:text-white transition-colors"
                 >
-                  Contact
+                  Tuyển Sinh
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Resources */}
+          {/* Hỗ Trợ */}
           <div>
-            <h3 className="text-white font-semibold mb-4">Resources</h3>
-            <ul className="space-y-2 text-sm">
+            <h3 className="text-white font-semibold mb-4">Hỗ Trợ</h3>
+            <ul className="space-y-2">
               <li>
-                <Link
-                  href="/help"
-                  className="hover:text-white transition-colors"
+                <a
+                  href="#"
+                  className="text-sm hover:text-white transition-colors"
                 >
-                  Help Center
-                </Link>
+                  Liên hệ
+                </a>
               </li>
               <li>
-                <Link
-                  href="/terms"
-                  className="hover:text-white transition-colors"
+                <a
+                  href="#"
+                  className="text-sm hover:text-white transition-colors"
                 >
-                  Terms of Service
-                </Link>
+                  Điều khoản sử dụng
+                </a>
               </li>
               <li>
-                <Link
-                  href="/privacy"
-                  className="hover:text-white transition-colors"
+                <a
+                  href="#"
+                  className="text-sm hover:text-white transition-colors"
                 >
-                  Privacy Policy
-                </Link>
+                  Chính sách bảo mật
+                </a>
               </li>
               <li>
-                <Link
-                  href="/guidelines"
-                  className="hover:text-white transition-colors"
+                <a
+                  href="#"
+                  className="text-sm hover:text-white transition-colors"
                 >
-                  Community Guidelines
-                </Link>
+                  Hướng dẫn
+                </a>
               </li>
             </ul>
           </div>
 
-          {/* Social */}
+          {/* Mạng Xã Hội */}
           <div>
-            <h3 className="text-white font-semibold mb-4">Connect With Us</h3>
-            <div className="flex space-x-4">
-              <a href="#" className="hover:text-white transition-colors">
-                <Github className="w-6 h-6" />
+            <h3 className="text-white font-semibold mb-4">Kết Nối</h3>
+            <div className="flex gap-4">
+              <a
+                href="https://facebook.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-sky-600 transition-colors"
+              >
+                <Facebook className="w-5 h-5" />
               </a>
-              <a href="#" className="hover:text-white transition-colors">
-                <Twitter className="w-6 h-6" />
+              <a
+                href="https://twitter.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-sky-600 transition-colors"
+              >
+                <Twitter className="w-5 h-5" />
               </a>
-              <a href="#" className="hover:text-white transition-colors">
-                <Linkedin className="w-6 h-6" />
+              <a
+                href="https://instagram.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-sky-600 transition-colors"
+              >
+                <Instagram className="w-5 h-5" />
               </a>
             </div>
           </div>
         </div>
 
-        <div className="border-t border-gray-800 mt-8 pt-8 text-sm text-center text-gray-400">
-          <p>&copy; 2026 IE213 Blog. All rights reserved.</p>
+        <div className="border-t border-gray-800 mt-8 pt-8 text-center">
+          <p className="text-sm text-gray-400">
+            © {currentYear} UniScopeHCM. All rights reserved.
+          </p>
         </div>
       </div>
     </footer>
