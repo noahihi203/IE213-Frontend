@@ -21,7 +21,7 @@ export default function LoginPage() {
 
     try {
       await login(formData);
-      router.push("/dashboard");
+      router.push("/");
     } catch (error) {
       console.error("Login error:", error);
     }
