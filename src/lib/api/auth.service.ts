@@ -9,9 +9,13 @@ export const authService = {
 
   // Login user
   login: async (data: LoginData): Promise<ApiResponse<LoginResponse>> => {
-    const response = await axiosClient.post("/login", data);
+    // 1. Ép kiểu trực tiếp (Type Assertion) để TypeScript hiểu cấu trúc thực sự của response
+    const response = (await axiosClient.post(
+      "/login",
+      data,
+    )) as unknown as ApiResponse<LoginResponse>;
 
-    // Store tokens after successful login
+    // 2. Sử dụng response.metadata bình thường như code ban đầu của bạn!
     if (
       response.metadata?.tokens?.accessToken &&
       response.metadata?.user?._id
@@ -33,7 +37,10 @@ export const authService = {
   // Logout user
   logout: async (): Promise<ApiResponse> => {
     try {
-      const response = await axiosClient.post("/logout");
+      // Ép kiểu trực tiếp về ApiResponse và bỏ qua .data
+      const response = (await axiosClient.post(
+        "/logout",
+      )) as unknown as ApiResponse;
       return response;
     } finally {
       // Clear tokens regardless of API response
@@ -45,7 +52,8 @@ export const authService = {
   refreshToken: async (
     refreshToken: string,
   ): Promise<ApiResponse<LoginResponse>> => {
-    const response = await axiosClient.post(
+    // Ép kiểu trực tiếp về ApiResponse<LoginResponse>
+    const response = (await axiosClient.post(
       "/refresh-token",
       {},
       {
@@ -53,8 +61,9 @@ export const authService = {
           Authorization: refreshToken,
         },
       },
-    );
+    )) as unknown as ApiResponse<LoginResponse>;
 
+    // Dùng thẳng response.metadata, không qua biến result nữa
     // Update stored tokens
     if (
       response.metadata?.tokens?.accessToken &&
