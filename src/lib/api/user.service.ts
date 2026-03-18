@@ -4,15 +4,24 @@ import { ApiResponse, User, UserFilters, PaginatedResponse } from "../types";
 export const userService = {
   // Get user profile by ID
   getUserProfile: async (userId: string): Promise<ApiResponse<User>> => {
-    return await axiosClient.get(`/users/${userId}`);
+    return await axiosClient.get(`/user/${userId}`);
   },
 
-  // Update user profile
+  // Update user profile (Current user)
   updateUserProfile: async (
-    userId: string,
     data: Partial<User>,
   ): Promise<ApiResponse<User>> => {
-    return await axiosClient.put(`/users/${userId}`, data);
+    return await axiosClient.put(`/user`, data);
+  },
+
+  // Update user email
+  updateUserEmail: async (email: string): Promise<ApiResponse<User>> => {
+    return await axiosClient.put(`/user/update-email`, { email });
+  },
+
+  // Update user username
+  updateUserUsername: async (username: string): Promise<ApiResponse<User>> => {
+    return await axiosClient.put(`/user/update-username`, { username });
   },
 
   // Get all users (Admin only)
@@ -27,19 +36,24 @@ export const userService = {
     if (filters?.role) params.append("role", filters.role);
     if (filters?.status) params.append("status", filters.status);
 
-    return await axiosClient.get(`/users?${params.toString()}`);
+    return await axiosClient.get(`/user/all?${params.toString()}`);
   },
 
   // Delete user (Admin only)
   deleteUser: async (userId: string): Promise<ApiResponse> => {
-    return await axiosClient.delete(`/users/${userId}`);
+    return await axiosClient.delete(`/user/${userId}`);
+  },
+
+  // Restore user (Admin only)
+  restoreUser: async (userId: string): Promise<ApiResponse<User>> => {
+    return await axiosClient.put(`/user/restore/${userId}`);
   },
 
   // Change user role (Admin only)
   changeUserRole: async (
     userId: string,
-    role: "user" | "poster" | "admin",
+    role: "user" | "author" | "admin",
   ): Promise<ApiResponse<User>> => {
-    return await axiosClient.put(`/users/${userId}/role`, { role });
+    return await axiosClient.put(`/user/${userId}/role`, { role });
   },
 };

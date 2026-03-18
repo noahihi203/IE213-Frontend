@@ -27,6 +27,16 @@ class ApiClient {
     // Request interceptor - Attach tokens
     this.client.interceptors.request.use(
       (config: InternalAxiosRequestConfig) => {
+        // Auto-restore tokens from localStorage on every request to ensure they are available
+        if (typeof window !== "undefined") {
+          const token = localStorage.getItem("accessToken");
+          const userId = localStorage.getItem("userId");
+          if (token && userId) {
+            this.accessToken = token;
+            this.userId = userId;
+          }
+        }
+
         if (this.accessToken && this.userId) {
           config.headers["Authorization"] = this.accessToken;
           config.headers["x-client-id"] = this.userId;

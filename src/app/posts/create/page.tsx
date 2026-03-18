@@ -1,18 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/authStore";
 import { postService } from "@/lib/api/post.service";
 import { categoryService } from "@/lib/api/category.service";
-import { Category } from "@/lib/types";
-import { useEffect } from "react";
+import { tagService } from "@/lib/api/tag.services";
+import { Category, Tag } from "@/lib/types";
 import { Save, Eye } from "lucide-react";
 
 export default function CreatePostPage() {
   const router = useRouter();
   const { user, isAuthenticated, authInitialized } = useAuthStore();
   const [categories, setCategories] = useState<Category[]>([]);
+  const [availableTags, setAvailableTags] = useState<Tag[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -22,7 +23,7 @@ export default function CreatePostPage() {
     content: "",
     category: "",
     coverImage: "",
-    tags: "",
+    tags: [] as string[],
     status: "draft" as "draft" | "published",
   });
 
@@ -42,6 +43,7 @@ export default function CreatePostPage() {
     }
 
     loadCategories();
+    loadTags();
   }, [authInitialized, isAuthenticated, user, router]);
 
   const loadCategories = async () => {
@@ -51,6 +53,18 @@ export default function CreatePostPage() {
     } catch (error) {
       console.error("Failed to load categories:", error);
       setCategories([]);
+    }
+  };
+
+  const loadTags = async () => {
+    try {
+      const response = await tagService.getAllTag();
+      setAvailableTags(
+        Array.isArray(response.metadata) ? response.metadata : [],
+      );
+    } catch (error) {
+      console.error("Failed to load tags:", error);
+      setAvailableTags([]);
     }
   };
 
@@ -66,9 +80,7 @@ export default function CreatePostPage() {
       const postData = {
         ...formData,
         status,
-        tags: formData.tags
-          ? formData.tags.split(",").map((tag) => tag.trim())
-          : [],
+        tags: formData.tags,
       };
 
       const response = await postService.createPost(postData);
@@ -91,6 +103,17 @@ export default function CreatePostPage() {
       ...prev,
       [e.target.name]: e.target.value,
     }));
+  };
+
+  const handleTagToggle = (tagId: string) => {
+    setFormData((prev) => {
+      const currentTags = prev.tags;
+      if (currentTags.includes(tagId)) {
+        return { ...prev, tags: currentTags.filter((id) => id !== tagId) };
+      } else {
+        return { ...prev, tags: [...currentTags, tagId] };
+      }
+    });
   };
 
   if (!authInitialized || !user) {
@@ -224,21 +247,33 @@ export default function CreatePostPage() {
 
           {/* Tags */}
           <div>
-            <label
-              htmlFor="tags"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Tags (comma separated)
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Tags
             </label>
-            <input
-              type="text"
-              id="tags"
-              name="tags"
-              value={formData.tags}
-              onChange={handleChange}
-              className="input-field"
-              placeholder="javascript, tutorial, webdev"
-            />
+            <div className="flex flex-wrap gap-2">
+              {availableTags.map((tag) => {
+                const isSelected = formData.tags.includes(tag._id);
+                return (
+                  <button
+                    key={tag._id}
+                    type="button"
+                    onClick={() => handleTagToggle(tag._id)}
+                    className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+                      isSelected
+                        ? "bg-blue-600 text-white"
+                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    }`}
+                  >
+                    {tag.name}
+                  </button>
+                );
+              })}
+              {availableTags.length === 0 && (
+                <span className="text-gray-500 text-sm">
+                  No tags available.
+                </span>
+              )}
+            </div>
           </div>
 
           {/* Action Buttons */}

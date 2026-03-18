@@ -14,7 +14,7 @@ export interface User {
   avatar?: string | null;
   bio?: string | null;
   role: "user" | "author" | "admin";
-  status: "active" | "inactive";
+  isActive: boolean;
   tokenVersion?: number;
   createdOn: Date;
   modifiedOn: Date;
@@ -90,6 +90,34 @@ export interface CreateCategoryData {
   name: string;
   description?: string;
   icon?: string;
+}
+
+// Tag Types
+export interface Tag {
+  _id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  postCount: number;
+  status: "active" | "inactive";
+  createdOn: Date;
+  modifiedOn: Date;
+}
+
+export interface CreateTagData {
+  name: string;
+  description?: string;
+}
+
+export interface UpdateTagData {
+  tagId: string;
+  name: string;
+  description?: string;
+}
+
+export interface UpdateTagCountData {
+  tagIds: string[];
+  inc: number;
 }
 
 // Comment Types
