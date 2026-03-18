@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import ReactMarkdown from "react-markdown";
 import { postService } from "@/lib/api/post.service";
 import { useAuthStore } from "@/store/authStore";
 import { Post } from "@/lib/types";
@@ -14,6 +13,7 @@ export default function PostDetailPage() {
   const params = useParams();
   const router = useRouter();
   const { user, isAuthenticated } = useAuthStore();
+
   const [post, setPost] = useState<Post | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isLiked, setIsLiked] = useState(false);
@@ -49,12 +49,12 @@ export default function PostDetailPage() {
       if (isLiked) {
         await postService.unlikePost(post._id);
         setPost((prev) =>
-          prev ? { ...prev, likesCount: prev.likesCount - 1 } : null,
+          prev ? { ...prev, likesCount: prev.likesCount - 1 } : null
         );
       } else {
         await postService.likePost(post._id);
         setPost((prev) =>
-          prev ? { ...prev, likesCount: prev.likesCount + 1 } : null,
+          prev ? { ...prev, likesCount: prev.likesCount + 1 } : null
         );
       }
       setIsLiked(!isLiked);
@@ -85,13 +85,17 @@ export default function PostDetailPage() {
     );
   }
 
-  const author = typeof post.authorId === "object" ? post.authorId : null;
-  const category = typeof post.category === "object" ? post.category : null;
+  const author =
+    typeof post.author === "object" ? post.author : null;
+
+  const category =
+    typeof post.category === "object" ? post.category : null;
+
   const isAuthor = user && author && user._id === author._id;
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header Actions */}
+      {/* Header */}
       <div className="bg-white border-b border-gray-200">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
@@ -116,9 +120,9 @@ export default function PostDetailPage() {
         </div>
       </div>
 
-      {/* Post Content */}
+      {/* Content */}
       <article className="container mx-auto px-4 py-8 max-w-4xl">
-        {/* Cover Image */}
+        {/* Cover */}
         {post.coverImage && (
           <div className="mb-8 rounded-lg overflow-hidden">
             <img
@@ -129,32 +133,34 @@ export default function PostDetailPage() {
           </div>
         )}
 
-        {/* Post Header */}
+        {/* Header */}
         <header className="mb-8">
-          {/* Category */}
           {category && (
             <Link
               href={`/categories/${category.slug}`}
-              className="inline-block px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-sm font-medium mb-4 hover:bg-primary-200"
+              className="inline-block px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-sm font-medium mb-4"
             >
               {category.name}
             </Link>
           )}
 
-          {/* Title */}
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">{post.title}</h1>
+          <h1 className="text-4xl md:text-5xl font-bold mb-4">
+            {post.title}
+          </h1>
 
-          {/* Meta Info */}
+          {/* Meta */}
           <div className="flex items-center justify-between flex-wrap gap-4 py-4 border-y border-gray-200">
             <div className="flex items-center space-x-6 text-gray-600">
               <span className="flex items-center space-x-2">
                 <Eye className="w-5 h-5" />
                 <span>{post.viewCount} views</span>
               </span>
+
               <span className="flex items-center space-x-2">
                 <Heart className="w-5 h-5" />
                 <span>{post.likesCount} likes</span>
               </span>
+
               {post.publishedAt && (
                 <span className="flex items-center space-x-2">
                   <Calendar className="w-5 h-5" />
@@ -169,21 +175,26 @@ export default function PostDetailPage() {
             {author && (
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 bg-primary-600 rounded-full flex items-center justify-center text-white font-bold">
-                  {author.username.charAt(0).toUpperCase()}
+                  {author?.username?.charAt(0)?.toUpperCase() || "U"}
                 </div>
                 <div>
-                  <p className="font-semibold">{author.fullName}</p>
-                  <p className="text-sm text-gray-600">@{author.username}</p>
+                  <p className="font-semibold">
+                    {author?.fullName || "Unknown"}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    @{author?.username || "user"}
+                  </p>
                 </div>
               </div>
             )}
           </div>
         </header>
 
-        {/* Post Body */}
-        <div className="prose prose-lg max-w-none mb-8">
-          <ReactMarkdown>{post.content}</ReactMarkdown>
-        </div>
+        {/* 🔥 FIXED CONTENT RENDERING */}
+        <div
+          className="prose prose-lg max-w-none mb-8 prose-headings:font-bold prose-h2:text-2xl prose-h3:text-xl prose-p:text-gray-700"
+          dangerouslySetInnerHTML={{ __html: post.content }}
+        />
 
         {/* Tags */}
         {post.tags && post.tags.length > 0 && (
@@ -203,17 +214,17 @@ export default function PostDetailPage() {
         <div className="flex items-center space-x-4 py-6 border-t border-gray-200">
           <button
             onClick={handleLike}
-            className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-medium transition-colors ${
+            className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-medium ${
               isLiked
-                ? "bg-red-100 text-red-700 hover:bg-red-200"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                ? "bg-red-100 text-red-700"
+                : "bg-gray-100 text-gray-700"
             }`}
           >
             <Heart className={`w-5 h-5 ${isLiked ? "fill-current" : ""}`} />
             <span>{isLiked ? "Liked" : "Like"}</span>
           </button>
 
-          <button className="flex items-center space-x-2 px-6 py-3 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors">
+          <button className="flex items-center space-x-2 px-6 py-3 bg-gray-100 text-gray-700 rounded-lg">
             <Share2 className="w-5 h-5" />
             <span>Share</span>
           </button>
