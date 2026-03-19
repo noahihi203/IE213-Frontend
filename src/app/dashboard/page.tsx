@@ -447,7 +447,12 @@ export default function DashboardPage() {
           {/* ── Main content ── */}
           <div className="lg:col-span-3">
             {activeTab === "posts" && (
-              <PostsTab user={user} posts={posts} isLoading={isLoadingPosts} />
+              <PostsTab
+                user={user}
+                posts={posts}
+                isLoading={isLoadingPosts}
+                onPostsRefresh={loadMyPosts}
+              />
             )}
 
             {activeTab === "users" && (

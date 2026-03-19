@@ -3,13 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuthStore } from "@/store/authStore";
-import {
-  LogOut,
-  PenTool,
-  Home,
-  GraduationCap,
-  LayoutDashboard,
-} from "lucide-react";
+import { LogOut, Home, GraduationCap } from "lucide-react";
 
 export function Navbar() {
   const pathname = usePathname();
@@ -68,17 +62,6 @@ export function Navbar() {
             >
               Trường Đại học
             </Link>
-
-            {isAuthenticated &&
-              (user?.role === "author" || user?.role === "admin") && (
-                <Link
-                  href="/posts/create"
-                  className="flex items-center space-x-1 text-sky-600 hover:text-sky-700 font-medium bg-sky-50 px-3 py-1.5 rounded-md transition-colors"
-                >
-                  <PenTool className="w-4 h-4" />
-                  <span>Viết bài</span>
-                </Link>
-              )}
           </div>
 
           {/* 3. User Menu (Bên phải) */}

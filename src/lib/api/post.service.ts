@@ -54,6 +54,19 @@ export const postService = {
     return await axiosClient.delete(`/posts/${postId}`);
   },
 
+  // Publish post
+  publishPost: async (postId: string): Promise<ApiResponse> => {
+    return await axiosClient.patch(`/posts/${postId}/publish`);
+  },
+
+  // Change post status
+  changePostStatus: async (
+    postId: string,
+    status: Post["status"],
+  ): Promise<ApiResponse> => {
+    return await axiosClient.patch(`/posts/${postId}/status`, { status });
+  },
+
   // Like post
   likePost: async (postId: string): Promise<ApiResponse> => {
     return await axiosClient.post(`/posts/${postId}/like`);
