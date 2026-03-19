@@ -124,18 +124,22 @@ export interface UpdateTagCountData {
 export interface Comment {
   _id: string;
   postId: string;
-  authorId: string | User;
+  userId?: string | User;
+  authorId?: string | User;
   content: string;
   parentId?: string | null;
+  commentLeft?: number;
+  commentRight?: number;
   likesCount?: number;
   isEdited: boolean;
-  createdOn: Date;
-  modifiedOn: Date;
+  createdOn: Date | string;
+  modifiedOn: Date | string;
 }
 
 export interface CreateCommentData {
   postId: string;
   content: string;
+  parentCommentId?: string;
   parentId?: string;
 }
 

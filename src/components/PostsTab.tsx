@@ -3,11 +3,23 @@
 import { useEffect, useMemo, useState, type ChangeEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FileText, Eye, Pencil, Plus, Search, X } from "lucide-react";
-import { Category, Post, Tag, User } from "@/lib/types";
+import {
+  FileText,
+  Eye,
+  Heart,
+  MessageCircle,
+  Pencil,
+  Plus,
+  Search,
+  Send,
+  Trash2,
+  X,
+} from "lucide-react";
+import { Category, Comment as PostComment, Post, Tag, User } from "@/lib/types";
 import { postService } from "@/lib/api/post.service";
 import { categoryService } from "@/lib/api/category.service";
 import { tagService } from "@/lib/api/tag.services";
+import { commentService } from "@/lib/api/comment.service";
 
 interface PostsTabProps {
   user: User;
@@ -23,6 +35,25 @@ interface PostFormData {
   category: string;
   coverImage: string;
   tags: string[];
+}
+
+type ReportReason =
+  | "spam"
+  | "harassment"
+  | "misinformation"
+  | "offensive"
+  | "other";
+
+type PostCommentItem = PostComment & {
+  userId?: string | User;
+  parentId?: string | null;
+  commentLeft?: number;
+  commentRight?: number;
+  likesCount?: number;
+};
+
+interface CommentRenderItem extends PostCommentItem {
+  depth: number;
 }
 
 const createEmptyPostForm = (): PostFormData => ({
@@ -58,6 +89,22 @@ const resolveTagIds = (tags: unknown): string[] => {
     .filter((tagId): tagId is string => Boolean(tagId));
 };
 
+const resolveCommentUserId = (comment: PostCommentItem): string => {
+  const userId = comment.userId ?? comment.authorId;
+  if (typeof userId === "string") return userId;
+  if (userId && typeof userId === "object" && "_id" in userId) {
+    return String((userId as User)._id || "");
+  }
+  return "";
+};
+
+const formatCommentDate = (value?: string | Date) => {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  return date.toLocaleString("vi-VN");
+};
+
 export default function PostsTab({
   user,
   posts,
@@ -88,6 +135,28 @@ export default function PostsTab({
     createEmptyPostForm(),
   );
 
+  const [isCommentsModalOpen, setIsCommentsModalOpen] = useState(false);
+  const [commentTargetPost, setCommentTargetPost] = useState<Post | null>(null);
+  const [postComments, setPostComments] = useState<PostCommentItem[]>([]);
+  const [isLoadingComments, setIsLoadingComments] = useState(false);
+  const [commentsError, setCommentsError] = useState("");
+  const [newCommentContent, setNewCommentContent] = useState("");
+  const [isSubmittingComment, setIsSubmittingComment] = useState(false);
+  const [activeReplyCommentId, setActiveReplyCommentId] = useState<
+    string | null
+  >(null);
+  const [replyDrafts, setReplyDrafts] = useState<Record<string, string>>({});
+  const [replySubmittingFor, setReplySubmittingFor] = useState<string | null>(
+    null,
+  );
+  const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
+  const [editCommentContent, setEditCommentContent] = useState("");
+  const [isUpdatingComment, setIsUpdatingComment] = useState(false);
+  const [deletingCommentId, setDeletingCommentId] = useState<string | null>(
+    null,
+  );
+  const [likingCommentId, setLikingCommentId] = useState<string | null>(null);
+
   const filteredPosts = useMemo(() => {
     const keyword = search.trim().toLowerCase();
     if (!keyword) return posts;
@@ -103,6 +172,29 @@ export default function PostsTab({
       );
     });
   }, [posts, search]);
+
+  const commentsWithDepth = useMemo<CommentRenderItem[]>(() => {
+    if (postComments.length === 0) return [];
+
+    const stack: number[] = [];
+
+    return postComments.map((comment) => {
+      const left = comment.commentLeft ?? 0;
+      const right = comment.commentRight ?? Number.MAX_SAFE_INTEGER;
+
+      while (stack.length > 0 && left > stack[stack.length - 1]) {
+        stack.pop();
+      }
+
+      const depth = stack.length;
+      stack.push(right);
+
+      return {
+        ...comment,
+        depth,
+      };
+    });
+  }, [postComments]);
 
   useEffect(() => {
     if (!isCreateModalOpen && !isEditModalOpen) return;
@@ -363,6 +455,265 @@ export default function PostsTab({
     }
   };
 
+  const loadCommentsForPost = async (postId: string) => {
+    try {
+      setIsLoadingComments(true);
+      setCommentsError("");
+
+      const response = await commentService.getPostComments(postId);
+      setPostComments(
+        Array.isArray(response.metadata)
+          ? (response.metadata as PostCommentItem[])
+          : [],
+      );
+    } catch (error: any) {
+      console.error("Failed to load comments:", error);
+      setPostComments([]);
+      setCommentsError(error?.message || "Không thể tải bình luận.");
+    } finally {
+      setIsLoadingComments(false);
+    }
+  };
+
+  const openCommentsModal = async (post: Post) => {
+    setCommentTargetPost(post);
+    setIsCommentsModalOpen(true);
+    setCommentsError("");
+    setNewCommentContent("");
+    setActiveReplyCommentId(null);
+    setReplyDrafts({});
+    setEditingCommentId(null);
+    setEditCommentContent("");
+
+    await loadCommentsForPost(post._id);
+  };
+
+  const closeCommentsModal = (force = false) => {
+    const hasPendingAction =
+      isSubmittingComment ||
+      Boolean(replySubmittingFor) ||
+      isUpdatingComment ||
+      Boolean(deletingCommentId) ||
+      Boolean(likingCommentId);
+
+    if (hasPendingAction && !force) return;
+
+    setIsCommentsModalOpen(false);
+    setCommentTargetPost(null);
+    setPostComments([]);
+    setCommentsError("");
+    setNewCommentContent("");
+    setActiveReplyCommentId(null);
+    setReplyDrafts({});
+    setReplySubmittingFor(null);
+    setEditingCommentId(null);
+    setEditCommentContent("");
+    setIsUpdatingComment(false);
+    setDeletingCommentId(null);
+    setLikingCommentId(null);
+  };
+
+  const refreshAfterCommentMutation = async (postId: string) => {
+    await loadCommentsForPost(postId);
+
+    if (onPostsRefresh) {
+      await onPostsRefresh();
+    } else {
+      router.refresh();
+    }
+  };
+
+  const handleCreateComment = async () => {
+    if (!commentTargetPost) return;
+
+    const content = newCommentContent.trim();
+    if (!content) {
+      setCommentsError("Vui lòng nhập nội dung bình luận.");
+      return;
+    }
+
+    try {
+      setIsSubmittingComment(true);
+      setCommentsError("");
+
+      await commentService.createComment({
+        postId: commentTargetPost._id,
+        content,
+      });
+
+      setNewCommentContent("");
+      await refreshAfterCommentMutation(commentTargetPost._id);
+    } catch (error: any) {
+      setCommentsError(error?.message || "Không thể tạo bình luận.");
+    } finally {
+      setIsSubmittingComment(false);
+    }
+  };
+
+  const handleReplyComment = async (parentCommentId: string) => {
+    if (!commentTargetPost) return;
+
+    const replyContent = replyDrafts[parentCommentId]?.trim() || "";
+    if (!replyContent) {
+      setCommentsError("Vui lòng nhập nội dung phản hồi.");
+      return;
+    }
+
+    try {
+      setReplySubmittingFor(parentCommentId);
+      setCommentsError("");
+
+      await commentService.createComment({
+        postId: commentTargetPost._id,
+        content: replyContent,
+        parentCommentId,
+      });
+
+      setReplyDrafts((prev) => ({
+        ...prev,
+        [parentCommentId]: "",
+      }));
+      setActiveReplyCommentId(null);
+
+      await refreshAfterCommentMutation(commentTargetPost._id);
+    } catch (error: any) {
+      setCommentsError(error?.message || "Không thể gửi phản hồi.");
+    } finally {
+      setReplySubmittingFor(null);
+    }
+  };
+
+  const startEditComment = (comment: PostCommentItem) => {
+    setCommentsError("");
+    setEditingCommentId(comment._id);
+    setEditCommentContent(comment.content || "");
+    setActiveReplyCommentId(null);
+  };
+
+  const cancelEditComment = () => {
+    setEditingCommentId(null);
+    setEditCommentContent("");
+  };
+
+  const handleSaveCommentEdit = async () => {
+    if (!commentTargetPost || !editingCommentId) return;
+
+    const content = editCommentContent.trim();
+    if (!content) {
+      setCommentsError("Nội dung bình luận không được để trống.");
+      return;
+    }
+
+    try {
+      setIsUpdatingComment(true);
+      setCommentsError("");
+
+      await commentService.updateComment({
+        commentId: editingCommentId,
+        content,
+      });
+
+      setEditingCommentId(null);
+      setEditCommentContent("");
+
+      await refreshAfterCommentMutation(commentTargetPost._id);
+    } catch (error: any) {
+      setCommentsError(error?.message || "Không thể cập nhật bình luận.");
+    } finally {
+      setIsUpdatingComment(false);
+    }
+  };
+
+  const handleDeleteComment = async (commentId: string) => {
+    if (!commentTargetPost) return;
+    if (!window.confirm("Bạn có chắc chắn muốn xóa bình luận này không?")) {
+      return;
+    }
+
+    try {
+      setDeletingCommentId(commentId);
+      setCommentsError("");
+
+      await commentService.deleteComment({
+        postId: commentTargetPost._id,
+        commentId,
+      });
+
+      if (editingCommentId === commentId) {
+        cancelEditComment();
+      }
+
+      await refreshAfterCommentMutation(commentTargetPost._id);
+    } catch (error: any) {
+      setCommentsError(error?.message || "Không thể xóa bình luận.");
+    } finally {
+      setDeletingCommentId(null);
+    }
+  };
+
+  const handleToggleLikeComment = async (commentId: string) => {
+    try {
+      setLikingCommentId(commentId);
+      setCommentsError("");
+
+      const response = await commentService.toggleLikeComment(commentId);
+      const nextLikesCount = response.metadata?.likesCount;
+
+      setPostComments((prev) =>
+        prev.map((comment) =>
+          comment._id === commentId
+            ? {
+                ...comment,
+                likesCount:
+                  typeof nextLikesCount === "number"
+                    ? nextLikesCount
+                    : comment.likesCount,
+              }
+            : comment,
+        ),
+      );
+    } catch (error: any) {
+      setCommentsError(error?.message || "Không thể cập nhật lượt thích.");
+    } finally {
+      setLikingCommentId(null);
+    }
+  };
+
+  const handleReportComment = async (commentId: string) => {
+    const reasonInput = window
+      .prompt(
+        "Nhập lý do report (spam, harassment, misinformation, offensive, other)",
+        "other",
+      )
+      ?.trim()
+      .toLowerCase();
+
+    if (!reasonInput) return;
+
+    const validReasons: ReportReason[] = [
+      "spam",
+      "harassment",
+      "misinformation",
+      "offensive",
+      "other",
+    ];
+
+    if (!validReasons.includes(reasonInput as ReportReason)) {
+      setCommentsError("Lý do report không hợp lệ.");
+      return;
+    }
+
+    try {
+      setCommentsError("");
+      await commentService.reportComment(
+        commentId,
+        reasonInput as ReportReason,
+      );
+    } catch (error: any) {
+      setCommentsError(error?.message || "Không thể report bình luận.");
+    }
+  };
+
   return (
     <>
       {isAuthorOrAdmin ? (
@@ -524,6 +875,18 @@ export default function PostsTab({
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
+                        void openCommentsModal(post);
+                      }}
+                      className="text-emerald-700 hover:text-emerald-900 bg-emerald-50 p-1.5 rounded-md hover:bg-emerald-100 transition-colors"
+                      title="Comments"
+                    >
+                      <MessageCircle className="w-5 h-5" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
                         openEditModal(post);
                       }}
                       className="text-blue-600 hover:text-blue-900 bg-blue-50 p-1.5 rounded-md hover:bg-blue-100 transition-colors"
@@ -543,6 +906,258 @@ export default function PostsTab({
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {isCommentsModalOpen && commentTargetPost && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50"
+          onClick={() => closeCommentsModal()}
+        >
+          <div
+            className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between p-4 border-b">
+              <div>
+                <h2 className="text-lg font-bold">Bình luận bài viết</h2>
+                <p className="text-sm text-gray-500 line-clamp-1">
+                  {commentTargetPost.title}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => closeCommentsModal()}
+                className="text-gray-500 hover:text-gray-700"
+                aria-label="Close comments modal"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-4 space-y-4">
+              {commentsError && (
+                <div className="rounded-md border border-red-200 bg-red-50 text-red-700 px-3 py-2 text-sm">
+                  {commentsError}
+                </div>
+              )}
+
+              <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
+                <label
+                  htmlFor="new-comment"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
+                  Thêm bình luận mới
+                </label>
+                <textarea
+                  id="new-comment"
+                  rows={3}
+                  value={newCommentContent}
+                  onChange={(e) => setNewCommentContent(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary-500"
+                  placeholder="Nhập nội dung bình luận..."
+                />
+                <div className="mt-3 flex justify-end">
+                  <button
+                    type="button"
+                    onClick={handleCreateComment}
+                    disabled={isSubmittingComment}
+                    className="inline-flex items-center space-x-2 px-4 py-2 bg-primary-600 text-white rounded-md font-medium hover:bg-primary-700 disabled:opacity-60"
+                  >
+                    <Send className="w-4 h-4" />
+                    <span>{isSubmittingComment ? "Đang gửi..." : "Gửi"}</span>
+                  </button>
+                </div>
+              </div>
+
+              {isLoadingComments ? (
+                <div className="py-10 text-center text-gray-500">
+                  Đang tải bình luận...
+                </div>
+              ) : commentsWithDepth.length === 0 ? (
+                <div className="rounded-lg border border-dashed border-gray-300 py-10 text-center text-gray-500">
+                  Chưa có bình luận nào cho bài viết này.
+                </div>
+              ) : (
+                <div className="space-y-3 max-h-[52vh] overflow-y-auto pr-1">
+                  {commentsWithDepth.map((comment) => {
+                    const commentUserId = resolveCommentUserId(comment);
+                    const isOwnComment = commentUserId === user._id;
+                    const canManageComment =
+                      isOwnComment || user.role === "admin";
+                    const isEditing = editingCommentId === comment._id;
+                    const isReplying = activeReplyCommentId === comment._id;
+                    const replyValue = replyDrafts[comment._id] || "";
+                    const leftIndent = `${Math.min(comment.depth, 6) * 16}px`;
+
+                    return (
+                      <div
+                        key={comment._id}
+                        className="rounded-lg border border-gray-200 bg-white p-3"
+                        style={{ marginLeft: leftIndent }}
+                      >
+                        <div className="flex items-center justify-between mb-2 gap-4">
+                          <div className="text-sm text-gray-700">
+                            <span className="font-medium">
+                              {isOwnComment
+                                ? "Bạn"
+                                : `User ${commentUserId.slice(-6) || "ẩn danh"}`}
+                            </span>
+                            <span className="text-gray-400 ml-2">
+                              {formatCommentDate(comment.createdOn)}
+                            </span>
+                            {comment.isEdited && (
+                              <span className="ml-2 text-xs text-gray-500">
+                                (đã chỉnh sửa)
+                              </span>
+                            )}
+                          </div>
+
+                          <div className="flex items-center space-x-2">
+                            <button
+                              type="button"
+                              onClick={() =>
+                                handleToggleLikeComment(comment._id)
+                              }
+                              disabled={likingCommentId === comment._id}
+                              className="inline-flex items-center space-x-1 text-rose-600 hover:text-rose-700 disabled:opacity-60"
+                            >
+                              <Heart className="w-4 h-4" />
+                              <span className="text-xs">
+                                {comment.likesCount || 0}
+                              </span>
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setCommentsError("");
+                                setEditingCommentId(null);
+                                setActiveReplyCommentId((prev) =>
+                                  prev === comment._id ? null : comment._id,
+                                );
+                              }}
+                              className="text-xs text-blue-600 hover:text-blue-700"
+                            >
+                              Reply
+                            </button>
+
+                            {!isOwnComment && (
+                              <button
+                                type="button"
+                                onClick={() => handleReportComment(comment._id)}
+                                className="text-xs text-orange-600 hover:text-orange-700"
+                              >
+                                Report
+                              </button>
+                            )}
+
+                            {canManageComment && !isEditing && (
+                              <button
+                                type="button"
+                                onClick={() => startEditComment(comment)}
+                                className="text-xs text-indigo-600 hover:text-indigo-700"
+                              >
+                                Sửa
+                              </button>
+                            )}
+
+                            {canManageComment && (
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteComment(comment._id)}
+                                disabled={deletingCommentId === comment._id}
+                                className="inline-flex items-center space-x-1 text-xs text-red-600 hover:text-red-700 disabled:opacity-60"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                                <span>
+                                  {deletingCommentId === comment._id
+                                    ? "Đang xóa"
+                                    : "Xóa"}
+                                </span>
+                              </button>
+                            )}
+                          </div>
+                        </div>
+
+                        {isEditing ? (
+                          <div className="space-y-2">
+                            <textarea
+                              rows={3}
+                              value={editCommentContent}
+                              onChange={(e) =>
+                                setEditCommentContent(e.target.value)
+                              }
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary-500"
+                            />
+                            <div className="flex justify-end gap-2">
+                              <button
+                                type="button"
+                                onClick={cancelEditComment}
+                                disabled={isUpdatingComment}
+                                className="px-3 py-1.5 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 text-sm disabled:opacity-60"
+                              >
+                                Hủy
+                              </button>
+                              <button
+                                type="button"
+                                onClick={handleSaveCommentEdit}
+                                disabled={isUpdatingComment}
+                                className="px-3 py-1.5 bg-primary-600 text-white rounded-md text-sm hover:bg-primary-700 disabled:opacity-60"
+                              >
+                                {isUpdatingComment ? "Đang lưu..." : "Lưu"}
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <p className="text-sm text-gray-700 whitespace-pre-wrap">
+                            {comment.content}
+                          </p>
+                        )}
+
+                        {isReplying && !isEditing && (
+                          <div className="mt-3 pt-3 border-t border-gray-100 space-y-2">
+                            <textarea
+                              rows={2}
+                              value={replyValue}
+                              onChange={(e) =>
+                                setReplyDrafts((prev) => ({
+                                  ...prev,
+                                  [comment._id]: e.target.value,
+                                }))
+                              }
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary-500"
+                              placeholder="Viết phản hồi..."
+                            />
+                            <div className="flex justify-end gap-2">
+                              <button
+                                type="button"
+                                onClick={() => setActiveReplyCommentId(null)}
+                                disabled={replySubmittingFor === comment._id}
+                                className="px-3 py-1.5 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 text-sm disabled:opacity-60"
+                              >
+                                Hủy
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleReplyComment(comment._id)}
+                                disabled={replySubmittingFor === comment._id}
+                                className="px-3 py-1.5 bg-primary-600 text-white rounded-md text-sm hover:bg-primary-700 disabled:opacity-60"
+                              >
+                                {replySubmittingFor === comment._id
+                                  ? "Đang gửi..."
+                                  : "Gửi phản hồi"}
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       )}
 
