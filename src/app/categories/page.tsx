@@ -54,20 +54,26 @@ export default function CategoriesPage() {
               >
                 <div className="flex items-start space-x-4">
                   {category.icon ? (
-                    <img className="text-4xl" src={category.icon}></img>
+                    <div className="w-12 h-12 shrink-0 rounded-lg flex items-center justify-center overflow-hidden bg-gray-50 border border-gray-100">
+                      <img
+                        className="w-full h-full object-cover"
+                        src={category.icon}
+                        alt={category.name}
+                      />
+                    </div>
                   ) : (
-                    <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center">
+                    <div className="w-12 h-12 shrink-0 bg-primary-100 rounded-lg flex items-center justify-center">
                       <FolderOpen className="w-6 h-6 text-primary-600" />
                     </div>
                   )}
 
-                  <div className="flex-1">
-                    <h3 className="text-xl font-bold mb-2 hover:text-primary-600 transition-colors">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-lg font-bold mb-1 hover:text-primary-600 transition-colors truncate">
                       {category.name}
                     </h3>
 
                     {category.description && (
-                      <p className="text-gray-600 text-sm line-clamp-2">
+                      <p className="text-gray-600 text-sm truncate">
                         {category.description}
                       </p>
                     )}
