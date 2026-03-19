@@ -1,5 +1,17 @@
 import { axiosClient } from "./client";
-import { ApiResponse, Category, CreateCategoryData } from "../types";
+import { ApiResponse, Category, CreateCategoryData, Post } from "../types";
+
+export interface CategoryPostsBySlugResponse {
+  category: Category;
+  posts: Post[];
+  pagination: {
+    totalCount: number;
+    totalPages: number;
+    currentPage: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+  };
+}
 
 export const categoryService = {
   // Get all categories
@@ -17,6 +29,13 @@ export const categoryService = {
   // Get category by slug
   getCategoryBySlug: async (slug: string): Promise<ApiResponse<Category>> => {
     return await axiosClient.get(`/categories/slug/${slug}`);
+  },
+
+  // Get published posts by category slug
+  getPostsByCategorySlug: async (
+    catSlug: string,
+  ): Promise<ApiResponse<CategoryPostsBySlugResponse>> => {
+    return await axiosClient.get(`/categories/posts/${catSlug}`);
   },
 
   // Create category (Admin only)
