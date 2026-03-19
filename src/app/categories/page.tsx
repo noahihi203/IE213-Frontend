@@ -17,7 +17,6 @@ export default function CategoriesPage() {
   const loadCategories = async () => {
     try {
       const response = await categoryService.getAllCategories();
-      console.log("response:::", response.metadata);
       setCategories(Array.isArray(response.metadata) ? response.metadata : []);
     } catch (error) {
       console.error("Failed to load categories:", error);

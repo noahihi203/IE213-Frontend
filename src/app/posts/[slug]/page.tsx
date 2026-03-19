@@ -25,6 +25,37 @@ export default function PostDetailPage() {
     }
   }, [params.slug]);
 
+  useEffect(() => {
+    if (!post?._id) return;
+
+    if (!isAuthenticated) {
+      setIsLiked(false);
+      return;
+    }
+
+    let cancelled = false;
+
+    const loadLikeStatus = async () => {
+      try {
+        const response = await postService.isPostLikedByUser(post._id);
+        if (!cancelled) {
+          setIsLiked(Boolean(response.metadata));
+        }
+      } catch (error) {
+        if (!cancelled) {
+          setIsLiked(false);
+        }
+        console.error("Failed to load post like status:", error);
+      }
+    };
+
+    loadLikeStatus();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [post?._id, isAuthenticated]);
+
   const loadPost = async (slug: string) => {
     try {
       const response = await postService.getPostBySlug(slug);
@@ -49,15 +80,15 @@ export default function PostDetailPage() {
       if (isLiked) {
         await postService.unlikePost(post._id);
         setPost((prev) =>
-          prev ? { ...prev, likesCount: prev.likesCount - 1 } : null
+          prev ? { ...prev, likesCount: prev.likesCount - 1 } : null,
         );
       } else {
         await postService.likePost(post._id);
         setPost((prev) =>
-          prev ? { ...prev, likesCount: prev.likesCount + 1 } : null
+          prev ? { ...prev, likesCount: prev.likesCount + 1 } : null,
         );
       }
-      setIsLiked(!isLiked);
+      setIsLiked((prev) => !prev);
     } catch (error) {
       console.error("Failed to like/unlike post:", error);
     }
@@ -86,10 +117,13 @@ export default function PostDetailPage() {
   }
 
   const author =
-    typeof post.author === "object" ? post.author : null;
+    typeof post.authorId === "object"
+      ? post.authorId
+      : typeof (post as any).author === "object"
+        ? (post as any).author
+        : null;
 
-  const category =
-    typeof post.category === "object" ? post.category : null;
+  const category = typeof post.category === "object" ? post.category : null;
 
   const isAuthor = user && author && user._id === author._id;
 
@@ -144,9 +178,7 @@ export default function PostDetailPage() {
             </Link>
           )}
 
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">
-            {post.title}
-          </h1>
+          <h1 className="text-4xl md:text-5xl font-bold mb-4">{post.title}</h1>
 
           {/* Meta */}
           <div className="flex items-center justify-between flex-wrap gap-4 py-4 border-y border-gray-200">
@@ -215,9 +247,7 @@ export default function PostDetailPage() {
           <button
             onClick={handleLike}
             className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-medium ${
-              isLiked
-                ? "bg-red-100 text-red-700"
-                : "bg-gray-100 text-gray-700"
+              isLiked ? "bg-red-100 text-red-700" : "bg-gray-100 text-gray-700"
             }`}
           >
             <Heart className={`w-5 h-5 ${isLiked ? "fill-current" : ""}`} />

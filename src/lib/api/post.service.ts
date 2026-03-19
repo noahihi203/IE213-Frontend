@@ -77,6 +77,11 @@ export const postService = {
     return await axiosClient.delete(`/posts/${postId}/like`);
   },
 
+  // Check if current user liked post
+  isPostLikedByUser: async (postId: string): Promise<ApiResponse<boolean>> => {
+    return await axiosClient.get(`/posts/${postId}/is-liked`);
+  },
+
   // Get user's own posts
   getMyPosts: async (
     filters?: PostFilters,
