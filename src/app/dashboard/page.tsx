@@ -1,408 +1,288 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import {
+  AlertCircle,
+  Save,
+  Eye,
+  EyeOff,
+  User,
+  Mail,
+  Lock,
+  FileText,
+  ImageIcon,
+  Loader,
+  Check,
+  X,
+  Settings,
+  LogOut,
+  Users,
+  Tags,
+  Folder,
+} from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
-import { postService } from "@/lib/api/post.service";
 import { userService } from "@/lib/api/user.service";
-import { tagService } from "@/lib/api/tag.services";
-import { categoryService } from "@/lib/api/category.service";
-import { Post, User, Tag, Category } from "@/lib/types";
-import { FileText, Settings, LogOut, Users, Tags, Folder } from "lucide-react";
+import { User as UserType } from "@/lib/types";
 
-import PostsTab from "../../components/PostsTab";
-import UsersTab from "../../components/UsersTab";
-import TagsTab from "../../components/TagsTab";
-import CategoriesTab from "../../components/CategoriesTab";
-import TagModal from "../../components/TagModal";
-import CategoryModal from "../../components/CategoryModal";
+type SettingTab = "profile" | "email" | "password";
 
-type ActiveTab = "posts" | "users" | "tags" | "categories";
+interface FormErrors {
+  [key: string]: string;
+}
 
-export default function DashboardPage() {
+export default function SettingsPage() {
   const router = useRouter();
-  const { user, isAuthenticated, authInitialized, logout } = useAuthStore();
+  const { user, isAuthenticated, logout, authInitialized } = useAuthStore();
+  
+  const [activeTab, setActiveTab] = useState<SettingTab>("profile");
+  const [isLoading, setIsLoading] = useState(false);
+  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [formErrors, setFormErrors] = useState<FormErrors>({});
 
-  // Posts
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [isLoadingPosts, setIsLoadingPosts] = useState(true);
-
-  // Tab
-  const [activeTab, setActiveTab] = useState<ActiveTab>("posts");
-
-  // Users
-  const [users, setUsers] = useState<User[]>([]);
-  const [isLoadingUsers, setIsLoadingUsers] = useState(false);
-
-  // Tags
-  const [tags, setTags] = useState<Tag[]>([]);
-  const [isLoadingTags, setIsLoadingTags] = useState(false);
-  const [updatingTagId, setUpdatingTagId] = useState<string | null>(null);
-  const [isTagModalOpen, setIsTagModalOpen] = useState(false);
-  const [editingTagId, setEditingTagId] = useState<string | null>(null);
-  const [tagFormData, setTagFormData] = useState({ name: "", description: "" });
-  const [isSubmittingTag, setIsSubmittingTag] = useState(false);
-
-  // Categories
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [isLoadingCategories, setIsLoadingCategories] = useState(false);
-  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
-  const [editingCategoryId, setEditingCategoryId] = useState<string | null>(
-    null,
-  );
-  const [categoryFormData, setCategoryFormData] = useState({
-    name: "",
-    description: "",
-    icon: "",
+  // Profile Form State
+  const [profileForm, setProfileForm] = useState({
+    fullName: "",
+    username: "",
+    bio: "",
+    avatar: "",
   });
-  const [isSubmittingCategory, setIsSubmittingCategory] = useState(false);
 
-  // ─── Auth guard ──────────────────────────────────────────────────────────
+  // Email Form State
+  const [emailForm, setEmailForm] = useState({
+    currentPassword: "",
+    newEmail: "",
+    confirmEmail: "",
+  });
+
+  // Password Form State
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+
+  const [showPasswords, setShowPasswords] = useState({
+    current: false,
+    new: false,
+    confirm: false,
+  });
+
+  const [isDirty, setIsDirty] = useState(false);
+  const [avatarError, setAvatarError] = useState(false);
+
+  // Initialize form with user data
   useEffect(() => {
-    if (!authInitialized) return;
-    if (!isAuthenticated) {
-      setIsLoadingPosts(false);
-      router.push("/login");
-      return;
+    if (user) {
+      setProfileForm({
+        fullName: user.fullName || "",
+        username: user.username || "",
+        bio: user.bio || "",
+        avatar: user.avatar || "",
+      });
     }
-    loadMyPosts();
-  }, [authInitialized, isAuthenticated, router]);
+  }, [user]);
 
-  // ─── Lazy-load tab data ───────────────────────────────────────────────────
-  useEffect(() => {
-    if (user?.role !== "admin") return;
-    if (activeTab === "users") loadUsers();
-    else if (activeTab === "tags") loadTags();
-    else if (activeTab === "categories") loadCategories();
-  }, [activeTab, user?.role]);
-
-  // ─── Data loaders ─────────────────────────────────────────────────────────
-  const loadMyPosts = async () => {
-    try {
-      const res = await postService.getMyPosts({ page: 1, limit: 10 });
-      setPosts(
-        Array.isArray(res.metadata)
-          ? res.metadata
-          : Array.isArray(res.metadata?.data)
-            ? res.metadata.data
-            : [],
-      );
-    } catch (err) {
-      console.error("Failed to load posts:", err);
-      setPosts([]);
-    } finally {
-      setIsLoadingPosts(false);
-    }
-  };
-
-  const loadUsers = async () => {
-    setIsLoadingUsers(true);
-    try {
-      const res = await userService.getAllUsers({ page: 1, limit: 20 });
-      setUsers(
-        Array.isArray(res.metadata)
-          ? res.metadata
-          : Array.isArray(res.metadata?.data)
-            ? res.metadata.data
-            : Array.isArray((res.metadata as any)?.users)
-              ? (res.metadata as any).users
-              : [],
-      );
-    } catch (err) {
-      console.error("Failed to load users:", err);
-    } finally {
-      setIsLoadingUsers(false);
-    }
-  };
-
-  const loadTags = async () => {
-    setIsLoadingTags(true);
-    try {
-      const res = await tagService.getAllTag();
-      setTags(Array.isArray(res.metadata) ? res.metadata : []);
-    } catch (err) {
-      console.error("Failed to load tags:", err);
-      setTags([]);
-    } finally {
-      setIsLoadingTags(false);
-    }
-  };
-
-  const loadCategories = async () => {
-    setIsLoadingCategories(true);
-    try {
-      const res = await categoryService.getAllCategories();
-      setCategories(
-        Array.isArray(res.metadata)
-          ? res.metadata
-          : Array.isArray(res.metadata?.data)
-            ? res.metadata.data
-            : [],
-      );
-    } catch (err) {
-      console.error("Failed to load categories:", err);
-      setCategories([]);
-    } finally {
-      setIsLoadingCategories(false);
-    }
-  };
-
-  // ─── User handlers ────────────────────────────────────────────────────────
-  const handleRoleChange = async (
-    userId: string,
-    currentRole: string,
-    newRole: string,
-  ) => {
-    if (currentRole === newRole) return;
-    if (!window.confirm(`Bạn có chắc chắn muốn đổi vai trò thành ${newRole}?`))
-      return;
-    try {
-      await userService.changeUserRole(
-        userId,
-        newRole as "user" | "author" | "admin",
-      );
-      loadUsers();
-    } catch (err) {
-      console.error(err);
-      alert("Có lỗi xảy ra khi đổi vai trò!");
-    }
-  };
-
-  const handleDeleteUser = async (userId: string) => {
-    if (!window.confirm("Bạn có chắc chắn muốn khóa/xóa người dùng này không?"))
-      return;
-    try {
-      await userService.deleteUser(userId);
-      loadUsers();
-    } catch (err) {
-      console.error(err);
-      alert("Có lỗi xảy ra khi khóa người dùng!");
-    }
-  };
-
-  const handleRestoreUser = async (userId: string) => {
-    if (
-      !window.confirm("Bạn có chắc chắn muốn khôi phục người dùng này không?")
-    )
-      return;
-    try {
-      await userService.restoreUser(userId);
-      loadUsers();
-    } catch (err) {
-      console.error(err);
-      alert("Có lỗi xảy ra khi khôi phục người dùng!");
-    }
-  };
-
-  // ─── Tag handlers ─────────────────────────────────────────────────────────
-  const handleToggleTagStatus = async (
-    tagId: string,
-    currentStatus: "active" | "inactive",
-  ) => {
-    if (updatingTagId === tagId) return;
-    setUpdatingTagId(tagId);
-    try {
-      if (currentStatus === "active") {
-        await tagService.updateStatusTagToInActive(tagId);
-      } else {
-        await tagService.updateStatusTagToActive(tagId);
-      }
-      setTags((prev) =>
-        prev.map((t) =>
-          t._id === tagId
-            ? {
-                ...t,
-                status: currentStatus === "active" ? "inactive" : "active",
-              }
-            : t,
-        ),
-      );
-    } catch (err) {
-      console.error(err);
-      alert("Có lỗi xảy ra khi thay đổi trạng thái tag!");
-    } finally {
-      setUpdatingTagId(null);
-    }
-  };
-
-  const handleDeleteTag = async (tagId: string) => {
-    if (
-      !window.confirm(
-        "Bạn có chắc chắn muốn xóa tag này không? Hành động này không thể hoàn tác!",
-      )
-    )
-      return;
-    try {
-      await tagService.deleteTag(tagId);
-      setTags((prev) => prev.filter((t) => t._id !== tagId));
-    } catch (err) {
-      console.error(err);
-      alert("Có lỗi xảy ra khi xóa tag!");
-    }
-  };
-
-  const openEditTag = (tag: Tag) => {
-    setEditingTagId(tag._id);
-    setTagFormData({ name: tag.name, description: tag.description || "" });
-    setIsTagModalOpen(true);
-  };
-
-  const openCreateTag = () => {
-    setEditingTagId(null);
-    setTagFormData({ name: "", description: "" });
-    setIsTagModalOpen(true);
-  };
-
-  const closeTagModal = () => {
-    setIsTagModalOpen(false);
-    setEditingTagId(null);
-    setTagFormData({ name: "", description: "" });
-  };
-
-  const handleSubmitTag = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!tagFormData.name.trim()) {
-      alert("Vui lòng nhập tên tag!");
-      return;
-    }
-    setIsSubmittingTag(true);
-    try {
-      if (editingTagId) {
-        await tagService.updateTag({ tagId: editingTagId, ...tagFormData });
-      } else {
-        await tagService.createTag(tagFormData);
-      }
-      await loadTags();
-      closeTagModal();
-    } catch (err: any) {
-      console.error(err);
-      alert(err.response?.data?.message || "Có lỗi xảy ra khi lưu tag!");
-    } finally {
-      setIsSubmittingTag(false);
-    }
-  };
-
-  // ─── Category handlers ────────────────────────────────────────────────────
-  const handleDeleteCategory = async (categoryId: string) => {
-    if (
-      !window.confirm(
-        "Bạn có chắc chắn muốn xóa danh mục này không? Hành động này không thể hoàn tác!",
-      )
-    )
-      return;
-    try {
-      await categoryService.deleteCategory(categoryId);
-      setCategories((prev) => prev.filter((c) => c._id !== categoryId));
-    } catch (err) {
-      console.error(err);
-      alert("Có lỗi xảy ra khi xóa danh mục!");
-    }
-  };
-
-  const openEditCategory = (cat: Category) => {
-    setEditingCategoryId(cat._id);
-    setCategoryFormData({
-      name: cat.name,
-      description: cat.description || "",
-      icon: cat.icon || "",
-    });
-    setIsCategoryModalOpen(true);
-  };
-
-  const openCreateCategory = () => {
-    setEditingCategoryId(null);
-    setCategoryFormData({ name: "", description: "", icon: "" });
-    setIsCategoryModalOpen(true);
-  };
-
-  const closeCategoryModal = () => {
-    setIsCategoryModalOpen(false);
-    setEditingCategoryId(null);
-    setCategoryFormData({ name: "", description: "", icon: "" });
-  };
-
-  const handleSubmitCategory = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!categoryFormData.name.trim()) {
-      alert("Vui lòng nhập tên danh mục!");
-      return;
-    }
-    setIsSubmittingCategory(true);
-    try {
-      if (editingCategoryId) {
-        await categoryService.updateCategory(
-          editingCategoryId,
-          categoryFormData,
-        );
-      } else {
-        await categoryService.createCategory(categoryFormData);
-      }
-      await loadCategories();
-      closeCategoryModal();
-    } catch (err: any) {
-      console.error(err);
-      alert(err.response?.data?.message || "Có lỗi xảy ra khi lưu danh mục!");
-    } finally {
-      setIsSubmittingCategory(false);
-    }
-  };
+  // Validation Functions
+  const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const validateUsername = (username: string) => /^[a-zA-Z0-9_]{3,20}$/.test(username);
+  const validatePassword = (password: string) => password.length >= 8;
 
   const handleLogout = async () => {
     await logout();
     router.push("/login");
   };
 
-  if (!authInitialized || !user) {
-    return <div className="container mx-auto px-4 py-8">Loading...</div>;
+  // Handle Profile Changes
+  const handleProfileChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setProfileForm((prev) => ({ ...prev, [name]: value }));
+    setIsDirty(true);
+    if (name === "avatar") setAvatarError(false); // Reset image error on change
+    if (formErrors[name]) {
+      setFormErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[name];
+        return newErrors;
+      });
+    }
+  };
+
+  // Handle Profile Submit
+  const handleProfileSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const errors: FormErrors = {};
+
+    if (!profileForm.fullName.trim()) errors.fullName = "Full name is required";
+    if (!profileForm.username.trim()) errors.username = "Username is required";
+    else if (!validateUsername(profileForm.username)) {
+      errors.username = "Username must be 3-20 characters (letters, numbers, underscore only)";
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const updateData: Partial<UserType> = {
+        fullName: profileForm.fullName.trim(),
+        bio: profileForm.bio.trim(),
+        avatar: profileForm.avatar.trim(),
+      };
+
+      // 1. Update Profile (Name, Bio, Avatar)
+      await userService.updateUserProfile(updateData);
+
+      // 2. Update Username if changed
+      let newUsername = user?.username || "";
+      if (profileForm.username.trim() !== user?.username) {
+        await userService.updateUserUsername(profileForm.username.trim());
+        newUsername = profileForm.username.trim();
+      }
+
+      setMessage({ type: "success", text: "Profile updated successfully!" });
+      setIsDirty(false);
+
+      // FIX: Manually merge the updated data into the store.
+      // This prevents the bug where the backend `getUserProfile` returns 
+      // a user object without `bio` and `avatar`, overriding your frontend state.
+      if (user) {
+        const updatedUser = {
+          ...user,
+          ...updateData,
+          username: newUsername,
+        };
+
+        if (typeof window !== "undefined") {
+          localStorage.setItem("user", JSON.stringify(updatedUser));
+        }
+        useAuthStore.setState({ user: updatedUser });
+      }
+
+    } catch (error: any) {
+      setMessage({ type: "error", text: error.message || "Failed to update profile" });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Handle Email Submit
+  const handleEmailSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const errors: FormErrors = {};
+
+    if (!emailForm.currentPassword) errors.currentPassword = "Current password is required";
+    if (!emailForm.newEmail) errors.newEmail = "New email is required";
+    else if (!validateEmail(emailForm.newEmail)) errors.newEmail = "Please enter a valid email";
+    if (emailForm.newEmail !== emailForm.confirmEmail) errors.confirmEmail = "Emails do not match";
+
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      await userService.updateUserEmail(emailForm.newEmail, emailForm.currentPassword);
+
+      setMessage({ type: "success", text: "Email updated successfully!" });
+      setEmailForm({ currentPassword: "", newEmail: "", confirmEmail: "" });
+      setFormErrors({});
+
+      if (user) {
+        const updatedUser = { ...user, email: emailForm.newEmail };
+        if (typeof window !== "undefined") {
+          localStorage.setItem("user", JSON.stringify(updatedUser));
+        }
+        useAuthStore.setState({ user: updatedUser });
+      }
+    } catch (error: any) {
+      setMessage({ type: "error", text: error.message || "Failed to update email (password may be incorrect)" });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Handle Password Submit
+  const handlePasswordSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const errors: FormErrors = {};
+
+    if (!passwordForm.currentPassword) errors.currentPassword = "Current password is required";
+    if (!passwordForm.newPassword) errors.newPassword = "New password is required";
+    else if (!validatePassword(passwordForm.newPassword)) errors.newPassword = "Password must be at least 8 characters";
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) errors.confirmPassword = "Passwords do not match";
+
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      await userService.updateUserPassword({
+        currentPassword: passwordForm.currentPassword,
+        newPassword: passwordForm.newPassword,
+      });
+
+      setMessage({ type: "success", text: "Password successfully updated! You may be logged out of other devices." });
+      setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
+      setFormErrors({});
+    } catch (error: any) {
+      setMessage({ type: "error", text: error.message || "Failed to update password. Please check your current password." });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (!authInitialized) return <div className="min-h-screen bg-gray-50" />;
+
+  if (!isAuthenticated || !user) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="text-center">
+          <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+          <h2 className="text-xl font-semibold text-gray-900">Please log in to access settings</h2>
+        </div>
+      </div>
+    );
   }
 
-  // ─── Sidebar nav items ────────────────────────────────────────────────────
-  const navItems: {
-    tab: ActiveTab;
-    icon: React.ReactNode;
-    label: string;
-    adminOnly?: boolean;
-  }[] = [
-    {
-      tab: "posts",
-      icon: <FileText className="w-5 h-5" />,
-      label: "Bài viết của tôi",
-    },
-    {
-      tab: "users",
-      icon: <Users className="w-5 h-5" />,
-      label: "Quản lý người dùng",
-      adminOnly: true,
-    },
-    {
-      tab: "tags",
-      icon: <Tags className="w-5 h-5" />,
-      label: "Quản lý tag",
-      adminOnly: true,
-    },
-    {
-      tab: "categories",
-      icon: <Folder className="w-5 h-5" />,
-      label: "Quản lý danh mục",
-      adminOnly: true,
-    },
+  // Sidebar Dashboard Navigation Links
+  const navItems = [
+    { href: "/dashboard", icon: <FileText className="w-5 h-5" />, label: "Bài viết của tôi" },
+    { href: "/dashboard?tab=users", icon: <Users className="w-5 h-5" />, label: "Quản lý người dùng", adminOnly: true },
+    { href: "/dashboard?tab=tags", icon: <Tags className="w-5 h-5" />, label: "Quản lý tag", adminOnly: true },
+    { href: "/dashboard?tab=categories", icon: <Folder className="w-5 h-5" />, label: "Quản lý danh mục", adminOnly: true },
   ];
 
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">
         <div className="grid lg:grid-cols-4 gap-8">
-          {/* ── Sidebar ── */}
+          
+          {/* ── Sidebar (Matches Dashboard) ── */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-lg shadow-md p-6 sticky top-20">
               <div className="text-center mb-6">
-                <div className="w-20 h-20 bg-primary-600 rounded-full flex items-center justify-center mx-auto mb-3 text-white text-2xl font-bold">
-                  {user.username.charAt(0).toUpperCase()}
-                </div>
-                <h2 className="text-xl font-bold">{user.fullName}</h2>
-                <p className="text-gray-600 text-sm">@{user.username}</p>
-                <span className="inline-block mt-2 px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-xs font-medium">
+                {user.avatar && !avatarError ? (
+                  <img
+                    src={user.avatar}
+                    alt={user.username}
+                    onError={() => setAvatarError(true)}
+                    className="w-20 h-20 rounded-full object-cover mx-auto mb-3 border border-gray-200"
+                  />
+                ) : (
+                  <div className="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-3 text-white text-2xl font-bold">
+                    {user.fullName?.charAt(0)?.toUpperCase() || "U"}
+                  </div>
+                )}
+                <h2 className="text-xl font-bold text-gray-900">{user.fullName}</h2>
+                <p className="text-gray-500 text-sm">@{user.username}</p>
+                <span className="inline-block mt-2 px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-semibold uppercase tracking-wider">
                   {user.role}
                 </span>
               </div>
@@ -410,32 +290,26 @@ export default function DashboardPage() {
               <nav className="space-y-2">
                 {navItems
                   .filter((item) => !item.adminOnly || user.role === "admin")
-                  .map(({ tab, icon, label }) => (
-                    <button
-                      key={tab}
-                      onClick={() => setActiveTab(tab)}
-                      className={`w-full flex items-center space-x-2 px-4 py-2 rounded-lg font-medium transition-colors ${
-                        activeTab === tab
-                          ? "bg-primary-50 text-primary-700"
-                          : "hover:bg-gray-100"
-                      }`}
+                  .map(({ href, icon, label }) => (
+                    <Link
+                      key={label}
+                      href={href}
+                      className="w-full flex items-center space-x-2 px-4 py-2 rounded-lg font-medium text-gray-600 hover:bg-gray-100 transition-colors"
                     >
                       {icon}
                       <span>{label}</span>
-                    </button>
+                    </Link>
                   ))}
 
-                <Link
-                  href="/dashboard/profile"
-                  className="flex items-center space-x-2 px-4 py-2 hover:bg-gray-100 rounded-lg"
-                >
+                {/* Active Settings Tab in Sidebar */}
+                <div className="w-full flex items-center space-x-2 px-4 py-2 rounded-lg font-medium bg-blue-50 text-blue-700 cursor-default">
                   <Settings className="w-5 h-5" />
                   <span>Settings</span>
-                </Link>
+                </div>
 
                 <button
                   onClick={handleLogout}
-                  className="w-full flex items-center space-x-2 px-4 py-2 hover:bg-red-50 text-red-600 rounded-lg"
+                  className="w-full flex items-center space-x-2 px-4 py-2 hover:bg-red-50 text-red-600 rounded-lg font-medium transition-colors"
                 >
                   <LogOut className="w-5 h-5" />
                   <span>Logout</span>
@@ -444,73 +318,206 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* ── Main content ── */}
+          {/* ── Main Content (Settings Cards) ── */}
           <div className="lg:col-span-3">
-            {activeTab === "posts" && (
-              <PostsTab
-                user={user}
-                posts={posts}
-                isLoading={isLoadingPosts}
-                onPostsRefresh={loadMyPosts}
-              />
-            )}
+            <div className="bg-white rounded-lg shadow-md overflow-hidden">
+              
+              {/* Header & Horizontal Tabs */}
+              <div className="px-6 pt-6 border-b border-gray-100">
+                <h1 className="text-2xl font-bold text-gray-900 mb-6">Account Settings</h1>
+                <div className="flex space-x-6">
+                  {(
+                    [
+                      { id: "profile", label: "Profile", icon: User },
+                      { id: "email", label: "Email", icon: Mail },
+                      { id: "password", label: "Security", icon: Lock },
+                    ] as const
+                  ).map(({ id, label, icon: Icon }) => (
+                    <button
+                      key={id}
+                      onClick={() => {
+                        setActiveTab(id);
+                        setFormErrors({});
+                        setMessage(null);
+                      }}
+                      className={`pb-4 px-1 flex items-center space-x-2 font-medium text-sm transition-all border-b-2 ${
+                        activeTab === id
+                          ? "border-blue-600 text-blue-600"
+                          : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                      }`}
+                    >
+                      <Icon className="w-4 h-4" />
+                      <span>{label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
 
-            {activeTab === "users" && (
-              <UsersTab
-                currentUser={user}
-                users={users}
-                isLoading={isLoadingUsers}
-                onRoleChange={handleRoleChange}
-                onDelete={handleDeleteUser}
-                onRestore={handleRestoreUser}
-              />
-            )}
+              <div className="p-6">
+                {/* Global Message Alert */}
+                {message && (
+                  <div className={`mb-6 p-4 rounded-lg flex items-start space-x-3 ${message.type === "success" ? "bg-green-50 border-green-200" : "bg-red-50 border-red-200"} border`}>
+                    {message.type === "success" ? <Check className="h-5 w-5 text-green-600 mt-0.5" /> : <X className="h-5 w-5 text-red-600 mt-0.5" />}
+                    <p className={`text-sm font-medium ${message.type === "success" ? "text-green-800" : "text-red-800"}`}>{message.text}</p>
+                  </div>
+                )}
 
-            {activeTab === "tags" && (
-              <TagsTab
-                tags={tags}
-                isLoading={isLoadingTags}
-                updatingTagId={updatingTagId}
-                onToggleStatus={handleToggleTagStatus}
-                onEdit={openEditTag}
-                onDelete={handleDeleteTag}
-                onOpenCreate={openCreateTag}
-              />
-            )}
+                {/* ── PROFILE TAB ── */}
+                {activeTab === "profile" && (
+                  <div className="max-w-2xl animate-in fade-in duration-300">
+                    <form onSubmit={handleProfileSubmit} className="space-y-6">
+                      
+                      {/* Avatar Preview Input */}
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-900 mb-3">Profile Picture</label>
+                        <div className="flex items-start space-x-5">
+                          <div className="flex-shrink-0">
+                            {profileForm.avatar && !avatarError ? (
+                              <img src={profileForm.avatar} alt="Avatar preview" onError={() => setAvatarError(true)} className="h-20 w-20 rounded-full object-cover border border-gray-200" />
+                            ) : (
+                              <div className="h-20 w-20 rounded-full bg-gradient-to-tr from-blue-500 to-blue-700 flex items-center justify-center text-white text-3xl font-bold">
+                                {profileForm.fullName?.charAt(0)?.toUpperCase() || "U"}
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex-grow">
+                            <div className="relative">
+                              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><ImageIcon className="h-5 w-5 text-gray-400" /></div>
+                              <input type="url" name="avatar" value={profileForm.avatar} onChange={handleProfileChange} className="pl-10 w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all" placeholder="https://example.com/your-avatar.jpg" />
+                            </div>
+                            <p className="text-gray-500 text-xs mt-2">Provide a direct URL to an image. Leave blank to use your initials.</p>
+                          </div>
+                        </div>
+                      </div>
 
-            {activeTab === "categories" && (
-              <CategoriesTab
-                categories={categories}
-                isLoading={isLoadingCategories}
-                onEdit={openEditCategory}
-                onDelete={handleDeleteCategory}
-                onOpenCreate={openCreateCategory}
-              />
-            )}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {/* Full Name */}
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-900 mb-2">Full Name</label>
+                          <input type="text" name="fullName" value={profileForm.fullName} onChange={handleProfileChange} className={`w-full px-4 py-2.5 bg-gray-50 border rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all ${formErrors.fullName ? "border-red-500" : "border-gray-200"}`} placeholder="Enter your full name" />
+                          {formErrors.fullName && <p className="text-red-500 text-xs mt-1.5 font-medium">{formErrors.fullName}</p>}
+                        </div>
+
+                        {/* Username */}
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-900 mb-2">Username</label>
+                          <div className="relative">
+                            <span className="absolute inset-y-0 left-0 pl-4 flex items-center text-gray-400 select-none">@</span>
+                            <input type="text" name="username" value={profileForm.username} onChange={handleProfileChange} className={`pl-8 w-full px-4 py-2.5 bg-gray-50 border rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all ${formErrors.username ? "border-red-500" : "border-gray-200"}`} placeholder="username" />
+                          </div>
+                          {formErrors.username ? <p className="text-red-500 text-xs mt-1.5 font-medium">{formErrors.username}</p> : <p className="text-gray-500 text-xs mt-1.5">Letters, numbers, and underscores only</p>}
+                        </div>
+                      </div>
+
+                      {/* Bio */}
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-900 mb-2">Bio</label>
+                        <textarea name="bio" value={profileForm.bio} onChange={handleProfileChange} rows={4} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all resize-none" placeholder="Tell us a little bit about yourself..." />
+                        <div className="flex justify-between items-center mt-1.5">
+                          <p className="text-gray-500 text-xs">Brief description for your profile.</p>
+                          <p className={`text-xs ${profileForm.bio.length > 500 ? 'text-red-500' : 'text-gray-400'}`}>{profileForm.bio.length}/500</p>
+                        </div>
+                      </div>
+
+                      {/* Submit Profile */}
+                      <div className="pt-4 flex justify-end">
+                        <button type="submit" disabled={isLoading || !isDirty} className="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:text-gray-500 font-medium flex items-center space-x-2 transition-colors">
+                          {isLoading ? <Loader className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                          <span>Save Profile</span>
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                )}
+
+                {/* ── EMAIL TAB ── */}
+                {activeTab === "email" && (
+                  <div className="max-w-md animate-in fade-in duration-300">
+                    <div className="bg-blue-50/50 border border-blue-100 rounded-lg p-4 mb-6">
+                      <p className="text-sm text-gray-600">Current email address</p>
+                      <p className="text-base font-semibold text-gray-900">{user.email}</p>
+                    </div>
+
+                    <form onSubmit={handleEmailSubmit} className="space-y-5">
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-900 mb-2">New Email</label>
+                        <input type="email" value={emailForm.newEmail} onChange={(e) => { setEmailForm((prev) => ({ ...prev, newEmail: e.target.value })); if (formErrors.newEmail) setFormErrors((prev) => ({ ...prev, newEmail: "" })); }} className={`w-full px-4 py-2.5 bg-gray-50 border rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all ${formErrors.newEmail ? "border-red-500" : "border-gray-200"}`} />
+                        {formErrors.newEmail && <p className="text-red-500 text-xs mt-1.5 font-medium">{formErrors.newEmail}</p>}
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-900 mb-2">Confirm New Email</label>
+                        <input type="email" value={emailForm.confirmEmail} onChange={(e) => { setEmailForm((prev) => ({ ...prev, confirmEmail: e.target.value })); if (formErrors.confirmEmail) setFormErrors((prev) => ({ ...prev, confirmEmail: "" })); }} className={`w-full px-4 py-2.5 bg-gray-50 border rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all ${formErrors.confirmEmail ? "border-red-500" : "border-gray-200"}`} />
+                        {formErrors.confirmEmail && <p className="text-red-500 text-xs mt-1.5 font-medium">{formErrors.confirmEmail}</p>}
+                      </div>
+
+                      <div className="pt-2">
+                        <label className="block text-sm font-semibold text-gray-900 mb-2">Current Password</label>
+                        <input type="password" value={emailForm.currentPassword} onChange={(e) => { setEmailForm((prev) => ({ ...prev, currentPassword: e.target.value })); if (formErrors.currentPassword) setFormErrors((prev) => ({ ...prev, currentPassword: "" })); }} className={`w-full px-4 py-2.5 bg-gray-50 border rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all ${formErrors.currentPassword ? "border-red-500" : "border-gray-200"}`} />
+                        {formErrors.currentPassword ? <p className="text-red-500 text-xs mt-1.5 font-medium">{formErrors.currentPassword}</p> : <p className="text-gray-500 text-xs mt-1.5">Required to authorize this change</p>}
+                      </div>
+
+                      <div className="pt-4">
+                        <button type="submit" disabled={isLoading} className="w-full px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:text-gray-500 font-medium flex items-center justify-center space-x-2 transition-colors">
+                          {isLoading ? <Loader className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
+                          <span>Update Email Address</span>
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                )}
+
+                {/* ── PASSWORD TAB ── */}
+                {activeTab === "password" && (
+                  <div className="max-w-md animate-in fade-in duration-300">
+                    <form onSubmit={handlePasswordSubmit} className="space-y-5">
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-900 mb-2">Current Password</label>
+                        <div className="relative">
+                          <input type={showPasswords.current ? "text" : "password"} value={passwordForm.currentPassword} onChange={(e) => { setPasswordForm((prev) => ({ ...prev, currentPassword: e.target.value })); if (formErrors.currentPassword) setFormErrors((prev) => ({ ...prev, currentPassword: "" })); }} className={`w-full px-4 py-2.5 pr-10 bg-gray-50 border rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all ${formErrors.currentPassword ? "border-red-500" : "border-gray-200"}`} />
+                          <button type="button" onClick={() => setShowPasswords((prev) => ({ ...prev, current: !prev.current }))} className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600">
+                            {showPasswords.current ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          </button>
+                        </div>
+                        {formErrors.currentPassword && <p className="text-red-500 text-xs mt-1.5 font-medium">{formErrors.currentPassword}</p>}
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-900 mb-2">New Password</label>
+                        <div className="relative">
+                          <input type={showPasswords.new ? "text" : "password"} value={passwordForm.newPassword} onChange={(e) => { setPasswordForm((prev) => ({ ...prev, newPassword: e.target.value })); if (formErrors.newPassword) setFormErrors((prev) => ({ ...prev, newPassword: "" })); }} className={`w-full px-4 py-2.5 pr-10 bg-gray-50 border rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all ${formErrors.newPassword ? "border-red-500" : "border-gray-200"}`} />
+                          <button type="button" onClick={() => setShowPasswords((prev) => ({ ...prev, new: !prev.new }))} className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600">
+                            {showPasswords.new ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          </button>
+                        </div>
+                        {formErrors.newPassword ? <p className="text-red-500 text-xs mt-1.5 font-medium">{formErrors.newPassword}</p> : <p className="text-gray-500 text-xs mt-1.5">Must be at least 8 characters long.</p>}
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-900 mb-2">Confirm New Password</label>
+                        <div className="relative">
+                          <input type={showPasswords.confirm ? "text" : "password"} value={passwordForm.confirmPassword} onChange={(e) => { setPasswordForm((prev) => ({ ...prev, confirmPassword: e.target.value })); if (formErrors.confirmPassword) setFormErrors((prev) => ({ ...prev, confirmPassword: "" })); }} className={`w-full px-4 py-2.5 pr-10 bg-gray-50 border rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all ${formErrors.confirmPassword ? "border-red-500" : "border-gray-200"}`} />
+                          <button type="button" onClick={() => setShowPasswords((prev) => ({ ...prev, confirm: !prev.confirm }))} className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600">
+                            {showPasswords.confirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          </button>
+                        </div>
+                        {formErrors.confirmPassword && <p className="text-red-500 text-xs mt-1.5 font-medium">{formErrors.confirmPassword}</p>}
+                      </div>
+
+                      <div className="pt-4">
+                        <button type="submit" disabled={isLoading} className="w-full px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:text-gray-500 font-medium flex items-center justify-center space-x-2 transition-colors">
+                          {isLoading ? <Loader className="h-4 w-4 animate-spin" /> : <Lock className="h-4 w-4" />}
+                          <span>Update Security Details</span>
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </div>
-
-      {/* ── Modals ── */}
-      <TagModal
-        isOpen={isTagModalOpen}
-        editingTagId={editingTagId}
-        tagData={tagFormData}
-        isSubmitting={isSubmittingTag}
-        onChange={setTagFormData}
-        onSubmit={handleSubmitTag}
-        onClose={closeTagModal}
-      />
-
-      <CategoryModal
-        isOpen={isCategoryModalOpen}
-        editingCategoryId={editingCategoryId}
-        categoryData={categoryFormData}
-        isSubmitting={isSubmittingCategory}
-        onChange={setCategoryFormData}
-        onSubmit={handleSubmitCategory}
-        onClose={closeCategoryModal}
-      />
     </div>
   );
 }
