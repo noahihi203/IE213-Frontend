@@ -53,7 +53,7 @@ export interface Post {
   authorId: string | User;
   category: string | Category;
   status: "draft" | "published" | "archived";
-  tags: string[];
+  tags: Tag[];
   viewCount: number;
   likesCount: number;
   commentsCount: number;
