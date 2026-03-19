@@ -204,7 +204,7 @@ export default function PostDetailPage() {
                 key={index}
                 className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm"
               >
-                #{tag}
+                #{tag.name}
               </span>
             ))}
           </div>
