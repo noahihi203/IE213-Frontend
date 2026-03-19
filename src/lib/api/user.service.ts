@@ -14,25 +14,14 @@ export const userService = {
     return await axiosClient.put(`/user`, data);
   },
 
-  // Update user email (requires current password)
-  updateUserEmail: async (
-    newEmail: string,
-    currentPassword: string,
-  ): Promise<ApiResponse<User>> => {
-    return await axiosClient.put(`/user/update-email`, {
-      newEmail,
-      currentPassword,
-    });
+  // Update user email
+  updateUserEmail: async (email: string): Promise<ApiResponse<User>> => {
+    return await axiosClient.put(`/user/update-email`, { email });
   },
 
   // Update user username
-  updateUserUsername: async (newUsername: string): Promise<ApiResponse<User>> => {
-    return await axiosClient.put(`/user/update-username`, { newUsername });
-  },
-
-  // NEW: Update user password
-  updateUserPassword: async (data: any): Promise<ApiResponse<any>> => {
-    return await axiosClient.put(`/user/update-password`, data);
+  updateUserUsername: async (username: string): Promise<ApiResponse<User>> => {
+    return await axiosClient.put(`/user/update-username`, { username });
   },
 
   // Get all users (Admin only)
