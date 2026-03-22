@@ -77,7 +77,9 @@ export default function PostFormModal({
         {/* Header */}
         <div className="flex shrink-0 items-center justify-between border-b border-slate-200 px-6 py-4">
           <div>
-            <h2 className="text-lg font-semibold tracking-tight text-slate-900">{modalTitle}</h2>
+            <h2 className="text-lg font-semibold tracking-tight text-slate-900">
+              {modalTitle}
+            </h2>
             <p className="text-sm text-slate-500">{subtitle}</p>
           </div>
           <button

@@ -47,7 +47,9 @@ export default function PostsTab({
       {isAuthorOrAdmin ? (
         <div className="mb-6 flex flex-col justify-between space-y-4 md:flex-row md:items-center md:space-y-0">
           <div>
-            <h1 className="mb-2 text-3xl font-semibold tracking-tight text-slate-900">Bài viết của tôi</h1>
+            <h1 className="mb-2 text-3xl font-semibold tracking-tight text-slate-900">
+              Bài viết của tôi
+            </h1>
             <p className="text-slate-600">
               Quản lý bài viết đã đăng và bản nháp
             </p>
@@ -78,7 +80,9 @@ export default function PostsTab({
         </div>
       ) : (
         <div className="mb-6">
-          <h1 className="mb-2 text-3xl font-semibold tracking-tight text-slate-900">Bài viết đã thích</h1>
+          <h1 className="mb-2 text-3xl font-semibold tracking-tight text-slate-900">
+            Bài viết đã thích
+          </h1>
           <p className="text-slate-600">Quản lý bài viết đã thích</p>
         </div>
       )}
@@ -227,8 +231,13 @@ function EmptyState({
           <h3 className="mb-2 text-xl font-semibold tracking-tight text-slate-900">
             Bạn chưa thích bài viết nào
           </h3>
-          <p className="mb-6 text-slate-600">Hãy đọc và like một số bài viết.</p>
-          <Link href="/posts" className="inline-block rounded-md bg-emerald-600 px-4 py-2 font-medium text-white hover:bg-emerald-700">
+          <p className="mb-6 text-slate-600">
+            Hãy đọc và like một số bài viết.
+          </p>
+          <Link
+            href="/posts"
+            className="inline-block rounded-md bg-emerald-600 px-4 py-2 font-medium text-white hover:bg-emerald-700"
+          >
             Bài viết
           </Link>
         </>

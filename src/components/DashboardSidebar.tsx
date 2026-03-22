@@ -61,7 +61,9 @@ export default function DashboardSidebar({
         <div className="mx-auto mb-3 flex h-20 w-20 items-center justify-center rounded-full bg-emerald-600 text-2xl font-bold text-white">
           {user.username.charAt(0).toUpperCase()}
         </div>
-        <h2 className="text-xl font-semibold tracking-tight text-slate-900">{user.fullName}</h2>
+        <h2 className="text-xl font-semibold tracking-tight text-slate-900">
+          {user.fullName}
+        </h2>
         <p className="text-sm text-slate-600">@{user.username}</p>
         <span className="mt-2 inline-block rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
           {user.role}

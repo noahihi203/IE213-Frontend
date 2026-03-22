@@ -42,13 +42,19 @@ export default function CategoriesTab({
     <div className="rounded-[1.5rem] border border-slate-200/80 bg-white p-6 shadow-[0_20px_40px_-15px_rgba(15,23,42,0.08)]">
       <div className="mb-6 flex flex-col items-start justify-between space-y-4 md:flex-row md:items-center md:space-y-0">
         <div>
-          <h1 className="mb-2 text-2xl font-semibold tracking-tight text-slate-900">Danh sách danh mục</h1>
+          <h1 className="mb-2 text-2xl font-semibold tracking-tight text-slate-900">
+            Danh sách danh mục
+          </h1>
           <p className="text-slate-600">Quản lý các danh mục bài viết.</p>
         </div>
         <div className="flex w-full space-x-3 md:w-auto">
           <div className="relative flex-1 md:w-64">
             <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-              <MagnifyingGlass size={18} weight="duotone" className="text-slate-400" />
+              <MagnifyingGlass
+                size={18}
+                weight="duotone"
+                className="text-slate-400"
+              />
             </div>
             <input
               type="text"
@@ -74,7 +80,11 @@ export default function CategoriesTab({
         </div>
       ) : filteredCategories.length === 0 ? (
         <div className="py-8 text-center text-slate-500">
-          <Folder size={48} weight="duotone" className="mx-auto mb-3 text-slate-300" />
+          <Folder
+            size={48}
+            weight="duotone"
+            className="mx-auto mb-3 text-slate-300"
+          />
           Không có danh mục nào hoặc không thể tải dữ liệu
         </div>
       ) : (

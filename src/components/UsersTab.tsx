@@ -22,7 +22,9 @@ export default function UsersTab({
 }: UsersTabProps) {
   return (
     <div className="rounded-[1.5rem] border border-slate-200/80 bg-white p-6 shadow-[0_20px_40px_-15px_rgba(15,23,42,0.08)]">
-      <h1 className="mb-2 text-2xl font-semibold tracking-tight text-slate-900">Danh sách người dùng</h1>
+      <h1 className="mb-2 text-2xl font-semibold tracking-tight text-slate-900">
+        Danh sách người dùng
+      </h1>
       <p className="mb-6 text-slate-600">Quản lý người dùng trong hệ thống.</p>
 
       {isLoading ? (
@@ -31,7 +33,11 @@ export default function UsersTab({
         </div>
       ) : users.length === 0 ? (
         <div className="py-8 text-center text-slate-500">
-          <UsersThree size={48} weight="duotone" className="mx-auto mb-3 text-slate-300" />
+          <UsersThree
+            size={48}
+            weight="duotone"
+            className="mx-auto mb-3 text-slate-300"
+          />
           Không có người dùng nào hoặc không thể tải dữ liệu
         </div>
       ) : (

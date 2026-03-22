@@ -84,7 +84,9 @@ export default function CommentsModal({
         {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-200 p-4">
           <div>
-            <h2 className="text-lg font-semibold tracking-tight text-slate-900">Bình luận bài viết</h2>
+            <h2 className="text-lg font-semibold tracking-tight text-slate-900">
+              Bình luận bài viết
+            </h2>
             <p className="line-clamp-1 text-sm text-slate-500">
               {targetPost.title}
             </p>
