@@ -3,7 +3,41 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuthStore } from "@/store/authStore";
-import { LogOut, Home, GraduationCap } from "lucide-react";
+import { Outfit } from "next/font/google";
+import {
+  CompassTool,
+  House,
+  SignOut,
+  SquaresFour,
+  Student,
+  UserCircle,
+} from "@phosphor-icons/react";
+
+const outfit = Outfit({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+});
+
+const navItems = [
+  {
+    href: "/",
+    label: "Trang chu",
+    icon: House,
+    match: (path: string) => path === "/",
+  },
+  {
+    href: "/posts",
+    label: "Bai viet",
+    icon: SquaresFour,
+    match: (path: string) => path.startsWith("/posts"),
+  },
+  {
+    href: "/categories",
+    label: "Truong dai hoc",
+    icon: Student,
+    match: (path: string) => path.startsWith("/categories"),
+  },
+];
 
 export function Navbar() {
   const pathname = usePathname();
@@ -14,117 +48,134 @@ export function Navbar() {
     window.location.href = "/login";
   };
 
+  const roleStyle =
+    user?.role === "admin"
+      ? "bg-rose-600"
+      : user?.role === "author"
+        ? "bg-emerald-600"
+        : "bg-slate-500";
+
+  const roleLabel =
+    user?.role === "admin" ? "Admin" : user?.role === "author" ? "CTV" : "User";
+
   return (
-    <nav className="bg-white shadow-md sticky top-0 z-50">
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
-          {/* 1. Logo (Bên trái) */}
+    <nav
+      className={`${outfit.className} sticky top-0 z-40 border-b border-slate-200/80 bg-slate-50/95 backdrop-blur`}
+    >
+      <div className="mx-auto max-w-7xl px-4 md:px-6 lg:px-10">
+        <div className="flex h-16 items-center justify-between gap-4">
           <Link
             href="/"
-            className="flex items-center gap-2 font-bold text-lg hover:opacity-80 transition-opacity"
+            className="flex items-center gap-2 rounded-xl px-2 py-1.5 text-lg font-semibold tracking-tight text-slate-900 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-white active:scale-[0.98]"
           >
-            <GraduationCap className="w-8 h-8 text-sky-600" />
-            <span className="hidden sm:inline text-sky-900">UniScope HCM</span>
+            <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
+              <Student size={20} weight="duotone" />
+            </span>
+            <span className="hidden sm:inline">UniScope HCM</span>
           </Link>
 
-          {/* 2. Navigation Links (Ở giữa) */}
-          <div className="hidden md:flex items-center space-x-8">
-            <Link
-              href="/"
-              className={`flex items-center space-x-1 hover:text-sky-600 transition-colors ${
-                pathname === "/"
-                  ? "text-sky-600 font-semibold"
-                  : "text-gray-600"
-              }`}
-            >
-              <Home className="w-4 h-4" />
-              <span>Trang chủ</span>
-            </Link>
-
-            <Link
-              href="/posts"
-              className={`hover:text-sky-600 transition-colors ${
-                pathname.startsWith("/posts")
-                  ? "text-sky-600 font-semibold"
-                  : "text-gray-600"
-              }`}
-            >
-              Bài viết
-            </Link>
-
-            <Link
-              href="/categories"
-              className={`hover:text-sky-600 transition-colors ${
-                pathname.startsWith("/categories")
-                  ? "text-sky-600 font-semibold"
-                  : "text-gray-600"
-              }`}
-            >
-              Trường Đại học
-            </Link>
+          <div className="hidden lg:flex lg:items-center lg:gap-2">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              const active = item.match(pathname);
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.98] ${
+                    active
+                      ? "bg-emerald-100 text-emerald-800"
+                      : "text-slate-600 hover:bg-white hover:text-slate-900"
+                  }`}
+                >
+                  <Icon size={16} weight="duotone" />
+                  <span>{item.label}</span>
+                </Link>
+              );
+            })}
           </div>
 
-          {/* 3. User Menu (Bên phải) */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-3">
             {isAuthenticated && user ? (
-              <div className="flex items-center gap-6">
-                {/* Thông tin User */}
+              <div className="flex items-center gap-2 md:gap-3">
                 <Link
                   href="/dashboard"
-                  className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+                  className="group flex items-center gap-2 rounded-xl px-2 py-1.5 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-white active:scale-[0.98]"
                 >
-                  <div className="w-10 h-10 rounded-full bg-[#0088cc] text-white flex items-center justify-center font-bold text-lg shadow-sm">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-600 text-sm font-semibold text-white shadow-[0_8px_20px_-10px_rgba(5,150,105,0.7)]">
                     {user.username.charAt(0).toUpperCase()}
                   </div>
-                  <span className="text-base text-gray-900">
+                  <span className="hidden text-sm font-medium text-slate-900 md:inline">
                     {user.username}
                   </span>
-                  {/* Container bọc Username và Badge - Xếp ngang */}
                 </Link>
-                <div className="hidden sm:flex items-center gap-2">
+                <div className="hidden sm:flex items-center">
                   <span
-                    className={`text-xs font-semibold px-2.5 py-0.5 rounded-full text-white tracking-wide shadow-sm ${
-                      user.role === "admin"
-                        ? "bg-rose-600" // Nền đỏ cho Admin
-                        : user.role === "author"
-                          ? "bg-sky-500" // Nền xanh cho CTV
-                          : "bg-gray-500" // Nền xám cho User thường
-                    }`}
+                    className={`rounded-full px-2.5 py-1 text-xs font-semibold tracking-wide text-white ${roleStyle}`}
                   >
-                    {user.role === "admin"
-                      ? "Admin"
-                      : user.role === "author"
-                        ? "CTV"
-                        : "User"}
+                    {roleLabel}
                   </span>
                 </div>
-                {/* Nút Đăng xuất */}
                 <button
                   onClick={handleLogout}
-                  className="flex items-center gap-1.5 text-sm font-medium text-red-500 hover:text-red-600 transition-colors"
+                  className="inline-flex items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:border-rose-200 hover:text-rose-600 active:scale-[0.98]"
                 >
-                  <LogOut className="w-4 h-4" />
-                  <span className="hidden lg:inline">Đăng xuất</span>
+                  <SignOut size={16} weight="duotone" />
+                  <span className="hidden xl:inline">Dang xuat</span>
                 </button>
               </div>
             ) : (
-              /* Trạng thái chưa đăng nhập */
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2 sm:gap-3">
                 <Link
                   href="/login"
-                  className="text-sm font-medium text-gray-600 hover:text-sky-600 transition-colors"
+                  className="rounded-xl px-3 py-2 text-sm font-medium text-slate-600 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-white hover:text-slate-900 active:scale-[0.98]"
                 >
-                  Đăng nhập
+                  Dang nhap
                 </Link>
                 <Link
                   href="/register"
-                  className="text-sm font-medium bg-sky-600 text-white px-4 py-2 rounded-md hover:bg-sky-700 transition-colors shadow-sm"
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-emerald-700 active:-translate-y-[1px]"
                 >
-                  Đăng ký
+                  <UserCircle size={16} weight="duotone" />
+                  Dang ky
                 </Link>
               </div>
             )}
           </div>
+        </div>
+
+        <div className="grid grid-cols-3 gap-2 border-t border-slate-200/80 py-2 lg:hidden">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const active = item.match(pathname);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`inline-flex items-center justify-center gap-1 rounded-xl px-2 py-2 text-xs font-medium transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.98] ${
+                  active
+                    ? "bg-emerald-100 text-emerald-800"
+                    : "text-slate-600 hover:bg-white hover:text-slate-900"
+                }`}
+              >
+                <Icon size={14} weight="duotone" />
+                <span>{item.label}</span>
+              </Link>
+            );
+          })}
+        </div>
+
+        <div className="hidden items-center justify-between border-t border-slate-200/80 py-2 text-xs text-slate-500 md:flex lg:hidden">
+          <span className="inline-flex items-center gap-1.5">
+            <CompassTool size={14} weight="duotone" />
+            Navigation compact mode
+          </span>
+          <Link
+            href="/dashboard"
+            className="font-medium text-emerald-700 transition-colors hover:text-emerald-800"
+          >
+            Open dashboard
+          </Link>
         </div>
       </div>
     </nav>

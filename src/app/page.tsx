@@ -1,100 +1,213 @@
 import Link from "next/link";
-import { BookOpen, TrendingUp, Users, Zap } from "lucide-react";
+import { Outfit } from "next/font/google";
+import {
+  BookOpenText,
+  Lightning,
+  TrendUp,
+  UsersThree,
+} from "@phosphor-icons/react/dist/ssr";
+
+const outfit = Outfit({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+});
+
+const highlights = [
+  {
+    title: "Editorial Workflow",
+    description:
+      "Plan, draft, and publish with clear states so every article moves forward without guesswork.",
+    icon: BookOpenText,
+    tone: "bg-emerald-50 text-emerald-700",
+  },
+  {
+    title: "Live Momentum",
+    description:
+      "Track what readers respond to and keep your next post aligned with real audience interest.",
+    icon: TrendUp,
+    tone: "bg-emerald-100/70 text-emerald-700",
+  },
+  {
+    title: "Focused Community",
+    description:
+      "Comments, likes, and shares are designed for meaningful feedback instead of noisy activity.",
+    icon: UsersThree,
+    tone: "bg-emerald-50 text-emerald-700",
+  },
+  {
+    title: "Fast Publishing Stack",
+    description:
+      "Built on Next.js 14 with a clean, responsive interface that stays smooth across devices.",
+    icon: Lightning,
+    tone: "bg-emerald-100/70 text-emerald-700",
+  },
+];
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen">
-      {/* Hero Section */}
-      <section className="bg-gradient-to-r from-primary-600 to-primary-700 text-white py-20">
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-5xl font-bold mb-6">Welcome to IE213 Blog</h1>
-            <p className="text-xl mb-8 text-primary-50">
-              Share your knowledge, discover new ideas, and connect with amazing
-              writers
+    <div
+      className={`${outfit.className} min-h-[100dvh] bg-slate-50 text-slate-900`}
+    >
+      <section className="relative overflow-hidden border-b border-slate-200/70">
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-48 bg-gradient-to-b from-emerald-100/70 to-transparent" />
+        <div className="mx-auto grid max-w-7xl grid-cols-1 gap-10 px-4 py-16 md:grid-cols-12 md:gap-8 md:px-6 md:py-20 lg:px-10">
+          <div className="md:col-span-7 md:pr-6">
+            <p className="mb-5 inline-flex items-center rounded-full border border-emerald-200 bg-white px-4 py-1.5 text-sm font-medium text-emerald-700">
+              Publishing space for IE213 community
             </p>
-            <div className="flex gap-4 justify-center">
+            <h1 className="text-4xl font-semibold leading-none tracking-tighter text-slate-950 md:text-6xl">
+              Welcome to IE213 Blog
+            </h1>
+            <p className="mt-6 max-w-[62ch] text-base leading-relaxed text-slate-600 md:text-lg">
+              Build thoughtful posts, surface useful ideas, and keep
+              conversations around every article crisp and practical.
+            </p>
+            <div className="mt-9 flex flex-wrap gap-3">
               <Link
                 href="/posts"
-                className="bg-white text-primary-700 px-8 py-3 rounded-lg font-semibold hover:bg-primary-50 transition-colors"
+                className="rounded-xl bg-emerald-600 px-6 py-3 text-sm font-semibold text-white transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-emerald-700 active:scale-[0.98]"
               >
                 Explore Posts
               </Link>
               <Link
                 href="/register"
-                className="bg-primary-800 text-white px-8 py-3 rounded-lg font-semibold hover:bg-primary-900 transition-colors"
+                className="rounded-xl border border-slate-300 bg-white px-6 py-3 text-sm font-semibold text-slate-800 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:border-slate-400 hover:bg-slate-100 active:scale-[0.98]"
               >
-                Get Started
+                Create Account
               </Link>
             </div>
           </div>
+
+          <aside className="md:col-span-5">
+            <div className="rounded-[2rem] border border-slate-200/80 bg-white p-8 shadow-[0_20px_40px_-15px_rgba(15,23,42,0.08)]">
+              <div className="flex items-center justify-between border-b border-slate-200 pb-4">
+                <p className="text-sm font-semibold text-slate-800">
+                  Editorial Pulse
+                </p>
+                <span className="inline-flex items-center gap-2 text-xs text-emerald-700">
+                  <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                  Sync healthy
+                </span>
+              </div>
+
+              <div className="space-y-4 py-5">
+                <div className="space-y-2 rounded-2xl border border-slate-200 p-4">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                    Loading queue
+                  </p>
+                  <div className="h-2.5 w-3/4 animate-pulse rounded bg-slate-200" />
+                  <div className="h-2.5 w-5/6 animate-pulse rounded bg-slate-200" />
+                </div>
+                <div className="rounded-2xl border border-emerald-200 bg-emerald-50/60 p-4">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">
+                    Empty drafts
+                  </p>
+                  <p className="mt-2 text-sm text-slate-700">
+                    You have no draft in progress. Start your first article from
+                    the writing studio.
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-amber-200 bg-amber-50/70 p-4">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-amber-700">
+                    Error state sample
+                  </p>
+                  <p className="mt-2 text-sm text-slate-700">
+                    Media upload failed on one asset. Retry from the post editor
+                    to continue publishing.
+                  </p>
+                </div>
+              </div>
+
+              <div className="border-t border-slate-200 pt-4 text-xs text-slate-500">
+                Designed for desktop depth and mobile clarity with a
+                single-column fallback.
+              </div>
+            </div>
+          </aside>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-20 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">
-            Why Choose IE213 Blog?
+      <section className="mx-auto max-w-7xl px-4 py-16 md:px-6 md:py-20 lg:px-10">
+        <div className="mb-10 max-w-2xl">
+          <h2 className="text-3xl font-semibold tracking-tight text-slate-950 md:text-4xl">
+            Why teams write here
           </h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="bg-white p-6 rounded-lg shadow-md text-center">
-              <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <BookOpen className="w-8 h-8 text-primary-600" />
-              </div>
-              <h3 className="text-xl font-semibold mb-2">Rich Content</h3>
-              <p className="text-gray-600">
-                Write with Markdown support and beautiful formatting
-              </p>
-            </div>
+          <p className="mt-4 text-base leading-relaxed text-slate-600">
+            A bright workspace built for long-form writing, clean review cycles,
+            and measurable reader response.
+          </p>
+        </div>
 
-            <div className="bg-white p-6 rounded-lg shadow-md text-center">
-              <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <TrendingUp className="w-8 h-8 text-primary-600" />
-              </div>
-              <h3 className="text-xl font-semibold mb-2">Trending Posts</h3>
-              <p className="text-gray-600">
-                Discover what's popular in the community
-              </p>
-            </div>
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-12 md:gap-6">
+          <div className="md:col-span-7 space-y-5">
+            {highlights.slice(0, 2).map((item) => {
+              const Icon = item.icon;
+              return (
+                <article
+                  key={item.title}
+                  className="rounded-[2rem] border border-slate-200/80 bg-white p-8 shadow-[0_20px_40px_-15px_rgba(15,23,42,0.08)]"
+                >
+                  <div
+                    className={`mb-5 inline-flex h-11 w-11 items-center justify-center rounded-xl ${item.tone}`}
+                  >
+                    <Icon size={22} weight="duotone" />
+                  </div>
+                  <h3 className="text-2xl font-semibold tracking-tight text-slate-900">
+                    {item.title}
+                  </h3>
+                  <p className="mt-3 max-w-[60ch] text-base leading-relaxed text-slate-600">
+                    {item.description}
+                  </p>
+                </article>
+              );
+            })}
+          </div>
 
-            <div className="bg-white p-6 rounded-lg shadow-md text-center">
-              <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Users className="w-8 h-8 text-primary-600" />
-              </div>
-              <h3 className="text-xl font-semibold mb-2">Community</h3>
-              <p className="text-gray-600">
-                Engage with comments, likes, and shares
-              </p>
-            </div>
-
-            <div className="bg-white p-6 rounded-lg shadow-md text-center">
-              <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Zap className="w-8 h-8 text-primary-600" />
-              </div>
-              <h3 className="text-xl font-semibold mb-2">Fast & Modern</h3>
-              <p className="text-gray-600">
-                Built with Next.js 14 for optimal performance
-              </p>
-            </div>
+          <div className="md:col-span-5 space-y-5 md:pt-16">
+            {highlights.slice(2).map((item) => {
+              const Icon = item.icon;
+              return (
+                <article
+                  key={item.title}
+                  className="rounded-[2rem] border border-slate-200/80 bg-white p-8 shadow-[0_20px_40px_-15px_rgba(15,23,42,0.08)]"
+                >
+                  <div
+                    className={`mb-5 inline-flex h-11 w-11 items-center justify-center rounded-xl ${item.tone}`}
+                  >
+                    <Icon size={22} weight="duotone" />
+                  </div>
+                  <h3 className="text-xl font-semibold tracking-tight text-slate-900">
+                    {item.title}
+                  </h3>
+                  <p className="mt-3 text-base leading-relaxed text-slate-600">
+                    {item.description}
+                  </p>
+                </article>
+              );
+            })}
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 bg-white">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold mb-6">Ready to Start Writing?</h2>
-          <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-            Join our community of writers and readers. Share your expertise and
-            learn from others.
-          </p>
-          <Link
-            href="/register"
-            className="btn-primary inline-block px-8 py-3 text-lg"
-          >
-            Create Your Account
-          </Link>
+      <section className="border-t border-slate-200/80 bg-white">
+        <div className="mx-auto grid max-w-7xl grid-cols-1 gap-8 px-4 py-16 md:grid-cols-12 md:items-end md:px-6 md:py-20 lg:px-10">
+          <div className="md:col-span-8">
+            <h2 className="text-3xl font-semibold tracking-tight text-slate-950 md:text-4xl">
+              Ready to publish your first piece?
+            </h2>
+            <p className="mt-4 max-w-[60ch] text-base leading-relaxed text-slate-600">
+              Join the IE213 writing room, open a draft, and share practical
+              ideas with peers who value technical depth.
+            </p>
+          </div>
+          <div className="md:col-span-4 md:justify-self-end">
+            <Link
+              href="/register"
+              className="inline-flex items-center rounded-xl bg-emerald-600 px-7 py-3 text-sm font-semibold text-white transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-emerald-700 active:-translate-y-[1px]"
+            >
+              Create Your Account
+            </Link>
+          </div>
         </div>
       </section>
     </div>

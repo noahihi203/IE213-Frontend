@@ -1,142 +1,146 @@
 import Link from "next/link";
-import { BookOpen, Github, Twitter, Linkedin, Instagram, Facebook, GraduationCap } from "lucide-react";
+import { Outfit } from "next/font/google";
+import {
+  FacebookLogo,
+  InstagramLogo,
+  MapPinLine,
+  Student,
+  TwitterLogo,
+} from "@phosphor-icons/react/dist/ssr";
+
+const outfit = Outfit({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+});
+
+const categoryLinks = [
+  { href: "/about/faq", label: "Khoi DHQG" },
+  { href: "/categories", label: "Truong khac" },
+  { href: "/categories", label: "Doi song sinh vien" },
+  { href: "/categories", label: "Tuyen sinh" },
+];
+
+const supportLinks = [
+  { href: "#", label: "Lien he" },
+  { href: "#", label: "Dieu khoan su dung" },
+  { href: "#", label: "Chinh sach bao mat" },
+  { href: "#", label: "Huong dan" },
+];
+
+const socialLinks = [
+  { href: "https://facebook.com", label: "Facebook", icon: FacebookLogo },
+  { href: "https://twitter.com", label: "Twitter", icon: TwitterLogo },
+  { href: "https://instagram.com", label: "Instagram", icon: InstagramLogo },
+];
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-gray-900 text-gray-300">
-      <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {/* Brand */}
-          <div>
-            <div className="flex items-center gap-2 mb-4">
-              <GraduationCap className="w-8 h-8 text-sky-500" />
-              <span className="text-white font-bold text-lg">UniScope HCM</span>
+    <footer
+      className={`${outfit.className} border-t border-slate-200 bg-slate-50 text-slate-700`}
+    >
+      <div className="mx-auto max-w-7xl px-4 py-14 md:px-6 lg:px-10">
+        <div className="rounded-[2rem] border border-slate-200/80 bg-white p-8 shadow-[0_20px_40px_-15px_rgba(15,23,42,0.08)] md:p-10">
+          <div className="grid grid-cols-1 gap-10 lg:grid-cols-12">
+            <div className="lg:col-span-5">
+              <div className="mb-4 flex items-center gap-2">
+                <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
+                  <Student size={22} weight="duotone" />
+                </span>
+                <span className="text-lg font-semibold tracking-tight text-slate-900">
+                  UniScope HCM
+                </span>
+              </div>
+              <p className="mb-3 max-w-[36ch] text-sm leading-relaxed text-slate-600">
+                Kham pha dai hoc va ket noi sinh vien trong mot khong gian trao
+                doi ro rang, de theo doi.
+              </p>
+              <p className="max-w-[36ch] text-sm leading-relaxed text-slate-600">
+                Dien dan chia se thong tin cua sinh vien cac truong dai hoc tai
+                TP. Ho Chi Minh.
+              </p>
+
+              <div className="mt-6 flex flex-wrap items-center gap-3 text-sm text-slate-600">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5">
+                  <MapPinLine size={14} weight="duotone" />
+                  Ho Chi Minh City
+                </span>
+                <Link
+                  href="/register"
+                  className="inline-flex items-center rounded-full bg-emerald-600 px-4 py-1.5 font-semibold text-white transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-emerald-700 active:-translate-y-[1px]"
+                >
+                  Join community
+                </Link>
+              </div>
             </div>
-            <p className="text-sm text-gray-400 mb-4">
-              Khám phá đại học — Kết nối sinh viên
-            </p>
-            <p className="text-sm text-gray-400">
-              Diễn đàn trao đổi của sinh viên các trường đại học tại TP. Hồ Chí
-              Minh
-            </p>
-          </div>
+            <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:col-span-7 lg:grid-cols-3 lg:pl-6">
+              <div>
+                <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-slate-900">
+                  Danh muc
+                </h3>
+                <ul className="space-y-3">
+                  {categoryLinks.map((link) => (
+                    <li key={`${link.href}-${link.label}`}>
+                      <Link
+                        href={link.href}
+                        className="text-sm text-slate-600 transition-colors hover:text-emerald-700"
+                      >
+                        {link.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
 
-          {/* Danh Mục */}
-          <div>
-            <h3 className="text-white font-semibold mb-4">Danh Mục</h3>
-            <ul className="space-y-2">
-              <li>
-                <Link
-                  href="/about/faq"
-                  className="text-sm hover:text-white transition-colors"
-                >
-                  Khối ĐHQG
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/categories"
-                  className="text-sm hover:text-white transition-colors"
-                >
-                  Trường Khác
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/categories"
-                  className="text-sm hover:text-white transition-colors"
-                >
-                  Đời Sống Sinh Viên
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/categories"
-                  className="text-sm hover:text-white transition-colors"
-                >
-                  Tuyển Sinh
-                </Link>
-              </li>
-            </ul>
-          </div>
+              <div>
+                <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-slate-900">
+                  Ho tro
+                </h3>
+                <ul className="space-y-3">
+                  {supportLinks.map((link) => (
+                    <li key={`${link.href}-${link.label}`}>
+                      <a
+                        href={link.href}
+                        className="text-sm text-slate-600 transition-colors hover:text-emerald-700"
+                      >
+                        {link.label}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
 
-          {/* Hỗ Trợ */}
-          <div>
-            <h3 className="text-white font-semibold mb-4">Hỗ Trợ</h3>
-            <ul className="space-y-2">
-              <li>
-                <a
-                  href="#"
-                  className="text-sm hover:text-white transition-colors"
-                >
-                  Liên hệ
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="text-sm hover:text-white transition-colors"
-                >
-                  Điều khoản sử dụng
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="text-sm hover:text-white transition-colors"
-                >
-                  Chính sách bảo mật
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="text-sm hover:text-white transition-colors"
-                >
-                  Hướng dẫn
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          {/* Mạng Xã Hội */}
-          <div>
-            <h3 className="text-white font-semibold mb-4">Kết Nối</h3>
-            <div className="flex gap-4">
-              <a
-                href="https://facebook.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-sky-600 transition-colors"
-              >
-                <Facebook className="w-5 h-5" />
-              </a>
-              <a
-                href="https://twitter.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-sky-600 transition-colors"
-              >
-                <Twitter className="w-5 h-5" />
-              </a>
-              <a
-                href="https://instagram.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-sky-600 transition-colors"
-              >
-                <Instagram className="w-5 h-5" />
-              </a>
+              <div>
+                <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-slate-900">
+                  Ket noi
+                </h3>
+                <div className="flex gap-3">
+                  {socialLinks.map((social) => {
+                    const Icon = social.icon;
+                    return (
+                      <a
+                        key={social.label}
+                        href={social.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={social.label}
+                        className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:border-emerald-300 hover:text-emerald-700 active:scale-[0.98]"
+                      >
+                        <Icon size={18} weight="duotone" />
+                      </a>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="border-t border-gray-800 mt-8 pt-8 text-center">
-          <p className="text-sm text-gray-400">
-            © {currentYear} UniScopeHCM. All rights reserved.
-          </p>
+          <div className="mt-10 border-t border-slate-200 pt-6 text-center">
+            <p className="text-sm text-slate-500">
+              © {currentYear} UniScopeHCM. All rights reserved.
+            </p>
+          </div>
         </div>
       </div>
     </footer>
