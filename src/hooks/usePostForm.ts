@@ -273,10 +273,6 @@ export function usePostForm(onPostsRefresh?: () => Promise<void> | void) {
     availableTags,
     isLoadingFormOptions,
     formOptionsError,
-
-    setCreateFormData,
-    setEditFormData,
-
     // create
     isCreateModalOpen,
     isCreatingPost,
@@ -292,12 +288,15 @@ export function usePostForm(onPostsRefresh?: () => Promise<void> | void) {
     isUpdatingPost,
     editError,
     editFormData,
+    setEditFormData,
     editingPostId,
     openEditModal,
     closeEditModal,
     handleEditInputChange,
     handleEditTagToggle,
     handleUpdatePost,
+    // create (content setter cho markdown editor)
+    setCreateFormData,
     // status
     handleStatusChange,
   };

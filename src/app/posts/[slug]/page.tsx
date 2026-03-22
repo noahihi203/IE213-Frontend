@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { postService } from "@/lib/api/post.service";
 import { commentService } from "@/lib/api/comment.service";
 import { useAuthStore } from "@/store/authStore";
@@ -19,6 +20,15 @@ import {
   ShareNetwork,
   Trash,
 } from "@phosphor-icons/react";
+
+// ── 1. Import usePostForm + PostFormModal (điều chỉnh path theo project) ──────
+import { usePostForm } from "../../../hooks/usePostForm";
+import PostFormModal from "../../../components/PostFormModal";
+
+// ── 2. Dùng MDPreview thay dangerouslySetInnerHTML ────────────────────────────
+const MDPreview = dynamic(() => import("@uiw/react-markdown-preview"), {
+  ssr: false,
+});
 
 type ReportReason =
   | "spam"
@@ -85,61 +95,48 @@ export default function PostDetailPage() {
   );
   const [likingCommentId, setLikingCommentId] = useState<string | null>(null);
 
+  // ── 3. Khởi tạo usePostForm, reload bài sau khi lưu ──────────────────────
+  const refreshPost = async () => {
+    if (post?.slug) await loadPost(post.slug);
+  };
+  const postForm = usePostForm(refreshPost);
+
+  const handleOpenEditModal = () => {
+    if (post) postForm.openEditModal(post);
+  };
+
   const commentsWithDepth = useMemo<CommentRenderItem[]>(() => {
     if (postComments.length === 0) return [];
-
     const stack: number[] = [];
-
     return postComments.map((comment) => {
       const left = comment.commentLeft ?? 0;
       const right = comment.commentRight ?? Number.MAX_SAFE_INTEGER;
-
-      while (stack.length > 0 && left > stack[stack.length - 1]) {
-        stack.pop();
-      }
-
+      while (stack.length > 0 && left > stack[stack.length - 1]) stack.pop();
       const depth = stack.length;
       stack.push(right);
-
-      return {
-        ...comment,
-        depth,
-      };
+      return { ...comment, depth };
     });
   }, [postComments]);
 
   useEffect(() => {
-    if (params.slug) {
-      loadPost(params.slug as string);
-    }
+    if (params.slug) loadPost(params.slug as string);
   }, [params.slug]);
 
   useEffect(() => {
     if (!post?._id || !authInitialized) return;
-
     if (!isAuthenticated) {
       setIsLiked(false);
       return;
     }
-
     let cancelled = false;
-
-    const loadLikeStatus = async () => {
-      try {
-        const response = await postService.isPostLikedByUser(post._id);
-        if (!cancelled) {
-          setIsLiked(Boolean(response.metadata));
-        }
-      } catch (error) {
-        if (!cancelled) {
-          setIsLiked(false);
-        }
-        console.error("Failed to load post like status:", error);
-      }
-    };
-
-    loadLikeStatus();
-
+    postService
+      .isPostLikedByUser(post._id)
+      .then((res) => {
+        if (!cancelled) setIsLiked(Boolean(res.metadata));
+      })
+      .catch(() => {
+        if (!cancelled) setIsLiked(false);
+      });
     return () => {
       cancelled = true;
     };
@@ -148,11 +145,9 @@ export default function PostDetailPage() {
   const loadPost = async (slug: string) => {
     setIsLoading(true);
     setError("");
-
     try {
       const response = await postService.getPostBySlug(slug);
       const loadedPost = response.metadata || null;
-
       setPost(loadedPost);
       setPostComments([]);
       setCommentsError("");
@@ -161,7 +156,6 @@ export default function PostDetailPage() {
       setReplyDrafts({});
       setEditingCommentId(null);
       setEditCommentContent("");
-
       if (loadedPost?._id) {
         const comments = await loadCommentsForPost(loadedPost._id);
         setPost((prev) =>
@@ -182,16 +176,13 @@ export default function PostDetailPage() {
     try {
       setIsLoadingComments(true);
       setCommentsError("");
-
       const response = await commentService.getPostComments(postId);
       const comments = Array.isArray(response.metadata)
         ? (response.metadata as PostCommentItem[])
         : [];
-
       setPostComments(comments);
       return comments;
     } catch (error: any) {
-      console.error("Failed to load comments:", error);
       setPostComments([]);
       setCommentsError(error?.message || "Không thể tải bình luận.");
       return [];
@@ -205,9 +196,7 @@ export default function PostDetailPage() {
       router.push("/login");
       return;
     }
-
     if (!post) return;
-
     try {
       if (isLiked) {
         await postService.unlikePost(post._id);
@@ -221,8 +210,8 @@ export default function PostDetailPage() {
         );
       }
       setIsLiked((prev) => !prev);
-    } catch (error) {
-      console.error("Failed to like/unlike post:", error);
+    } catch (err) {
+      console.error("Failed to like/unlike post:", err);
     }
   };
 
@@ -237,27 +226,19 @@ export default function PostDetailPage() {
 
   const handleCreateComment = async () => {
     if (!post) return;
-
     if (!isAuthenticated) {
       router.push("/login");
       return;
     }
-
     const content = newCommentContent.trim();
     if (!content) {
       setCommentsError("Vui lòng nhập nội dung bình luận.");
       return;
     }
-
     try {
       setIsSubmittingComment(true);
       setCommentsError("");
-
-      await commentService.createComment({
-        postId: post._id,
-        content,
-      });
-
+      await commentService.createComment({ postId: post._id, content });
       setNewCommentContent("");
       await refreshAfterCommentMutation(post._id);
     } catch (error: any) {
@@ -269,34 +250,25 @@ export default function PostDetailPage() {
 
   const handleReplyComment = async (parentCommentId: string) => {
     if (!post) return;
-
     if (!isAuthenticated) {
       router.push("/login");
       return;
     }
-
     const replyContent = replyDrafts[parentCommentId]?.trim() || "";
     if (!replyContent) {
       setCommentsError("Vui lòng nhập nội dung phản hồi.");
       return;
     }
-
     try {
       setReplySubmittingFor(parentCommentId);
       setCommentsError("");
-
       await commentService.createComment({
         postId: post._id,
         content: replyContent,
         parentCommentId,
       });
-
-      setReplyDrafts((prev) => ({
-        ...prev,
-        [parentCommentId]: "",
-      }));
+      setReplyDrafts((prev) => ({ ...prev, [parentCommentId]: "" }));
       setActiveReplyCommentId(null);
-
       await refreshAfterCommentMutation(post._id);
     } catch (error: any) {
       setCommentsError(error?.message || "Không thể gửi phản hồi.");
@@ -319,30 +291,24 @@ export default function PostDetailPage() {
 
   const handleSaveCommentEdit = async () => {
     if (!post || !editingCommentId) return;
-
     if (!isAuthenticated) {
       router.push("/login");
       return;
     }
-
     const content = editCommentContent.trim();
     if (!content) {
       setCommentsError("Nội dung bình luận không được để trống.");
       return;
     }
-
     try {
       setIsUpdatingComment(true);
       setCommentsError("");
-
       await commentService.updateComment({
         commentId: editingCommentId,
         content,
       });
-
       setEditingCommentId(null);
       setEditCommentContent("");
-
       await refreshAfterCommentMutation(post._id);
     } catch (error: any) {
       setCommentsError(error?.message || "Không thể cập nhật bình luận.");
@@ -353,29 +319,17 @@ export default function PostDetailPage() {
 
   const handleDeleteComment = async (commentId: string) => {
     if (!post) return;
-
     if (!isAuthenticated) {
       router.push("/login");
       return;
     }
-
-    if (!window.confirm("Bạn có chắc chắn muốn xóa bình luận này không?")) {
+    if (!window.confirm("Bạn có chắc chắn muốn xóa bình luận này không?"))
       return;
-    }
-
     try {
       setDeletingCommentId(commentId);
       setCommentsError("");
-
-      await commentService.deleteComment({
-        postId: post._id,
-        commentId,
-      });
-
-      if (editingCommentId === commentId) {
-        cancelEditComment();
-      }
-
+      await commentService.deleteComment({ postId: post._id, commentId });
+      if (editingCommentId === commentId) cancelEditComment();
       await refreshAfterCommentMutation(post._id);
     } catch (error: any) {
       setCommentsError(error?.message || "Không thể xóa bình luận.");
@@ -389,14 +343,11 @@ export default function PostDetailPage() {
       router.push("/login");
       return;
     }
-
     try {
       setLikingCommentId(commentId);
       setCommentsError("");
-
       const response = await commentService.toggleLikeComment(commentId);
       const nextLikesCount = response.metadata?.likesCount;
-
       setPostComments((prev) =>
         prev.map((comment) =>
           comment._id === commentId
@@ -422,7 +373,6 @@ export default function PostDetailPage() {
       router.push("/login");
       return;
     }
-
     const reasonInput = window
       .prompt(
         "Nhập lý do report (spam, harassment, misinformation, offensive, other)",
@@ -430,9 +380,7 @@ export default function PostDetailPage() {
       )
       ?.trim()
       .toLowerCase();
-
     if (!reasonInput) return;
-
     const validReasons: ReportReason[] = [
       "spam",
       "harassment",
@@ -440,12 +388,10 @@ export default function PostDetailPage() {
       "offensive",
       "other",
     ];
-
     if (!validReasons.includes(reasonInput as ReportReason)) {
       setCommentsError("Lý do report không hợp lệ.");
       return;
     }
-
     try {
       setCommentsError("");
       await commentService.reportComment(
@@ -460,7 +406,7 @@ export default function PostDetailPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600" />
       </div>
     );
   }
@@ -491,7 +437,9 @@ export default function PostDetailPage() {
 
   const category = typeof post.category === "object" ? post.category : null;
 
-  const isAuthor = user && author && user._id === author._id;
+  // ── 4. canEdit mở rộng cho cả admin ──────────────────────────────────────
+  const canEdit =
+    user && ((author && user._id === author._id) || user.role === "admin");
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -507,14 +455,16 @@ export default function PostDetailPage() {
               <span>Back</span>
             </button>
 
-            {isAuthor && (
-              <Link
-                href={`/posts/${post._id}/edit`}
+            {/* ── Đổi từ Link sang button gọi modal ── */}
+            {canEdit && (
+              <button
+                type="button"
+                onClick={handleOpenEditModal}
                 className="flex items-center space-x-2 text-emerald-600 hover:text-emerald-700"
               >
                 <PencilSimple className="w-5 h-5" />
                 <span>Edit Post</span>
-              </Link>
+              </button>
             )}
           </div>
         </div>
@@ -522,7 +472,6 @@ export default function PostDetailPage() {
 
       {/* Content */}
       <article className="container mx-auto px-4 py-8 max-w-4xl">
-        {/* Cover */}
         {post.coverImage && (
           <div className="mb-8 rounded-lg overflow-hidden">
             <img
@@ -533,7 +482,6 @@ export default function PostDetailPage() {
           </div>
         )}
 
-        {/* Header */}
         <header className="mb-8">
           {category && (
             <Link
@@ -546,24 +494,20 @@ export default function PostDetailPage() {
 
           <h1 className="text-4xl md:text-5xl font-bold mb-4">{post.title}</h1>
 
-          {/* Meta */}
           <div className="flex items-center justify-between flex-wrap gap-4 py-4 border-y border-slate-200">
             <div className="flex items-center space-x-6 text-slate-600">
               <span className="flex items-center space-x-2">
                 <Eye className="w-5 h-5" />
                 <span>{post.viewCount} views</span>
               </span>
-
               <span className="flex items-center space-x-2">
                 <Heart className="w-5 h-5" />
                 <span>{post.likesCount} likes</span>
               </span>
-
               <span className="flex items-center space-x-2">
                 <ChatCircleDots className="w-5 h-5" />
                 <span>{post.commentsCount} comments</span>
               </span>
-
               {post.publishedAt && (
                 <span className="flex items-center space-x-2">
                   <CalendarDots className="w-5 h-5" />
@@ -574,7 +518,6 @@ export default function PostDetailPage() {
               )}
             </div>
 
-            {/* Author */}
             {author && (
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 bg-emerald-600 rounded-full flex items-center justify-center text-white font-bold">
@@ -593,13 +536,18 @@ export default function PostDetailPage() {
           </div>
         </header>
 
-        {/* 🔥 FIXED CONTENT RENDERING */}
-        <div
-          className="prose prose-lg max-w-none mb-8 prose-headings:font-bold prose-h2:text-2xl prose-h3:text-xl prose-p:text-slate-700"
-          dangerouslySetInnerHTML={{ __html: post.content }}
-        />
+        {/* ── Render markdown thay vì dangerouslySetInnerHTML ── */}
+        <div className="mb-8" data-color-mode="light">
+          <MDPreview
+            source={post.content}
+            style={{
+              background: "transparent",
+              fontSize: "1.05rem",
+              lineHeight: "1.75",
+            }}
+          />
+        </div>
 
-        {/* Tags */}
         {post.tags && post.tags.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-8">
             {post.tags.map((tag, index) => (
@@ -613,7 +561,6 @@ export default function PostDetailPage() {
           </div>
         )}
 
-        {/* Actions */}
         <div className="flex items-center space-x-4 py-6 border-t border-slate-200">
           <button
             onClick={handleLike}
@@ -626,7 +573,6 @@ export default function PostDetailPage() {
             <Heart className={`w-5 h-5 ${isLiked ? "fill-current" : ""}`} />
             <span>{isLiked ? "Liked" : "Like"}</span>
           </button>
-
           <button className="flex items-center space-x-2 px-6 py-3 bg-slate-100 text-slate-700 rounded-lg">
             <ShareNetwork className="w-5 h-5" />
             <span>Share</span>
@@ -892,6 +838,26 @@ export default function PostDetailPage() {
           </div>
         </section>
       </article>
+
+      {/* ── 5. Edit Post Modal ── */}
+      <PostFormModal
+        mode="edit"
+        isOpen={postForm.isEditModalOpen}
+        formData={postForm.editFormData}
+        categories={postForm.categories}
+        availableTags={postForm.availableTags}
+        isLoadingFormOptions={postForm.isLoadingFormOptions}
+        formOptionsError={postForm.formOptionsError}
+        error={postForm.editError}
+        isSubmitting={postForm.isUpdatingPost}
+        onClose={() => postForm.closeEditModal()}
+        onInputChange={postForm.handleEditInputChange}
+        onContentChange={(md) =>
+          postForm.setEditFormData((prev) => ({ ...prev, content: md }))
+        }
+        onTagToggle={postForm.handleEditTagToggle}
+        onSave={() => void postForm.handleUpdatePost()}
+      />
     </div>
   );
 }

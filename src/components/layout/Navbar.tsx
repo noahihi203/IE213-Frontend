@@ -12,6 +12,7 @@ import {
   Student,
   UserCircle,
 } from "@phosphor-icons/react";
+import NotificationBell from "../NotificationBell";
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -116,6 +117,7 @@ export function Navbar() {
                     {roleLabel}
                   </span>
                 </div>
+                <NotificationBell />
                 <button
                   onClick={handleLogout}
                   className="inline-flex items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:border-rose-200 hover:text-rose-600 active:scale-[0.98]"

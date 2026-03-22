@@ -172,3 +172,46 @@ export interface UserFilters extends PaginationParams {
   role?: "user" | "poster" | "admin";
   status?: "active" | "inactive";
 }
+
+
+// ── Thêm vào src/lib/types/index.ts ──────────────────────────────────────────
+
+export type NotificationType =
+  | "like"
+  | "comment"
+  | "share"
+  | "follow"
+  | "mention"
+  | "newPost";
+
+export type NotificationTargetType = "post" | "comment" | "user";
+
+export interface NotificationActor {
+  _id: string;
+  username: string;
+  fullName?: string;
+  avatar?: string;
+}
+
+export interface NotificationItem {
+  _id: string;
+  userId: string;
+  actorId: NotificationActor | string;
+  type: NotificationType;
+  targetId: string;
+  targetType: NotificationTargetType;
+  message: string;
+  isRead: boolean;
+  createdOn: string | Date;
+}
+
+export interface NotificationFilter {
+  isRead?: boolean;
+  type?: NotificationType;
+}
+
+export interface NotificationListMetadata {
+  notifications: NotificationItem[];
+  total: number;
+  unreadCount: number;
+}
