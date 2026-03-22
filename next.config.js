@@ -8,7 +8,9 @@ const nextConfig = {
         hostname: "**",
       },
     ],
+    transpilePackages: ["@uiw/react-md-editor", "@uiw/react-markdown-preview"],
   },
 };
+
 
 module.exports = nextConfig;

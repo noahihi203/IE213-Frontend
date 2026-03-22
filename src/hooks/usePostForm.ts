@@ -273,6 +273,10 @@ export function usePostForm(onPostsRefresh?: () => Promise<void> | void) {
     availableTags,
     isLoadingFormOptions,
     formOptionsError,
+
+    setCreateFormData,
+    setEditFormData,
+
     // create
     isCreateModalOpen,
     isCreatingPost,

@@ -134,6 +134,9 @@ export default function PostsTab({
         onTagToggle={postForm.handleCreateTagToggle}
         onSaveDraft={() => void postForm.handleCreatePost("draft")}
         onPublish={() => void postForm.handleCreatePost("published")}
+        onContentChange={(html) =>
+          postForm.setCreateFormData((prev) => ({ ...prev, content: html }))
+        }
       />
 
       <PostFormModal
@@ -150,6 +153,9 @@ export default function PostsTab({
         onInputChange={postForm.handleEditInputChange}
         onTagToggle={postForm.handleEditTagToggle}
         onSave={() => void postForm.handleUpdatePost()}
+        onContentChange={(html) =>
+          postForm.setEditFormData((prev) => ({ ...prev, content: html }))
+        }
       />
 
       <CommentsModal
