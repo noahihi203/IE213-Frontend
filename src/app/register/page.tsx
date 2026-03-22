@@ -69,18 +69,27 @@ export default function RegisterPage() {
               Bắt đầu hồ sơ tác giả mới
             </h1>
             <p className="mt-4 max-w-[48ch] text-base leading-relaxed text-slate-600">
-              Tạo tài khoản để quản lý bài viết, theo dõi phản hồi và xây dựng nhịp xuất bản riêng của bạn.
+              Tạo tài khoản để quản lý bài viết, theo dõi phản hồi và xây dựng
+              nhịp xuất bản riêng của bạn.
             </p>
           </div>
 
           <div className="mt-10 grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div className="rounded-xl border border-slate-200 bg-white p-4">
-              <p className="text-xs uppercase tracking-wide text-slate-500">Không gian làm việc</p>
-              <p className="mt-1 text-sm font-medium text-slate-800">Dashboard tác giả</p>
+              <p className="text-xs uppercase tracking-wide text-slate-500">
+                Không gian làm việc
+              </p>
+              <p className="mt-1 text-sm font-medium text-slate-800">
+                Dashboard tác giả
+              </p>
             </div>
             <div className="rounded-xl border border-slate-200 bg-white p-4">
-              <p className="text-xs uppercase tracking-wide text-slate-500">Bảo mật</p>
-              <p className="mt-1 text-sm font-medium text-slate-800">Xác thực tài khoản an toàn</p>
+              <p className="text-xs uppercase tracking-wide text-slate-500">
+                Bảo mật
+              </p>
+              <p className="mt-1 text-sm font-medium text-slate-800">
+                Xác thực tài khoản an toàn
+              </p>
             </div>
           </div>
         </section>
@@ -97,7 +106,10 @@ export default function RegisterPage() {
 
           <form className="space-y-5" onSubmit={handleSubmit}>
             <div className="space-y-2">
-              <label htmlFor="username" className="text-sm font-medium text-slate-700">
+              <label
+                htmlFor="username"
+                className="text-sm font-medium text-slate-700"
+              >
                 Username
               </label>
               <input
@@ -113,7 +125,10 @@ export default function RegisterPage() {
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="fullName" className="text-sm font-medium text-slate-700">
+              <label
+                htmlFor="fullName"
+                className="text-sm font-medium text-slate-700"
+              >
                 Full Name
               </label>
               <input
@@ -129,7 +144,10 @@ export default function RegisterPage() {
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="email" className="text-sm font-medium text-slate-700">
+              <label
+                htmlFor="email"
+                className="text-sm font-medium text-slate-700"
+              >
                 Email Address
               </label>
               <input
@@ -145,7 +163,10 @@ export default function RegisterPage() {
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="password" className="text-sm font-medium text-slate-700">
+              <label
+                htmlFor="password"
+                className="text-sm font-medium text-slate-700"
+              >
                 Password
               </label>
               <input
@@ -162,7 +183,10 @@ export default function RegisterPage() {
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="confirmPassword" className="text-sm font-medium text-slate-700">
+              <label
+                htmlFor="confirmPassword"
+                className="text-sm font-medium text-slate-700"
+              >
                 Confirm Password
               </label>
               <input
