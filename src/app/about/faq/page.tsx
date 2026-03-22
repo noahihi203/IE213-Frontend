@@ -1,8 +1,13 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { ChevronDown } from "lucide-react";
+import { Outfit } from "next/font/google";
+import { CaretDown } from "@phosphor-icons/react/dist/ssr";
 
-// Static FAQ data
+const outfit = Outfit({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+});
+
 const faqData = [
   {
     id: 1,
@@ -72,7 +77,6 @@ interface FAQItem {
   answer: string;
 }
 
-// Generate metadata for better SEO
 export const generateMetadata = (): Metadata => {
   return {
     title: "FAQ - IE213 Blog",
@@ -88,78 +92,76 @@ export const generateMetadata = (): Metadata => {
   };
 };
 
-// Fetch or prepare FAQ data (could be from API)
 async function getFAQData(): Promise<FAQItem[]> {
-  // Simulate API fetch with caching
-  // In production, this could be: const res = await fetch('...', { next: { revalidate: 3600 } })
-  // For now, using static data
   return Promise.resolve(faqData);
 }
 
-// FAQItem Component
 function FAQItem({ item }: { item: FAQItem }) {
   return (
-    <details className="group border-b border-gray-200 py-6 hover:bg-gray-50 px-4 rounded-lg transition-colors">
-      <summary className="flex cursor-pointer items-center justify-between font-medium text-gray-900 marker:content-none">
-        <span className="text-lg">{item.question}</span>
-        <ChevronDown className="h-5 w-5 transition-transform group-open:rotate-180" />
+    <details className="group rounded-2xl border border-slate-200 bg-white px-5 py-4 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:border-emerald-200">
+      <summary className="flex cursor-pointer items-center justify-between gap-3 marker:content-none">
+        <span className="text-base font-medium text-slate-900 md:text-lg">
+          {item.question}
+        </span>
+        <CaretDown
+          size={18}
+          className="text-slate-500 transition-transform group-open:rotate-180"
+          weight="duotone"
+        />
       </summary>
-      <p className="mt-4 text-gray-600 leading-relaxed">{item.answer}</p>
+      <p className="mt-3 text-sm leading-relaxed text-slate-600 md:text-base">
+        {item.answer}
+      </p>
     </details>
   );
 }
 
-// Main FAQ Page - Server Component (Static by default in Next.js 14)
 export default async function FAQPage() {
   const faqs = await getFAQData();
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="container mx-auto px-4 py-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+    <div className={`${outfit.className} min-h-[100dvh] bg-slate-50`}>
+      <div className="border-b border-slate-200 bg-white">
+        <div className="mx-auto max-w-7xl px-4 py-12 md:px-6 lg:px-10">
+          <h1 className="text-4xl font-semibold tracking-tighter text-slate-900 md:text-5xl">
             Frequently Asked Questions
           </h1>
-          <p className="text-xl text-gray-600">
-            Find answers to common questions about IE213 Blog
+          <p className="mt-3 max-w-[65ch] text-base leading-relaxed text-slate-600 md:text-lg">
+            Find answers to common questions about IE213 Blog.
           </p>
         </div>
       </div>
 
-      {/* FAQ Content */}
-      <div className="container mx-auto px-4 py-12 max-w-3xl">
-        <div className="space-y-2 bg-white rounded-lg shadow-sm">
+      <div className="mx-auto max-w-5xl px-4 py-10 md:px-6">
+        <div className="space-y-3">
           {faqs.map((faq) => (
             <FAQItem key={faq.id} item={faq} />
           ))}
         </div>
 
-        {/* Additional Help Section */}
-        <div className="mt-12 bg-gradient-to-r from-primary-50 to-primary-100 rounded-lg p-8 text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">
+        <div className="mt-12 rounded-[1.5rem] border border-emerald-200/70 bg-emerald-50/60 p-8 text-center">
+          <h2 className="mb-4 text-2xl font-semibold tracking-tight text-slate-900">
             Can't find what you're looking for?
           </h2>
-          <p className="text-gray-700 mb-6">
-            Contact our support team for personalized assistance
+          <p className="mb-6 text-slate-700">
+            Contact our support team for personalized assistance.
           </p>
-          <div className="flex gap-4 justify-center flex-wrap">
+          <div className="flex flex-wrap justify-center gap-3">
             <Link
               href="/contact"
-              className="inline-block px-6 py-3 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 transition-colors"
+              className="inline-flex rounded-xl bg-emerald-600 px-6 py-3 text-sm font-semibold text-white transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-emerald-700 active:-translate-y-[1px]"
             >
               Contact Support
             </Link>
             <Link
               href="/"
-              className="inline-block px-6 py-3 bg-white text-primary-600 border-2 border-primary-600 rounded-lg font-medium hover:bg-primary-50 transition-colors"
+              className="inline-flex rounded-xl border border-emerald-600 bg-white px-6 py-3 text-sm font-semibold text-emerald-700 transition-colors hover:bg-emerald-50"
             >
               Back to Home
             </Link>
           </div>
         </div>
 
-        {/* SEO Schema */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

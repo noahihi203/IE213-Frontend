@@ -8,24 +8,24 @@ import Underline from "@tiptap/extension-underline";
 import Placeholder from "@tiptap/extension-placeholder";
 import { useEffect, useRef, useState } from "react";
 import {
-  Bold,
-  Italic,
-  UnderlineIcon,
-  Strikethrough,
-  Heading1,
-  Heading2,
-  Heading3,
-  List,
-  ListOrdered,
+  ArrowCounterClockwise,
+  ArrowClockwise,
   Code,
-  Code2,
-  Link as LinkIcon,
+  CodeBlock,
   Image as ImageIcon,
+  Link as LinkIcon,
+  List,
+  ListNumbers,
   Minus,
-  Undo,
-  Redo,
-  Quote,
-} from "lucide-react";
+  Quotes,
+  TextB,
+  TextHOne,
+  TextHTwo,
+  TextHThree,
+  TextItalic,
+  TextStrikethrough,
+  TextUnderline,
+} from "@phosphor-icons/react";
 
 interface RichTextEditorProps {
   value: string;
@@ -74,7 +74,7 @@ export default function RichTextEditor({
   useEffect(() => {
     if (!editor) return;
     if (editor.getHTML() === value) return;
-    editor.commands.setContent(value || "", false);
+    editor.commands.setContent(value || "", { emitUpdate: false });
   }, [value, editor]);
 
   useEffect(() => {
@@ -117,9 +117,9 @@ export default function RichTextEditor({
   };
 
   return (
-    <div className="border border-gray-300 rounded-md overflow-hidden focus-within:ring-1 focus-within:ring-primary-500 focus-within:border-primary-500">
+    <div className="overflow-hidden rounded-md border border-slate-300 focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500">
       {/* ── Toolbar ── */}
-      <div className="flex flex-wrap items-center gap-0.5 px-2 py-1.5 border-b border-gray-200 bg-gray-50">
+      <div className="flex flex-wrap items-center gap-0.5 border-b border-slate-200 bg-slate-50 px-2 py-1.5">
         {/* Undo / Redo */}
         <ToolGroup>
           <ToolBtn
@@ -127,14 +127,14 @@ export default function RichTextEditor({
             disabled={!editor.can().undo()}
             title="Undo"
           >
-            <Undo className="w-4 h-4" />
+            <ArrowCounterClockwise size={16} weight="bold" />
           </ToolBtn>
           <ToolBtn
             onClick={() => editor.chain().focus().redo().run()}
             disabled={!editor.can().redo()}
             title="Redo"
           >
-            <Redo className="w-4 h-4" />
+            <ArrowClockwise size={16} weight="bold" />
           </ToolBtn>
         </ToolGroup>
 
@@ -147,28 +147,28 @@ export default function RichTextEditor({
             active={editor.isActive("bold")}
             title="Bold"
           >
-            <Bold className="w-4 h-4" />
+            <TextB size={16} weight="bold" />
           </ToolBtn>
           <ToolBtn
             onClick={() => editor.chain().focus().toggleItalic().run()}
             active={editor.isActive("italic")}
             title="Italic"
           >
-            <Italic className="w-4 h-4" />
+            <TextItalic size={16} weight="bold" />
           </ToolBtn>
           <ToolBtn
             onClick={() => editor.chain().focus().toggleUnderline().run()}
             active={editor.isActive("underline")}
             title="Underline"
           >
-            <UnderlineIcon className="w-4 h-4" />
+            <TextUnderline size={16} weight="bold" />
           </ToolBtn>
           <ToolBtn
             onClick={() => editor.chain().focus().toggleStrike().run()}
             active={editor.isActive("strike")}
             title="Strikethrough"
           >
-            <Strikethrough className="w-4 h-4" />
+            <TextStrikethrough size={16} weight="bold" />
           </ToolBtn>
         </ToolGroup>
 
@@ -178,7 +178,7 @@ export default function RichTextEditor({
         <ToolGroup>
           {([1, 2, 3] as const).map((level) => {
             const Icon =
-              level === 1 ? Heading1 : level === 2 ? Heading2 : Heading3;
+              level === 1 ? TextHOne : level === 2 ? TextHTwo : TextHThree;
             return (
               <ToolBtn
                 key={level}
@@ -188,7 +188,7 @@ export default function RichTextEditor({
                 active={editor.isActive("heading", { level })}
                 title={`Heading ${level}`}
               >
-                <Icon className="w-4 h-4" />
+                <Icon size={16} weight="bold" />
               </ToolBtn>
             );
           })}
@@ -203,14 +203,14 @@ export default function RichTextEditor({
             active={editor.isActive("bulletList")}
             title="Bullet list"
           >
-            <List className="w-4 h-4" />
+            <List size={16} weight="bold" />
           </ToolBtn>
           <ToolBtn
             onClick={() => editor.chain().focus().toggleOrderedList().run()}
             active={editor.isActive("orderedList")}
             title="Numbered list"
           >
-            <ListOrdered className="w-4 h-4" />
+            <ListNumbers size={16} weight="bold" />
           </ToolBtn>
         </ToolGroup>
 
@@ -223,27 +223,27 @@ export default function RichTextEditor({
             active={editor.isActive("blockquote")}
             title="Quote"
           >
-            <Quote className="w-4 h-4" />
+            <Quotes size={16} weight="bold" />
           </ToolBtn>
           <ToolBtn
             onClick={() => editor.chain().focus().toggleCode().run()}
             active={editor.isActive("code")}
             title="Inline code"
           >
-            <Code className="w-4 h-4" />
+            <Code size={16} weight="bold" />
           </ToolBtn>
           <ToolBtn
             onClick={() => editor.chain().focus().toggleCodeBlock().run()}
             active={editor.isActive("codeBlock")}
             title="Code block"
           >
-            <Code2 className="w-4 h-4" />
+            <CodeBlock size={16} weight="bold" />
           </ToolBtn>
           <ToolBtn
             onClick={() => editor.chain().focus().setHorizontalRule().run()}
             title="Horizontal rule"
           >
-            <Minus className="w-4 h-4" />
+            <Minus size={16} weight="bold" />
           </ToolBtn>
         </ToolGroup>
 
@@ -256,22 +256,22 @@ export default function RichTextEditor({
             active={editor.isActive("link") || showLinkInput}
             title="Link"
           >
-            <LinkIcon className="w-4 h-4" />
+            <LinkIcon size={16} weight="bold" />
           </ToolBtn>
           <ToolBtn
             onClick={toggleImageInput}
             active={showImageInput}
             title="Image"
           >
-            <ImageIcon className="w-4 h-4" />
+            <ImageIcon size={16} weight="bold" />
           </ToolBtn>
         </ToolGroup>
       </div>
 
       {/* ── Link input ── */}
       {showLinkInput && (
-        <div className="flex items-center gap-2 px-3 py-2 border-b border-gray-200 bg-blue-50">
-          <LinkIcon className="w-4 h-4 text-blue-500 shrink-0" />
+        <div className="flex items-center gap-2 border-b border-slate-200 bg-emerald-50 px-3 py-2">
+          <LinkIcon size={16} className="shrink-0 text-emerald-600" />
           <input
             ref={linkInputRef}
             type="url"
@@ -287,14 +287,14 @@ export default function RichTextEditor({
           <button
             type="button"
             onClick={applyLink}
-            className="text-xs font-medium text-blue-600 hover:text-blue-800"
+            className="text-xs font-medium text-emerald-700 hover:text-emerald-800"
           >
             Áp dụng
           </button>
           <button
             type="button"
             onClick={() => setShowLinkInput(false)}
-            className="text-xs text-gray-500 hover:text-gray-700"
+            className="text-xs text-slate-500 hover:text-slate-700"
           >
             Hủy
           </button>
@@ -303,8 +303,8 @@ export default function RichTextEditor({
 
       {/* ── Image URL input ── */}
       {showImageInput && (
-        <div className="flex items-center gap-2 px-3 py-2 border-b border-gray-200 bg-emerald-50">
-          <ImageIcon className="w-4 h-4 text-emerald-500 shrink-0" />
+        <div className="flex items-center gap-2 border-b border-slate-200 bg-sky-50 px-3 py-2">
+          <ImageIcon size={16} className="shrink-0 text-sky-600" />
           <input
             ref={imageInputRef}
             type="url"
@@ -327,7 +327,7 @@ export default function RichTextEditor({
           <button
             type="button"
             onClick={() => setShowImageInput(false)}
-            className="text-xs text-gray-500 hover:text-gray-700"
+            className="text-xs text-slate-500 hover:text-slate-700"
           >
             Hủy
           </button>
@@ -366,8 +366,8 @@ function ToolBtn({
       title={title}
       className={`p-1.5 rounded transition-colors ${
         active
-          ? "bg-primary-100 text-primary-700"
-          : "text-gray-600 hover:bg-gray-200 hover:text-gray-800"
+          ? "bg-emerald-100 text-emerald-700"
+          : "text-slate-600 hover:bg-slate-200 hover:text-slate-800"
       } disabled:opacity-30 disabled:cursor-not-allowed`}
     >
       {children}
@@ -380,5 +380,5 @@ function ToolGroup({ children }: { children: React.ReactNode }) {
 }
 
 function Divider() {
-  return <div className="w-px h-5 bg-gray-300 mx-1" />;
+  return <div className="mx-1 h-5 w-px bg-slate-300" />;
 }

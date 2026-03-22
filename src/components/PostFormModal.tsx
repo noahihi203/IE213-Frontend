@@ -1,5 +1,5 @@
 import { type ChangeEvent } from "react";
-import { X } from "lucide-react";
+import { X } from "@phosphor-icons/react";
 import { Category, Tag } from "@/lib/types";
 import { PostFormData } from "../hooks/usePostForm";
 import MarkdownEditor from "./MarkdownEditor";
@@ -37,7 +37,7 @@ const LABELS = {
 };
 
 const inputCls =
-  "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary-500";
+  "w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-emerald-500";
 
 export default function PostFormModal({
   mode,
@@ -64,29 +64,31 @@ export default function PostFormModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
       onClick={onClose}
     >
       {/*
         Modal rộng hơn (max-w-5xl) để editor split view có đủ không gian
       */}
       <div
-        className="bg-white rounded-lg shadow-xl w-full max-w-5xl max-h-[92vh] flex flex-col"
+        className="flex max-h-[92vh] w-full max-w-5xl flex-col rounded-2xl border border-slate-200 bg-white shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b shrink-0">
+        <div className="flex shrink-0 items-center justify-between border-b border-slate-200 px-6 py-4">
           <div>
-            <h2 className="text-lg font-bold">{modalTitle}</h2>
-            <p className="text-sm text-gray-500">{subtitle}</p>
+            <h2 className="text-lg font-semibold tracking-tight text-slate-900">
+              {modalTitle}
+            </h2>
+            <p className="text-sm text-slate-500">{subtitle}</p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700"
+            className="text-slate-500 transition-colors hover:text-slate-700"
             aria-label="Close modal"
           >
-            <X className="w-5 h-5" />
+            <X size={18} weight="bold" />
           </button>
         </div>
 
@@ -96,7 +98,7 @@ export default function PostFormModal({
           {error && <ErrorBanner message={error} />}
 
           {isLoadingFormOptions ? (
-            <div className="py-10 text-center text-gray-500">
+            <div className="py-10 text-center text-slate-500">
               Đang tải danh mục và tag...
             </div>
           ) : (
@@ -144,7 +146,7 @@ export default function PostFormModal({
 
               {/* ── Markdown editor split view ── */}
               <div className="w-full">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="mb-2 block text-sm font-medium text-slate-700">
                   Nội dung *
                 </label>
                 <MarkdownEditor
@@ -167,12 +169,12 @@ export default function PostFormModal({
               </Field>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="mb-2 block text-sm font-medium text-slate-700">
                   Tags
                 </label>
                 <div className="flex flex-wrap gap-2">
                   {availableTags.length === 0 ? (
-                    <span className="text-sm text-gray-500">
+                    <span className="text-sm text-slate-500">
                       Chưa có tag khả dụng.
                     </span>
                   ) : (
@@ -183,8 +185,8 @@ export default function PostFormModal({
                         onClick={() => onTagToggle(tag._id)}
                         className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
                           formData.tags.includes(tag._id)
-                            ? "bg-primary-600 text-white"
-                            : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                            ? "bg-emerald-600 text-white"
+                            : "bg-slate-100 text-slate-700 hover:bg-slate-200"
                         }`}
                       >
                         {tag.name}
@@ -199,12 +201,12 @@ export default function PostFormModal({
 
         {/* Footer */}
         {!isLoadingFormOptions && (
-          <div className="px-6 py-4 border-t shrink-0 flex flex-wrap gap-3 justify-end bg-white rounded-b-lg">
+          <div className="flex shrink-0 flex-wrap justify-end gap-3 rounded-b-2xl border-t border-slate-200 bg-white px-6 py-4">
             <button
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 font-medium disabled:opacity-60"
+              className="rounded-md border border-slate-300 px-4 py-2 font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-60"
             >
               Hủy
             </button>
@@ -215,7 +217,7 @@ export default function PostFormModal({
                   type="button"
                   onClick={onSaveDraft}
                   disabled={isSubmitting}
-                  className="px-4 py-2 rounded-md bg-gray-100 text-gray-800 hover:bg-gray-200 font-medium disabled:opacity-60"
+                  className="rounded-md bg-slate-100 px-4 py-2 font-medium text-slate-800 hover:bg-slate-200 disabled:opacity-60"
                 >
                   {isSubmitting ? "Đang lưu..." : "Lưu nháp"}
                 </button>
@@ -223,7 +225,7 @@ export default function PostFormModal({
                   type="button"
                   onClick={onPublish}
                   disabled={isSubmitting}
-                  className="px-4 py-2 bg-primary-600 text-white rounded-md font-medium hover:bg-primary-700 disabled:opacity-60"
+                  className="rounded-md bg-emerald-600 px-4 py-2 font-medium text-white hover:bg-emerald-700 disabled:opacity-60"
                 >
                   {isSubmitting ? "Đang đăng..." : "Đăng bài"}
                 </button>
@@ -235,7 +237,7 @@ export default function PostFormModal({
                 type="button"
                 onClick={onSave}
                 disabled={isSubmitting}
-                className="px-4 py-2 bg-primary-600 text-white rounded-md font-medium hover:bg-primary-700 disabled:opacity-60"
+                className="rounded-md bg-emerald-600 px-4 py-2 font-medium text-white hover:bg-emerald-700 disabled:opacity-60"
               >
                 {isSubmitting ? "Đang lưu..." : "Lưu chỉnh sửa"}
               </button>
@@ -260,7 +262,7 @@ function Field({
     <div className="w-full">
       <label
         htmlFor={htmlFor}
-        className="block text-sm font-medium text-gray-700 mb-2"
+        className="mb-2 block text-sm font-medium text-slate-700"
       >
         {label}
       </label>

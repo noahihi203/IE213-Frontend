@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { Eye, MessageCircle, Pencil } from "lucide-react";
-import { Post, User } from "@/lib/types";
+import { ChatCircleText, Eye, PencilSimple } from "@phosphor-icons/react";
+import { Post } from "@/lib/types";
 
 interface PostCardProps {
   post: Post;
@@ -24,21 +24,21 @@ export default function PostCard({
   onStatusChange,
 }: PostCardProps) {
   return (
-    <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow relative">
+    <div className="relative rounded-2xl border border-slate-200 bg-white shadow-sm transition-shadow hover:shadow-md">
       <Link href={`/posts/${post.slug}`} className="absolute inset-0 z-0" />
 
-      <div className="p-6 relative z-10 pointer-events-none">
-        <div className="flex justify-between items-start mb-4">
+      <div className="relative z-10 pointer-events-none p-6">
+        <div className="mb-4 flex items-start justify-between">
           <div className="flex-1">
-            <h3 className="text-xl font-bold hover:text-primary-600 mb-2 pointer-events-auto inline-block">
+            <h3 className="mb-2 inline-block text-xl font-semibold tracking-tight text-slate-900 transition-colors hover:text-emerald-700 pointer-events-auto">
               <Link href={`/posts/${post.slug}`}>{post.title}</Link>
             </h3>
-            <p className="text-gray-600 line-clamp-2">{post.excerpt}</p>
+            <p className="line-clamp-2 text-slate-600">{post.excerpt}</p>
           </div>
 
           {isAuthorOrAdmin ? (
             <select
-              className={`pointer-events-auto cursor-pointer outline-none border border-gray-200 px-3 py-1 rounded-full text-xs font-medium focus:ring-2 focus:ring-primary-500 ${statusClass[post.status] ?? statusClass.archived}`}
+              className={`pointer-events-auto cursor-pointer rounded-full border border-slate-200 px-3 py-1 text-xs font-medium outline-none focus:ring-2 focus:ring-emerald-500 ${statusClass[post.status] ?? statusClass.archived}`}
               value={post.status}
               onClick={(e) => e.stopPropagation()}
               onChange={(e) =>
@@ -58,10 +58,10 @@ export default function PostCard({
           )}
         </div>
 
-        <div className="flex items-center justify-between text-sm text-gray-500">
+        <div className="flex items-center justify-between text-sm text-slate-500">
           <div className="flex items-center space-x-4">
             <span className="flex items-center space-x-1">
-              <Eye className="w-4 h-4" />
+              <Eye size={16} weight="duotone" />
               <span>{post.viewCount} views</span>
             </span>
             <span>{post.likesCount} likes</span>
@@ -79,7 +79,7 @@ export default function PostCard({
               className="text-emerald-700 hover:text-emerald-900 bg-emerald-50 p-1.5 rounded-md hover:bg-emerald-100 transition-colors"
               title="Comments"
             >
-              <MessageCircle className="w-5 h-5" />
+              <ChatCircleText size={20} weight="duotone" />
             </button>
             <button
               type="button"
@@ -88,17 +88,17 @@ export default function PostCard({
                 e.stopPropagation();
                 onEdit(post);
               }}
-              className="text-blue-600 hover:text-blue-900 bg-blue-50 p-1.5 rounded-md hover:bg-blue-100 transition-colors"
+              className="rounded-md bg-sky-50 p-1.5 text-sky-700 transition-colors hover:bg-sky-100 hover:text-sky-900"
               title="Edit"
             >
-              <Pencil className="w-5 h-5" />
+              <PencilSimple size={20} weight="duotone" />
             </button>
             <Link
               href={`/posts/${post.slug}`}
-              className="text-gray-600 hover:text-gray-700 bg-gray-50 p-1.5 rounded-md hover:bg-gray-100 transition-colors"
+              className="rounded-md bg-slate-100 p-1.5 text-slate-600 transition-colors hover:bg-slate-200 hover:text-slate-700"
               title="View"
             >
-              <Eye className="w-5 h-5" />
+              <Eye size={20} weight="duotone" />
             </Link>
           </div>
         </div>

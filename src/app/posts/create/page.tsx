@@ -2,12 +2,18 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { Outfit } from "next/font/google";
 import { useAuthStore } from "@/store/authStore";
 import { postService } from "@/lib/api/post.service";
 import { categoryService } from "@/lib/api/category.service";
 import { tagService } from "@/lib/api/tag.services";
 import { Category, Tag } from "@/lib/types";
-import { Save, Eye } from "lucide-react";
+import { Eye, FloppyDisk } from "@phosphor-icons/react";
+
+const outfit = Outfit({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+});
 
 export default function CreatePostPage() {
   const router = useRouter();
@@ -50,8 +56,8 @@ export default function CreatePostPage() {
     try {
       const response = await categoryService.getAllCategories();
       setCategories(Array.isArray(response.metadata) ? response.metadata : []);
-    } catch (error) {
-      console.error("Failed to load categories:", error);
+    } catch (loadError) {
+      console.error("Failed to load categories:", loadError);
       setCategories([]);
     }
   };
@@ -62,8 +68,8 @@ export default function CreatePostPage() {
       setAvailableTags(
         Array.isArray(response.metadata) ? response.metadata : [],
       );
-    } catch (error) {
-      console.error("Failed to load tags:", error);
+    } catch (loadError) {
+      console.error("Failed to load tags:", loadError);
       setAvailableTags([]);
     }
   };
@@ -110,9 +116,8 @@ export default function CreatePostPage() {
       const currentTags = prev.tags;
       if (currentTags.includes(tagId)) {
         return { ...prev, tags: currentTags.filter((id) => id !== tagId) };
-      } else {
-        return { ...prev, tags: [...currentTags, tagId] };
       }
+      return { ...prev, tags: [...currentTags, tagId] };
     });
   };
 
@@ -125,166 +130,163 @@ export default function CreatePostPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="container mx-auto px-4 max-w-4xl">
+    <div className={`${outfit.className} min-h-[100dvh] bg-slate-50 py-8`}>
+      <div className="mx-auto max-w-5xl px-4 md:px-6">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Create New Post</h1>
-          <p className="text-gray-600">
-            Share your knowledge with the community
+          <h1 className="text-4xl font-semibold tracking-tighter text-slate-950">
+            Create New Post
+          </h1>
+          <p className="mt-2 text-base text-slate-600">
+            Share practical knowledge with a clean draft-to-publish flow.
           </p>
         </div>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
+          <div className="mb-6 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
             {error}
           </div>
         )}
 
-        <form className="bg-white rounded-lg shadow-md p-6 space-y-6">
-          {/* Title */}
-          <div>
-            <label
-              htmlFor="title"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Title *
-            </label>
-            <input
-              type="text"
-              id="title"
-              name="title"
-              required
-              value={formData.title}
-              onChange={handleChange}
-              className="input-field"
-              placeholder="Enter post title"
-            />
-          </div>
+        <form className="space-y-6 rounded-[1.5rem] border border-slate-200/80 bg-white p-6 shadow-[0_20px_40px_-15px_rgba(15,23,42,0.08)] md:p-8">
+          <div className="grid grid-cols-1 gap-6">
+            <div className="grid gap-2">
+              <label
+                htmlFor="title"
+                className="text-sm font-semibold text-slate-800"
+              >
+                Title *
+              </label>
+              <input
+                type="text"
+                id="title"
+                name="title"
+                required
+                value={formData.title}
+                onChange={handleChange}
+                className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm text-slate-800 outline-none transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+                placeholder="Enter post title"
+              />
+            </div>
 
-          {/* Excerpt */}
-          <div>
-            <label
-              htmlFor="excerpt"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Excerpt *
-            </label>
-            <textarea
-              id="excerpt"
-              name="excerpt"
-              required
-              rows={3}
-              value={formData.excerpt}
-              onChange={handleChange}
-              className="input-field"
-              placeholder="Brief description of your post"
-            />
-          </div>
+            <div className="grid gap-2">
+              <label
+                htmlFor="excerpt"
+                className="text-sm font-semibold text-slate-800"
+              >
+                Excerpt *
+              </label>
+              <textarea
+                id="excerpt"
+                name="excerpt"
+                required
+                rows={3}
+                value={formData.excerpt}
+                onChange={handleChange}
+                className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm text-slate-800 outline-none transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+                placeholder="Brief description of your post"
+              />
+            </div>
 
-          {/* Category */}
-          <div>
-            <label
-              htmlFor="category"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Category *
-            </label>
-            <select
-              id="category"
-              name="category"
-              required
-              value={formData.category}
-              onChange={handleChange}
-              className="input-field"
-            >
-              <option value="">Select a category</option>
-              {categories.map((cat) => (
-                <option key={cat._id} value={cat._id}>
-                  {cat.name}
-                </option>
-              ))}
-            </select>
-          </div>
+            <div className="grid gap-2 md:max-w-sm">
+              <label
+                htmlFor="category"
+                className="text-sm font-semibold text-slate-800"
+              >
+                Category *
+              </label>
+              <select
+                id="category"
+                name="category"
+                required
+                value={formData.category}
+                onChange={handleChange}
+                className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm text-slate-800 outline-none transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+              >
+                <option value="">Select a category</option>
+                {categories.map((cat) => (
+                  <option key={cat._id} value={cat._id}>
+                    {cat.name}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-          {/* Content */}
-          <div>
-            <label
-              htmlFor="content"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Content * (Markdown supported)
-            </label>
-            <textarea
-              id="content"
-              name="content"
-              required
-              rows={15}
-              value={formData.content}
-              onChange={handleChange}
-              className="input-field font-mono text-sm"
-              placeholder="Write your post content here... You can use Markdown formatting."
-            />
-          </div>
+            <div className="grid gap-2">
+              <label
+                htmlFor="content"
+                className="text-sm font-semibold text-slate-800"
+              >
+                Content * (Markdown supported)
+              </label>
+              <textarea
+                id="content"
+                name="content"
+                required
+                rows={15}
+                value={formData.content}
+                onChange={handleChange}
+                className="w-full rounded-xl border border-slate-300 px-4 py-2.5 font-mono text-sm text-slate-800 outline-none transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+                placeholder="Write your post content here... You can use Markdown formatting."
+              />
+            </div>
 
-          {/* Cover Image */}
-          <div>
-            <label
-              htmlFor="coverImage"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Cover Image URL
-            </label>
-            <input
-              type="url"
-              id="coverImage"
-              name="coverImage"
-              value={formData.coverImage}
-              onChange={handleChange}
-              className="input-field"
-              placeholder="https://example.com/image.jpg"
-            />
-          </div>
+            <div className="grid gap-2">
+              <label
+                htmlFor="coverImage"
+                className="text-sm font-semibold text-slate-800"
+              >
+                Cover Image URL
+              </label>
+              <input
+                type="url"
+                id="coverImage"
+                name="coverImage"
+                value={formData.coverImage}
+                onChange={handleChange}
+                className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm text-slate-800 outline-none transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+                placeholder="https://example.com/image.jpg"
+              />
+            </div>
 
-          {/* Tags */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Tags
-            </label>
-            <div className="flex flex-wrap gap-2">
-              {availableTags.map((tag) => {
-                const isSelected = formData.tags.includes(tag._id);
-                return (
-                  <button
-                    key={tag._id}
-                    type="button"
-                    onClick={() => handleTagToggle(tag._id)}
-                    className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                      isSelected
-                        ? "bg-blue-600 text-white"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                    }`}
-                  >
-                    {tag.name}
-                  </button>
-                );
-              })}
-              {availableTags.length === 0 && (
-                <span className="text-gray-500 text-sm">
-                  No tags available.
-                </span>
-              )}
+            <div className="grid gap-2">
+              <label className="text-sm font-semibold text-slate-800">
+                Tags
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {availableTags.map((tag) => {
+                  const isSelected = formData.tags.includes(tag._id);
+                  return (
+                    <button
+                      key={tag._id}
+                      type="button"
+                      onClick={() => handleTagToggle(tag._id)}
+                      className={`rounded-full px-3 py-1.5 text-sm font-medium transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.98] ${
+                        isSelected
+                          ? "bg-emerald-600 text-white"
+                          : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                      }`}
+                    >
+                      {tag.name}
+                    </button>
+                  );
+                })}
+                {availableTags.length === 0 && (
+                  <span className="text-sm text-slate-500">
+                    No tags available.
+                  </span>
+                )}
+              </div>
             </div>
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex gap-4 pt-6 border-t border-gray-200">
+          <div className="flex flex-wrap gap-3 border-t border-slate-200 pt-6">
             <button
               type="button"
               onClick={(e) => handleSubmit(e, "draft")}
               disabled={isLoading}
-              className="flex items-center space-x-2 btn-secondary disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-slate-100 disabled:opacity-50"
             >
-              <Save className="w-5 h-5" />
+              <FloppyDisk size={18} weight="duotone" />
               <span>Save as Draft</span>
             </button>
 
@@ -292,9 +294,9 @@ export default function CreatePostPage() {
               type="button"
               onClick={(e) => handleSubmit(e, "published")}
               disabled={isLoading}
-              className="flex items-center space-x-2 btn-primary disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-emerald-700 active:-translate-y-[1px] disabled:opacity-50"
             >
-              <Eye className="w-5 h-5" />
+              <Eye size={18} weight="duotone" />
               <span>Publish Now</span>
             </button>
 
@@ -302,7 +304,7 @@ export default function CreatePostPage() {
               type="button"
               onClick={() => router.back()}
               disabled={isLoading}
-              className="ml-auto px-6 py-2 text-gray-600 hover:text-gray-800"
+              className="ml-auto rounded-xl px-4 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:text-slate-900"
             >
               Cancel
             </button>

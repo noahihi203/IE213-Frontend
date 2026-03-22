@@ -2,9 +2,15 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { Outfit } from "next/font/google";
 import { categoryService } from "@/lib/api/category.service";
 import { Category } from "@/lib/types";
-import { FolderOpen } from "lucide-react";
+import { FolderOpen } from "@phosphor-icons/react";
+
+const outfit = Outfit({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+});
 
 export default function CategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -27,52 +33,72 @@ export default function CategoriesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-4">Categories</h1>
-          <p className="text-gray-600">Browse posts by category</p>
+    <div className={`${outfit.className} min-h-[100dvh] bg-slate-50`}>
+      <div className="mx-auto max-w-7xl px-4 py-10 md:px-6 lg:px-10">
+        <div className="mb-8 max-w-2xl">
+          <h1 className="text-4xl font-semibold tracking-tighter text-slate-950 md:text-5xl">
+            Categories
+          </h1>
+          <p className="mt-3 text-base leading-relaxed text-slate-600">
+            Explore writing by topic and quickly jump to the category that fits
+            your interest.
+          </p>
         </div>
 
         {isLoading ? (
-          <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+            {[1, 2, 3, 4].map((slot) => (
+              <div
+                key={slot}
+                className="rounded-[1.25rem] border border-slate-200 bg-white p-6"
+              >
+                <div className="h-12 w-12 animate-pulse rounded-xl bg-slate-200" />
+                <div className="mt-4 h-4 w-2/3 animate-pulse rounded bg-slate-200" />
+                <div className="mt-2 h-3 w-5/6 animate-pulse rounded bg-slate-200" />
+              </div>
+            ))}
           </div>
         ) : categories.length === 0 ? (
-          <div className="text-center py-12 bg-white rounded-lg shadow-md">
-            <FolderOpen className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-600 text-lg">No categories found</p>
+          <div className="rounded-[1.5rem] border border-slate-200 bg-white px-6 py-14 text-center shadow-[0_20px_40px_-15px_rgba(15,23,42,0.08)]">
+            <FolderOpen
+              size={56}
+              className="mx-auto mb-4 text-slate-300"
+              weight="duotone"
+            />
+            <p className="text-lg font-medium text-slate-800">
+              No categories found
+            </p>
           </div>
         ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
             {categories.map((category) => (
               <Link
                 key={category._id}
                 href={`/categories/${category.slug}`}
-                className="bg-white rounded-lg shadow-md p-6 hover:shadow-xl transition-shadow"
+                className="rounded-[1.25rem] border border-slate-200/80 bg-white p-6 shadow-[0_20px_40px_-18px_rgba(15,23,42,0.12)] transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-[1px] hover:shadow-[0_24px_44px_-18px_rgba(15,23,42,0.14)]"
               >
-                <div className="flex items-start space-x-4">
+                <div className="flex items-start gap-4">
                   {category.icon ? (
-                    <div className="w-12 h-12 shrink-0 rounded-lg flex items-center justify-center overflow-hidden bg-gray-50 border border-gray-100">
+                    <div className="h-12 w-12 shrink-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-100">
                       <img
-                        className="w-full h-full object-cover"
+                        className="h-full w-full object-cover"
                         src={category.icon}
                         alt={category.name}
                       />
                     </div>
                   ) : (
-                    <div className="w-12 h-12 shrink-0 bg-primary-100 rounded-lg flex items-center justify-center">
-                      <FolderOpen className="w-6 h-6 text-primary-600" />
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
+                      <FolderOpen size={22} weight="duotone" />
                     </div>
                   )}
 
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-lg font-bold mb-1 hover:text-primary-600 transition-colors truncate">
+                  <div className="min-w-0 flex-1">
+                    <h3 className="mb-1 truncate text-lg font-semibold tracking-tight text-slate-900 transition-colors hover:text-emerald-700">
                       {category.name}
                     </h3>
 
                     {category.description && (
-                      <p className="text-gray-600 text-sm truncate">
+                      <p className="truncate text-sm text-slate-600">
                         {category.description}
                       </p>
                     )}

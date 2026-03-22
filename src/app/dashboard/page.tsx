@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/authStore";
+import { Outfit } from "next/font/google";
 
 import { usePosts } from "../../hooks/usePosts";
 import { useUsers } from "../../hooks/useUsers";
@@ -18,6 +19,11 @@ import TagModal from "../../components/TagModal";
 import CategoryModal from "../../components/CategoryModal";
 
 type ActiveTab = "posts" | "users" | "tags" | "categories";
+
+const outfit = Outfit({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+});
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -90,13 +96,17 @@ export default function DashboardPage() {
   };
 
   if (!authInitialized || !user) {
-    return <div className="container mx-auto px-4 py-8">Loading...</div>;
+    return (
+      <div className="mx-auto max-w-7xl px-4 py-8 text-slate-600">
+        Loading...
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid lg:grid-cols-4 gap-8">
+    <div className={`${outfit.className} min-h-[100dvh] bg-slate-50`}>
+      <div className="mx-auto max-w-7xl px-4 py-8 md:px-6 lg:px-10">
+        <div className="grid gap-6 lg:grid-cols-4 lg:gap-8">
           {/* ── Sidebar ── */}
           <div className="lg:col-span-1">
             <DashboardSidebar
@@ -108,7 +118,7 @@ export default function DashboardPage() {
           </div>
 
           {/* ── Main content ── */}
-          <div className="lg:col-span-3">
+          <div className="lg:col-span-3 rounded-[1.5rem] border border-slate-200/80 bg-white p-4 shadow-[0_20px_40px_-15px_rgba(15,23,42,0.08)] md:p-5">
             {activeTab === "posts" && (
               <PostsTab
                 user={user}

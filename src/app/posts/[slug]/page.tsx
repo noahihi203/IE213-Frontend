@@ -9,16 +9,16 @@ import { useAuthStore } from "@/store/authStore";
 import { Comment as PostComment, Post, User } from "@/lib/types";
 import { format } from "date-fns";
 import {
+  ArrowLeft,
+  CalendarDots,
+  ChatCircleDots,
   Eye,
   Heart,
-  Share2,
-  Calendar,
-  ArrowLeft,
-  Edit,
-  MessageCircle,
-  Send,
-  Trash2,
-} from "lucide-react";
+  PaperPlaneTilt,
+  PencilSimple,
+  ShareNetwork,
+  Trash,
+} from "@phosphor-icons/react";
 
 type ReportReason =
   | "spam"
@@ -460,7 +460,7 @@ export default function PostDetailPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600"></div>
       </div>
     );
   }
@@ -470,8 +470,11 @@ export default function PostDetailPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-2xl font-bold mb-2">Post Not Found</h2>
-          <p className="text-gray-600 mb-4">{error}</p>
-          <Link href="/posts" className="btn-primary">
+          <p className="text-slate-600 mb-4">{error}</p>
+          <Link
+            href="/posts"
+            className="inline-flex rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-700"
+          >
             Back to Posts
           </Link>
         </div>
@@ -491,14 +494,14 @@ export default function PostDetailPage() {
   const isAuthor = user && author && user._id === author._id;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-slate-50">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200">
+      <div className="bg-white border-b border-slate-200">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <button
               onClick={() => router.back()}
-              className="flex items-center space-x-2 text-gray-600 hover:text-gray-900"
+              className="flex items-center space-x-2 text-slate-600 hover:text-slate-900"
             >
               <ArrowLeft className="w-5 h-5" />
               <span>Back</span>
@@ -507,9 +510,9 @@ export default function PostDetailPage() {
             {isAuthor && (
               <Link
                 href={`/posts/${post._id}/edit`}
-                className="flex items-center space-x-2 text-primary-600 hover:text-primary-700"
+                className="flex items-center space-x-2 text-emerald-600 hover:text-emerald-700"
               >
-                <Edit className="w-5 h-5" />
+                <PencilSimple className="w-5 h-5" />
                 <span>Edit Post</span>
               </Link>
             )}
@@ -535,7 +538,7 @@ export default function PostDetailPage() {
           {category && (
             <Link
               href={`/categories/${category.slug}`}
-              className="inline-block px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-sm font-medium mb-4"
+              className="inline-block px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-sm font-medium mb-4"
             >
               {category.name}
             </Link>
@@ -544,8 +547,8 @@ export default function PostDetailPage() {
           <h1 className="text-4xl md:text-5xl font-bold mb-4">{post.title}</h1>
 
           {/* Meta */}
-          <div className="flex items-center justify-between flex-wrap gap-4 py-4 border-y border-gray-200">
-            <div className="flex items-center space-x-6 text-gray-600">
+          <div className="flex items-center justify-between flex-wrap gap-4 py-4 border-y border-slate-200">
+            <div className="flex items-center space-x-6 text-slate-600">
               <span className="flex items-center space-x-2">
                 <Eye className="w-5 h-5" />
                 <span>{post.viewCount} views</span>
@@ -557,13 +560,13 @@ export default function PostDetailPage() {
               </span>
 
               <span className="flex items-center space-x-2">
-                <MessageCircle className="w-5 h-5" />
+                <ChatCircleDots className="w-5 h-5" />
                 <span>{post.commentsCount} comments</span>
               </span>
 
               {post.publishedAt && (
                 <span className="flex items-center space-x-2">
-                  <Calendar className="w-5 h-5" />
+                  <CalendarDots className="w-5 h-5" />
                   <span>
                     {format(new Date(post.publishedAt), "MMMM d, yyyy")}
                   </span>
@@ -574,14 +577,14 @@ export default function PostDetailPage() {
             {/* Author */}
             {author && (
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-primary-600 rounded-full flex items-center justify-center text-white font-bold">
+                <div className="w-10 h-10 bg-emerald-600 rounded-full flex items-center justify-center text-white font-bold">
                   {author?.username?.charAt(0)?.toUpperCase() || "U"}
                 </div>
                 <div>
                   <p className="font-semibold">
                     {author?.fullName || "Unknown"}
                   </p>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-slate-600">
                     @{author?.username || "user"}
                   </p>
                 </div>
@@ -592,7 +595,7 @@ export default function PostDetailPage() {
 
         {/* 🔥 FIXED CONTENT RENDERING */}
         <div
-          className="prose prose-lg max-w-none mb-8 prose-headings:font-bold prose-h2:text-2xl prose-h3:text-xl prose-p:text-gray-700"
+          className="prose prose-lg max-w-none mb-8 prose-headings:font-bold prose-h2:text-2xl prose-h3:text-xl prose-p:text-slate-700"
           dangerouslySetInnerHTML={{ __html: post.content }}
         />
 
@@ -602,7 +605,7 @@ export default function PostDetailPage() {
             {post.tags.map((tag, index) => (
               <span
                 key={index}
-                className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm"
+                className="px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-sm"
               >
                 #{tag.name}
               </span>
@@ -611,28 +614,30 @@ export default function PostDetailPage() {
         )}
 
         {/* Actions */}
-        <div className="flex items-center space-x-4 py-6 border-t border-gray-200">
+        <div className="flex items-center space-x-4 py-6 border-t border-slate-200">
           <button
             onClick={handleLike}
             className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-medium ${
-              isLiked ? "bg-red-100 text-red-700" : "bg-gray-100 text-gray-700"
+              isLiked
+                ? "bg-red-100 text-red-700"
+                : "bg-slate-100 text-slate-700"
             }`}
           >
             <Heart className={`w-5 h-5 ${isLiked ? "fill-current" : ""}`} />
             <span>{isLiked ? "Liked" : "Like"}</span>
           </button>
 
-          <button className="flex items-center space-x-2 px-6 py-3 bg-gray-100 text-gray-700 rounded-lg">
-            <Share2 className="w-5 h-5" />
+          <button className="flex items-center space-x-2 px-6 py-3 bg-slate-100 text-slate-700 rounded-lg">
+            <ShareNetwork className="w-5 h-5" />
             <span>Share</span>
           </button>
         </div>
 
         {/* Comments */}
-        <section className="py-6 border-t border-gray-200">
+        <section className="py-6 border-t border-slate-200">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold text-gray-900">Bình luận</h2>
-            <span className="text-sm text-gray-500">
+            <h2 className="text-2xl font-bold text-slate-900">Bình luận</h2>
+            <span className="text-sm text-slate-500">
               {post.commentsCount} bình luận
             </span>
           </div>
@@ -645,14 +650,14 @@ export default function PostDetailPage() {
 
           <div className="space-y-4">
             {!authInitialized ? (
-              <div className="rounded-lg border border-dashed border-gray-300 py-5 text-center text-gray-500">
+              <div className="rounded-lg border border-dashed border-slate-300 py-5 text-center text-slate-500">
                 Đang tải trạng thái đăng nhập...
               </div>
             ) : isAuthenticated ? (
-              <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
+              <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
                 <label
                   htmlFor="new-comment"
-                  className="block text-sm font-medium text-gray-700 mb-2"
+                  className="block text-sm font-medium text-slate-700 mb-2"
                 >
                   Thêm bình luận mới
                 </label>
@@ -661,7 +666,7 @@ export default function PostDetailPage() {
                   rows={3}
                   value={newCommentContent}
                   onChange={(e) => setNewCommentContent(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary-500"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-emerald-500"
                   placeholder="Nhập nội dung bình luận..."
                 />
                 <div className="mt-3 flex justify-end">
@@ -669,22 +674,22 @@ export default function PostDetailPage() {
                     type="button"
                     onClick={handleCreateComment}
                     disabled={isSubmittingComment}
-                    className="inline-flex items-center space-x-2 px-4 py-2 bg-primary-600 text-white rounded-md font-medium hover:bg-primary-700 disabled:opacity-60"
+                    className="inline-flex items-center space-x-2 px-4 py-2 bg-emerald-600 text-white rounded-md font-medium hover:bg-emerald-700 disabled:opacity-60"
                   >
-                    <Send className="w-4 h-4" />
+                    <PaperPlaneTilt className="w-4 h-4" />
                     <span>{isSubmittingComment ? "Đang gửi..." : "Gửi"}</span>
                   </button>
                 </div>
               </div>
             ) : (
-              <div className="rounded-lg border border-gray-200 bg-gray-50 p-5 text-center">
-                <p className="text-gray-700 mb-3">
+              <div className="rounded-lg border border-slate-200 bg-slate-50 p-5 text-center">
+                <p className="text-slate-700 mb-3">
                   Đăng nhập để bình luận bài viết này.
                 </p>
                 <button
                   type="button"
                   onClick={() => router.push("/login")}
-                  className="inline-flex items-center rounded-md bg-primary-600 px-4 py-2 text-white hover:bg-primary-700"
+                  className="inline-flex items-center rounded-md bg-emerald-600 px-4 py-2 text-white hover:bg-emerald-700"
                 >
                   Đăng nhập
                 </button>
@@ -692,11 +697,11 @@ export default function PostDetailPage() {
             )}
 
             {isLoadingComments ? (
-              <div className="py-10 text-center text-gray-500">
+              <div className="py-10 text-center text-slate-500">
                 Đang tải bình luận...
               </div>
             ) : commentsWithDepth.length === 0 ? (
-              <div className="rounded-lg border border-dashed border-gray-300 py-10 text-center text-gray-500">
+              <div className="rounded-lg border border-dashed border-slate-300 py-10 text-center text-slate-500">
                 Chưa có bình luận nào cho bài viết này.
               </div>
             ) : (
@@ -721,11 +726,11 @@ export default function PostDetailPage() {
                   return (
                     <div
                       key={comment._id}
-                      className="rounded-lg border border-gray-200 bg-white p-3"
+                      className="rounded-lg border border-slate-200 bg-white p-3"
                       style={{ marginLeft: leftIndent }}
                     >
                       <div className="flex items-center justify-between mb-2 gap-4">
-                        <div className="text-sm text-gray-700">
+                        <div className="text-sm text-slate-700">
                           <span className="font-medium">
                             {isOwnComment
                               ? "Bạn"
@@ -733,11 +738,11 @@ export default function PostDetailPage() {
                                 commentUser?.username ||
                                 `User ${commentUserId.slice(-6) || "ẩn danh"}`}
                           </span>
-                          <span className="text-gray-400 ml-2">
+                          <span className="text-slate-400 ml-2">
                             {formatCommentDate(comment.createdOn)}
                           </span>
                           {comment.isEdited && (
-                            <span className="ml-2 text-xs text-gray-500">
+                            <span className="ml-2 text-xs text-slate-500">
                               (đã chỉnh sửa)
                             </span>
                           )}
@@ -797,7 +802,7 @@ export default function PostDetailPage() {
                               disabled={deletingCommentId === comment._id}
                               className="inline-flex items-center space-x-1 text-xs text-red-600 hover:text-red-700 disabled:opacity-60"
                             >
-                              <Trash2 className="w-3.5 h-3.5" />
+                              <Trash className="w-3.5 h-3.5" />
                               <span>
                                 {deletingCommentId === comment._id
                                   ? "Đang xóa"
@@ -816,14 +821,14 @@ export default function PostDetailPage() {
                             onChange={(e) =>
                               setEditCommentContent(e.target.value)
                             }
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary-500"
+                            className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-emerald-500"
                           />
                           <div className="flex justify-end gap-2">
                             <button
                               type="button"
                               onClick={cancelEditComment}
                               disabled={isUpdatingComment}
-                              className="px-3 py-1.5 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 text-sm disabled:opacity-60"
+                              className="px-3 py-1.5 border border-slate-300 rounded-md text-slate-700 hover:bg-slate-50 text-sm disabled:opacity-60"
                             >
                               Hủy
                             </button>
@@ -831,20 +836,20 @@ export default function PostDetailPage() {
                               type="button"
                               onClick={handleSaveCommentEdit}
                               disabled={isUpdatingComment}
-                              className="px-3 py-1.5 bg-primary-600 text-white rounded-md text-sm hover:bg-primary-700 disabled:opacity-60"
+                              className="px-3 py-1.5 bg-emerald-600 text-white rounded-md text-sm hover:bg-emerald-700 disabled:opacity-60"
                             >
                               {isUpdatingComment ? "Đang lưu..." : "Lưu"}
                             </button>
                           </div>
                         </div>
                       ) : (
-                        <p className="text-sm text-gray-700 whitespace-pre-wrap">
+                        <p className="text-sm text-slate-700 whitespace-pre-wrap">
                           {comment.content}
                         </p>
                       )}
 
                       {isReplying && !isEditing && (
-                        <div className="mt-3 pt-3 border-t border-gray-100 space-y-2">
+                        <div className="mt-3 pt-3 border-t border-slate-100 space-y-2">
                           <textarea
                             rows={2}
                             value={replyValue}
@@ -854,7 +859,7 @@ export default function PostDetailPage() {
                                 [comment._id]: e.target.value,
                               }))
                             }
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary-500"
+                            className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-emerald-500"
                             placeholder="Viết phản hồi..."
                           />
                           <div className="flex justify-end gap-2">
@@ -862,7 +867,7 @@ export default function PostDetailPage() {
                               type="button"
                               onClick={() => setActiveReplyCommentId(null)}
                               disabled={replySubmittingFor === comment._id}
-                              className="px-3 py-1.5 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 text-sm disabled:opacity-60"
+                              className="px-3 py-1.5 border border-slate-300 rounded-md text-slate-700 hover:bg-slate-50 text-sm disabled:opacity-60"
                             >
                               Hủy
                             </button>
@@ -870,7 +875,7 @@ export default function PostDetailPage() {
                               type="button"
                               onClick={() => handleReplyComment(comment._id)}
                               disabled={replySubmittingFor === comment._id}
-                              className="px-3 py-1.5 bg-primary-600 text-white rounded-md text-sm hover:bg-primary-700 disabled:opacity-60"
+                              className="px-3 py-1.5 bg-emerald-600 text-white rounded-md text-sm hover:bg-emerald-700 disabled:opacity-60"
                             >
                               {replySubmittingFor === comment._id
                                 ? "Đang gửi..."
