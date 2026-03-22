@@ -1,6 +1,6 @@
 "use client";
 
-import { Users, Trash2, ArchiveRestore } from "lucide-react";
+import { Archive, Trash, UsersThree } from "@phosphor-icons/react";
 import { User } from "@/lib/types";
 
 interface UsersTabProps {
@@ -21,70 +21,70 @@ export default function UsersTab({
   onRestore,
 }: UsersTabProps) {
   return (
-    <div className="bg-white rounded-lg shadow-md p-6">
-      <h1 className="text-2xl font-bold mb-2">Danh sách người dùng</h1>
-      <p className="text-gray-600 mb-6">Quản lý người dùng trong hệ thống.</p>
+    <div className="rounded-[1.5rem] border border-slate-200/80 bg-white p-6 shadow-[0_20px_40px_-15px_rgba(15,23,42,0.08)]">
+      <h1 className="mb-2 text-2xl font-semibold tracking-tight text-slate-900">Danh sách người dùng</h1>
+      <p className="mb-6 text-slate-600">Quản lý người dùng trong hệ thống.</p>
 
       {isLoading ? (
         <div className="text-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto" />
+          <div className="mx-auto h-8 w-8 animate-spin rounded-full border-b-2 border-emerald-600" />
         </div>
       ) : users.length === 0 ? (
-        <div className="text-center py-8 text-gray-500">
-          <Users className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+        <div className="py-8 text-center text-slate-500">
+          <UsersThree size={48} weight="duotone" className="mx-auto mb-3 text-slate-300" />
           Không có người dùng nào hoặc không thể tải dữ liệu
         </div>
       ) : (
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+          <table className="min-w-full divide-y divide-slate-200">
+            <thead className="bg-slate-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-500">
                   Người dùng
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-500">
                   Email
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-500">
                   Vai trò
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-500">
                   Trạng thái
                 </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-slate-500">
                   Thao tác
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="divide-y divide-slate-200 bg-white">
               {users.map((u) => (
-                <tr key={u._id} className="hover:bg-gray-50">
+                <tr key={u._id} className="hover:bg-slate-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
-                      <div className="flex-shrink-0 h-10 w-10 bg-primary-100 rounded-full flex items-center justify-center text-primary-700 font-bold border border-primary-200">
+                      <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border border-emerald-200 bg-emerald-100 font-bold text-emerald-700">
                         {u.username.charAt(0).toUpperCase()}
                       </div>
                       <div className="ml-4">
-                        <div className="text-sm font-medium text-gray-900">
+                        <div className="text-sm font-medium text-slate-900">
                           {u.fullName}
                         </div>
-                        <div className="text-sm text-gray-500">
+                        <div className="text-sm text-slate-500">
                           @{u.username}
                         </div>
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
                     {u.email}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span
                       className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
                         u.role === "admin"
-                          ? "bg-purple-100 text-purple-800"
+                          ? "bg-rose-100 text-rose-700"
                           : u.role === "author"
-                            ? "bg-blue-100 text-blue-800"
-                            : "bg-green-100 text-green-800"
+                            ? "bg-emerald-100 text-emerald-700"
+                            : "bg-slate-100 text-slate-700"
                       }`}
                     >
                       {u.role === "admin"
@@ -98,7 +98,7 @@ export default function UsersTab({
                     <span
                       className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
                         u.isActive
-                          ? "bg-green-100 text-green-800"
+                          ? "bg-emerald-100 text-emerald-700"
                           : "bg-red-100 text-red-800"
                       }`}
                     >
@@ -113,7 +113,7 @@ export default function UsersTab({
                           onChange={(e) =>
                             onRoleChange(u._id, u.role, e.target.value)
                           }
-                          className="block w-28 text-sm pl-2 py-1 pr-6 border-gray-300 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm rounded-md"
+                          className="block w-28 rounded-md border border-slate-300 py-1 pl-2 pr-6 text-sm focus:border-emerald-500 focus:outline-none focus:ring-emerald-500 sm:text-sm"
                         >
                           <option value="user">Người dùng</option>
                           <option value="author">Tác giả</option>
@@ -126,15 +126,15 @@ export default function UsersTab({
                             className="text-red-600 hover:text-red-900 bg-red-50 p-1.5 rounded-md hover:bg-red-100 transition-colors"
                             title="Khóa/Xóa người dùng"
                           >
-                            <Trash2 className="w-4 h-4" />
+                            <Trash size={16} weight="duotone" />
                           </button>
                         ) : (
                           <button
                             onClick={() => onRestore(u._id)}
-                            className="text-green-600 hover:text-green-900 bg-green-50 p-1.5 rounded-md hover:bg-green-100 transition-colors"
+                            className="bg-emerald-50 p-1.5 text-emerald-600 transition-colors hover:bg-emerald-100 hover:text-emerald-900 rounded-md"
                             title="Khôi phục người dùng"
                           >
-                            <ArchiveRestore className="w-4 h-4" />
+                            <Archive size={16} weight="duotone" />
                           </button>
                         )}
                       </div>

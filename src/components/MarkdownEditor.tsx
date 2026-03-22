@@ -27,8 +27,8 @@ export default function MarkdownEditor({
         preview="live"
         visibleDragbar={false}
         style={{
-          borderRadius: "0.375rem",
-          border: "1px solid #d1d5db",
+          borderRadius: "0.5rem",
+          border: "1px solid #cbd5e1",
           boxShadow: "none",
         }}
       />

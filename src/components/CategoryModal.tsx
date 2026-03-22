@@ -1,6 +1,6 @@
 "use client";
 
-import { X } from "lucide-react";
+import { X } from "@phosphor-icons/react";
 
 interface CategoryModalProps {
   isOpen: boolean;
@@ -24,23 +24,23 @@ export default function CategoryModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
-        <div className="flex items-center justify-between p-4 border-b">
-          <h2 className="text-lg font-bold">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+      <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white shadow-xl">
+        <div className="flex items-center justify-between border-b border-slate-200 p-4">
+          <h2 className="text-lg font-semibold tracking-tight text-slate-900">
             {editingCategoryId ? "Sửa Danh Mục" : "Thêm Danh Mục Mới"}
           </h2>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700"
+            className="text-slate-500 transition-colors hover:text-slate-700"
           >
-            <X className="w-5 h-5" />
+            <X size={18} weight="bold" />
           </button>
         </div>
 
-        <form onSubmit={onSubmit} className="p-4 space-y-4">
+        <form onSubmit={onSubmit} className="space-y-4 p-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="mb-1 block text-sm font-medium text-slate-700">
               Tên Danh Mục <span className="text-red-500">*</span>
             </label>
             <input
@@ -50,13 +50,13 @@ export default function CategoryModal({
               onChange={(e) =>
                 onChange({ ...categoryData, name: e.target.value })
               }
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary-500"
+              className="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-emerald-500"
               placeholder="Nhập tên danh mục..."
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="mb-1 block text-sm font-medium text-slate-700">
               Icon <span className="text-red-500">*</span>
             </label>
             <input
@@ -66,13 +66,13 @@ export default function CategoryModal({
               onChange={(e) =>
                 onChange({ ...categoryData, icon: e.target.value })
               }
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary-500"
-              placeholder="Nhập icon (ví dụ: lucide-icon-name)..."
+              className="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              placeholder="Nhập icon..."
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="mb-1 block text-sm font-medium text-slate-700">
               Mô tả
             </label>
             <textarea
@@ -80,7 +80,7 @@ export default function CategoryModal({
               onChange={(e) =>
                 onChange({ ...categoryData, description: e.target.value })
               }
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary-500"
+              className="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-emerald-500"
               placeholder="Nhập mô tả danh mục (tùy chọn)..."
               rows={3}
             />
@@ -90,15 +90,15 @@ export default function CategoryModal({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 font-medium"
+              className="rounded-md border border-slate-300 px-4 py-2 font-medium text-slate-700 hover:bg-slate-50"
             >
               Hủy
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className={`px-4 py-2 bg-primary-600 text-white rounded-md font-medium hover:bg-primary-700 ${
-                isSubmitting ? "opacity-50 cursor-not-allowed" : ""
+              className={`rounded-md bg-emerald-600 px-4 py-2 font-medium text-white hover:bg-emerald-700 ${
+                isSubmitting ? "cursor-not-allowed opacity-50" : ""
               }`}
             >
               {isSubmitting ? "Đang lưu..." : "Lưu Danh Mục"}

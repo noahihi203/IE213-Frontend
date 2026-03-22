@@ -3,18 +3,24 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import {
-  ArrowLeft,
-  Calendar,
-  Eye,
-  FileText,
-  Filter,
-  Heart,
-  MessageCircle,
-} from "lucide-react";
 import { format } from "date-fns";
+import { Outfit } from "next/font/google";
 import { categoryService } from "@/lib/api/category.service";
 import { Category, Post } from "@/lib/types";
+import {
+  ArrowLeft,
+  CalendarDots,
+  ChatCircleDots,
+  Eye,
+  FileText,
+  Funnel,
+  Heart,
+} from "@phosphor-icons/react";
+
+const outfit = Outfit({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+});
 
 export default function CategoryDetailPage() {
   const params = useParams();
@@ -60,34 +66,34 @@ export default function CategoryDetailPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="bg-white border-b border-gray-200">
-        <div className="container mx-auto px-4 py-4">
+    <div className={`${outfit.className} min-h-[100dvh] bg-slate-50`}>
+      <div className="border-b border-slate-200 bg-white/80 backdrop-blur">
+        <div className="mx-auto max-w-7xl px-4 py-6 md:px-6 lg:px-10">
           <div className="flex items-center justify-between gap-3">
             <button
               type="button"
               onClick={() => router.back()}
-              className="inline-flex items-center space-x-2 text-gray-600 hover:text-gray-900"
+              className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100"
             >
-              <ArrowLeft className="w-5 h-5" />
+              <ArrowLeft size={18} weight="duotone" />
               <span>Back</span>
             </button>
 
             <button
               type="button"
               disabled
-              className="inline-flex items-center space-x-2 px-3 py-2 border border-gray-300 rounded-md text-gray-500 bg-gray-100 opacity-70 cursor-not-allowed"
+              className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-slate-100 px-3 py-2 text-sm text-slate-500 opacity-80"
             >
-              <Filter className="w-4 h-4" />
+              <Funnel size={16} weight="duotone" />
               <span>Filter</span>
             </button>
           </div>
 
-          <div className="mt-4">
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
+          <div className="mt-5">
+            <h1 className="text-3xl font-semibold tracking-tight text-slate-900 md:text-4xl">
               {category?.name || "Category"}
             </h1>
-            <p className="text-gray-600 mt-1">
+            <p className="mt-1 text-sm text-slate-600">
               {category?.description ||
                 "Danh sách bài viết thuộc danh mục này."}
             </p>
@@ -95,42 +101,59 @@ export default function CategoryDetailPage() {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-8">
+      <div className="mx-auto max-w-7xl px-4 py-8 md:px-6 lg:px-10">
         {isLoading ? (
-          <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto" />
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+            {[1, 2, 3, 4].map((slot) => (
+              <div
+                key={slot}
+                className="rounded-[1.25rem] border border-slate-200 bg-white p-6"
+              >
+                <div className="mb-4 h-36 animate-pulse rounded-xl bg-slate-200" />
+                <div className="mb-2 h-4 w-2/3 animate-pulse rounded bg-slate-200" />
+                <div className="h-3 w-4/5 animate-pulse rounded bg-slate-200" />
+              </div>
+            ))}
           </div>
         ) : error ? (
-          <div className="bg-white rounded-lg shadow-md p-10 text-center">
-            <FileText className="w-14 h-14 text-gray-300 mx-auto mb-4" />
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">
+          <div className="rounded-[1.5rem] border border-slate-200 bg-white p-10 text-center shadow-[0_20px_40px_-15px_rgba(15,23,42,0.08)]">
+            <FileText
+              size={54}
+              className="mx-auto mb-4 text-slate-300"
+              weight="duotone"
+            />
+            <h2 className="mb-2 text-xl font-semibold text-slate-900">
               Không thể tải danh mục
             </h2>
-            <p className="text-gray-600 mb-6">{error}</p>
+            <p className="mb-6 text-slate-600">{error}</p>
             <Link
               href="/categories"
-              className="inline-flex items-center px-4 py-2 rounded-md bg-primary-600 text-white hover:bg-primary-700"
+              className="inline-flex items-center rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-700"
             >
               Quay lại danh mục
             </Link>
           </div>
         ) : posts.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-md p-10 text-center">
-            <FileText className="w-14 h-14 text-gray-300 mx-auto mb-4" />
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">
+          <div className="rounded-[1.5rem] border border-slate-200 bg-white p-10 text-center shadow-[0_20px_40px_-15px_rgba(15,23,42,0.08)]">
+            <FileText
+              size={54}
+              className="mx-auto mb-4 text-slate-300"
+              weight="duotone"
+            />
+            <h2 className="mb-2 text-xl font-semibold text-slate-900">
               Chưa có bài viết nào
             </h2>
-            <p className="text-gray-600">
+            <p className="text-slate-600">
               Danh mục này hiện chưa có bài viết đã xuất bản.
             </p>
           </div>
         ) : (
           <>
-            <p className="text-sm text-gray-500 mb-5">
+            <p className="mb-5 text-sm text-slate-500">
               {posts.length} bài viết
             </p>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
               {posts.map((post) => (
                 <PostCard key={post._id} post={post} />
               ))}
@@ -147,64 +170,64 @@ function PostCard({ post }: { post: Post }) {
   const category = typeof post.category === "object" ? post.category : null;
 
   return (
-    <article className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow">
+    <article className="overflow-hidden rounded-[1.25rem] border border-slate-200/80 bg-white shadow-[0_20px_40px_-18px_rgba(15,23,42,0.12)] transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-[1px] hover:shadow-[0_24px_44px_-18px_rgba(15,23,42,0.14)]">
       {post.coverImage && (
-        <div className="h-48 bg-gray-200">
+        <div className="h-48 bg-slate-200">
           <img
             src={post.coverImage}
             alt={post.title}
-            className="w-full h-full object-cover"
+            className="h-full w-full object-cover"
           />
         </div>
       )}
 
       <div className="p-6">
         {category && (
-          <span className="inline-block px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-xs font-medium mb-3">
+          <span className="mb-3 inline-block rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
             {category.name}
           </span>
         )}
 
         <Link href={`/posts/${post.slug}`}>
-          <h2 className="text-xl font-bold mb-2 hover:text-primary-600 transition-colors line-clamp-2">
+          <h2 className="mb-2 line-clamp-2 text-xl font-semibold tracking-tight text-slate-900 transition-colors hover:text-emerald-700">
             {post.title}
           </h2>
         </Link>
 
-        <p className="text-gray-600 text-sm mb-4 line-clamp-3">
+        <p className="mb-4 line-clamp-3 text-sm leading-relaxed text-slate-600">
           {post.excerpt}
         </p>
 
-        <div className="flex items-center justify-between text-sm text-gray-500 pt-4 border-t border-gray-100">
-          <div className="flex items-center space-x-3">
-            <span className="flex items-center space-x-1">
-              <Eye className="w-4 h-4" />
+        <div className="flex items-center justify-between border-t border-slate-200 pt-4 text-sm text-slate-500">
+          <div className="flex items-center gap-3">
+            <span className="inline-flex items-center gap-1">
+              <Eye size={15} weight="duotone" />
               <span>{post.viewCount}</span>
             </span>
-            <span className="flex items-center space-x-1">
-              <Heart className="w-4 h-4" />
+            <span className="inline-flex items-center gap-1">
+              <Heart size={15} weight="duotone" />
               <span>{post.likesCount}</span>
             </span>
-            <span className="flex items-center space-x-1">
-              <MessageCircle className="w-4 h-4" />
+            <span className="inline-flex items-center gap-1">
+              <ChatCircleDots size={15} weight="duotone" />
               <span>{post.commentsCount}</span>
             </span>
           </div>
 
           {post.publishedAt && (
-            <span className="flex items-center space-x-1">
-              <Calendar className="w-4 h-4" />
+            <span className="inline-flex items-center gap-1">
+              <CalendarDots size={15} weight="duotone" />
               <span>{format(new Date(post.publishedAt), "MMM d")}</span>
             </span>
           )}
         </div>
 
         {author && (
-          <div className="flex items-center space-x-2 mt-4 pt-4 border-t border-gray-100">
-            <div className="w-8 h-8 bg-primary-600 rounded-full flex items-center justify-center text-white text-sm font-bold">
+          <div className="mt-4 flex items-center gap-2 border-t border-slate-200 pt-4">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-600 text-sm font-semibold text-white">
               {author.username.charAt(0).toUpperCase()}
             </div>
-            <span className="text-sm text-gray-700">{author.fullName}</span>
+            <span className="text-sm text-slate-700">{author.fullName}</span>
           </div>
         )}
       </div>

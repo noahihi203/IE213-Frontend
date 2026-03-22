@@ -3,8 +3,14 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { Outfit } from "next/font/google";
+import { SignIn } from "@phosphor-icons/react";
 import { useAuthStore } from "@/store/authStore";
-import { LogIn } from "lucide-react";
+
+const outfit = Outfit({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+});
 
 export default function LoginPage() {
   const router = useRouter();
@@ -22,8 +28,8 @@ export default function LoginPage() {
     try {
       await login(formData);
       router.push("/");
-    } catch (error) {
-      console.error("Login error:", error);
+    } catch (loginError) {
+      console.error("Login error:", loginError);
     }
   };
 
@@ -35,33 +41,34 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4">
-      <div className="max-w-md w-full space-y-8">
-        {/* Header */}
-        <div className="text-center">
-          <div className="flex justify-center mb-4">
-            <div className="w-16 h-16 bg-primary-600 rounded-full flex items-center justify-center">
-              <LogIn className="w-8 h-8 text-white" />
+    <div
+      className={`${outfit.className} flex min-h-[100dvh] items-center justify-center bg-slate-50 px-4 py-12`}
+    >
+      <div className="w-full max-w-md rounded-[1.5rem] border border-slate-200/80 bg-white p-8 shadow-[0_20px_40px_-15px_rgba(15,23,42,0.08)]">
+        <div className="mb-8 text-center">
+          <div className="mb-4 flex justify-center">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-600 text-white">
+              <SignIn size={28} weight="duotone" />
             </div>
           </div>
-          <h2 className="text-3xl font-bold text-gray-900">Welcome Back</h2>
-          <p className="mt-2 text-gray-600">Sign in to your account</p>
+          <h2 className="text-3xl font-semibold tracking-tight text-slate-900">
+            Welcome Back
+          </h2>
+          <p className="mt-2 text-sm text-slate-600">Sign in to your account</p>
         </div>
 
-        {/* Error Message */}
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+          <div className="mb-6 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
             {error}
           </div>
         )}
 
-        {/* Form */}
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+        <form className="space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-4">
-            <div>
+            <div className="grid gap-2">
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="text-sm font-semibold text-slate-800"
               >
                 Email Address
               </label>
@@ -72,15 +79,15 @@ export default function LoginPage() {
                 required
                 value={formData.email}
                 onChange={handleChange}
-                className="input-field"
+                className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm text-slate-800 outline-none transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
                 placeholder="you@example.com"
               />
             </div>
 
-            <div>
+            <div className="grid gap-2">
               <label
                 htmlFor="password"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="text-sm font-semibold text-slate-800"
               >
                 Password
               </label>
@@ -91,7 +98,7 @@ export default function LoginPage() {
                 required
                 value={formData.password}
                 onChange={handleChange}
-                className="input-field"
+                className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm text-slate-800 outline-none transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
                 placeholder="Enter your password"
               />
             </div>
@@ -103,11 +110,11 @@ export default function LoginPage() {
                 id="remember"
                 name="remember"
                 type="checkbox"
-                className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                className="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
               />
               <label
                 htmlFor="remember"
-                className="ml-2 block text-sm text-gray-700"
+                className="ml-2 block text-sm text-slate-700"
               >
                 Remember me
               </label>
@@ -115,7 +122,7 @@ export default function LoginPage() {
 
             <Link
               href="/forgot-password"
-              className="text-sm text-primary-600 hover:text-primary-700"
+              className="text-sm text-emerald-700 hover:text-emerald-800"
             >
               Forgot password?
             </Link>
@@ -124,16 +131,16 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-emerald-700 active:-translate-y-[1px] disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isLoading ? "Signing in..." : "Sign In"}
           </button>
 
-          <p className="text-center text-sm text-gray-600">
+          <p className="text-center text-sm text-slate-600">
             Don't have an account?{" "}
             <Link
               href="/register"
-              className="text-primary-600 hover:text-primary-700 font-medium"
+              className="font-semibold text-emerald-700 hover:text-emerald-800"
             >
               Sign up
             </Link>

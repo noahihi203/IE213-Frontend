@@ -1,4 +1,4 @@
-import { Heart, Send, Trash2, X } from "lucide-react";
+import { Heart, PaperPlaneTilt, Trash, X } from "@phosphor-icons/react";
 import { Post, User } from "@/lib/types";
 import {
   CommentRenderItem,
@@ -74,28 +74,28 @@ export default function CommentsModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto"
+        className="max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-2xl border border-slate-200 bg-white shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b">
+        <div className="flex items-center justify-between border-b border-slate-200 p-4">
           <div>
-            <h2 className="text-lg font-bold">Bình luận bài viết</h2>
-            <p className="text-sm text-gray-500 line-clamp-1">
+            <h2 className="text-lg font-semibold tracking-tight text-slate-900">Bình luận bài viết</h2>
+            <p className="line-clamp-1 text-sm text-slate-500">
               {targetPost.title}
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700"
+            className="text-slate-500 transition-colors hover:text-slate-700"
             aria-label="Close comments modal"
           >
-            <X className="w-5 h-5" />
+            <X size={18} weight="bold" />
           </button>
         </div>
 
@@ -107,10 +107,10 @@ export default function CommentsModal({
           )}
 
           {/* New comment box */}
-          <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
+          <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
             <label
               htmlFor="new-comment"
-              className="block text-sm font-medium text-gray-700 mb-2"
+              className="mb-2 block text-sm font-medium text-slate-700"
             >
               Thêm bình luận mới
             </label>
@@ -119,7 +119,7 @@ export default function CommentsModal({
               rows={3}
               value={newCommentContent}
               onChange={(e) => onNewCommentChange(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary-500"
+              className="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-emerald-500"
               placeholder="Nhập nội dung bình luận..."
             />
             <div className="mt-3 flex justify-end">
@@ -127,9 +127,9 @@ export default function CommentsModal({
                 type="button"
                 onClick={onCreateComment}
                 disabled={isSubmittingComment}
-                className="inline-flex items-center space-x-2 px-4 py-2 bg-primary-600 text-white rounded-md font-medium hover:bg-primary-700 disabled:opacity-60"
+                className="inline-flex items-center space-x-2 rounded-md bg-emerald-600 px-4 py-2 font-medium text-white hover:bg-emerald-700 disabled:opacity-60"
               >
-                <Send className="w-4 h-4" />
+                <PaperPlaneTilt size={16} weight="fill" />
                 <span>{isSubmittingComment ? "Đang gửi..." : "Gửi"}</span>
               </button>
             </div>
@@ -137,11 +137,11 @@ export default function CommentsModal({
 
           {/* Comments list */}
           {isLoadingComments ? (
-            <div className="py-10 text-center text-gray-500">
+            <div className="py-10 text-center text-slate-500">
               Đang tải bình luận...
             </div>
           ) : commentsWithDepth.length === 0 ? (
-            <div className="rounded-lg border border-dashed border-gray-300 py-10 text-center text-gray-500">
+            <div className="rounded-xl border border-dashed border-slate-300 py-10 text-center text-slate-500">
               Chưa có bình luận nào cho bài viết này.
             </div>
           ) : (
@@ -158,22 +158,22 @@ export default function CommentsModal({
                 return (
                   <div
                     key={comment._id}
-                    className="rounded-lg border border-gray-200 bg-white p-3"
+                    className="rounded-xl border border-slate-200 bg-white p-3"
                     style={{ marginLeft: leftIndent }}
                   >
                     {/* Comment header */}
                     <div className="flex items-center justify-between mb-2 gap-4">
-                      <div className="text-sm text-gray-700">
+                      <div className="text-sm text-slate-700">
                         <span className="font-medium">
                           {isOwnComment
                             ? "Bạn"
                             : `User ${commentUserId.slice(-6) || "ẩn danh"}`}
                         </span>
-                        <span className="text-gray-400 ml-2">
+                        <span className="ml-2 text-slate-400">
                           {formatCommentDate(comment.createdOn)}
                         </span>
                         {comment.isEdited && (
-                          <span className="ml-2 text-xs text-gray-500">
+                          <span className="ml-2 text-xs text-slate-500">
                             (đã chỉnh sửa)
                           </span>
                         )}
@@ -186,7 +186,7 @@ export default function CommentsModal({
                           disabled={likingCommentId === comment._id}
                           className="inline-flex items-center space-x-1 text-rose-600 hover:text-rose-700 disabled:opacity-60"
                         >
-                          <Heart className="w-4 h-4" />
+                          <Heart size={15} weight="fill" />
                           <span className="text-xs">
                             {comment.likesCount || 0}
                           </span>
@@ -201,7 +201,7 @@ export default function CommentsModal({
                                 : comment._id,
                             );
                           }}
-                          className="text-xs text-blue-600 hover:text-blue-700"
+                          className="text-xs text-emerald-700 hover:text-emerald-800"
                         >
                           Reply
                         </button>
@@ -220,7 +220,7 @@ export default function CommentsModal({
                           <button
                             type="button"
                             onClick={() => onStartEdit(comment)}
-                            className="text-xs text-indigo-600 hover:text-indigo-700"
+                            className="text-xs text-sky-700 hover:text-sky-800"
                           >
                             Sửa
                           </button>
@@ -233,7 +233,7 @@ export default function CommentsModal({
                             disabled={deletingCommentId === comment._id}
                             className="inline-flex items-center space-x-1 text-xs text-red-600 hover:text-red-700 disabled:opacity-60"
                           >
-                            <Trash2 className="w-3.5 h-3.5" />
+                            <Trash size={14} weight="bold" />
                             <span>
                               {deletingCommentId === comment._id
                                 ? "Đang xóa"
@@ -251,14 +251,14 @@ export default function CommentsModal({
                           rows={3}
                           value={editCommentContent}
                           onChange={(e) => onEditContentChange(e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary-500"
+                          className="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                         />
                         <div className="flex justify-end gap-2">
                           <button
                             type="button"
                             onClick={onCancelEdit}
                             disabled={isUpdatingComment}
-                            className="px-3 py-1.5 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 text-sm disabled:opacity-60"
+                            className="rounded-md border border-slate-300 px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50 disabled:opacity-60"
                           >
                             Hủy
                           </button>
@@ -266,28 +266,28 @@ export default function CommentsModal({
                             type="button"
                             onClick={onSaveEdit}
                             disabled={isUpdatingComment}
-                            className="px-3 py-1.5 bg-primary-600 text-white rounded-md text-sm hover:bg-primary-700 disabled:opacity-60"
+                            className="rounded-md bg-emerald-600 px-3 py-1.5 text-sm text-white hover:bg-emerald-700 disabled:opacity-60"
                           >
                             {isUpdatingComment ? "Đang lưu..." : "Lưu"}
                           </button>
                         </div>
                       </div>
                     ) : (
-                      <p className="text-sm text-gray-700 whitespace-pre-wrap">
+                      <p className="whitespace-pre-wrap text-sm text-slate-700">
                         {comment.content}
                       </p>
                     )}
 
                     {/* Reply box */}
                     {isReplying && !isEditing && (
-                      <div className="mt-3 pt-3 border-t border-gray-100 space-y-2">
+                      <div className="mt-3 space-y-2 border-t border-slate-100 pt-3">
                         <textarea
                           rows={2}
                           value={replyValue}
                           onChange={(e) =>
                             onReplyDraftChange(comment._id, e.target.value)
                           }
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary-500"
+                          className="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                           placeholder="Viết phản hồi..."
                         />
                         <div className="flex justify-end gap-2">
@@ -295,7 +295,7 @@ export default function CommentsModal({
                             type="button"
                             onClick={() => onSetActiveReply(null)}
                             disabled={replySubmittingFor === comment._id}
-                            className="px-3 py-1.5 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 text-sm disabled:opacity-60"
+                            className="rounded-md border border-slate-300 px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50 disabled:opacity-60"
                           >
                             Hủy
                           </button>
@@ -303,7 +303,7 @@ export default function CommentsModal({
                             type="button"
                             onClick={() => onReplyComment(comment._id)}
                             disabled={replySubmittingFor === comment._id}
-                            className="px-3 py-1.5 bg-primary-600 text-white rounded-md text-sm hover:bg-primary-700 disabled:opacity-60"
+                            className="rounded-md bg-emerald-600 px-3 py-1.5 text-sm text-white hover:bg-emerald-700 disabled:opacity-60"
                           >
                             {replySubmittingFor === comment._id
                               ? "Đang gửi..."
