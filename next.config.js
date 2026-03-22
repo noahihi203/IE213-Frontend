@@ -8,8 +8,8 @@ const nextConfig = {
         hostname: "**",
       },
     ],
-    transpilePackages: ["@uiw/react-md-editor", "@uiw/react-markdown-preview"],
   },
+  transpilePackages: ["@uiw/react-md-editor", "@uiw/react-markdown-preview"],
 };
 
 

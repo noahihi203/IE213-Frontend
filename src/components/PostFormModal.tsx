@@ -2,7 +2,7 @@ import { type ChangeEvent } from "react";
 import { X } from "lucide-react";
 import { Category, Tag } from "@/lib/types";
 import { PostFormData } from "../hooks/usePostForm";
-import MarkdownEditor from "./Markdowneditor";
+import MarkdownEditor from "./MarkdownEditor";
 
 interface PostFormModalProps {
   mode: "create" | "edit";
