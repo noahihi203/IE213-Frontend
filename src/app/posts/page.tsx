@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { Outfit } from "next/font/google";
 import { format } from "date-fns";
@@ -29,14 +29,43 @@ export default function PostsPage() {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [hasMorePosts, setHasMorePosts] = useState(true);
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
+
+  const PAGE_SIZE = 12;
 
   useEffect(() => {
     loadCategories();
   }, []);
 
   useEffect(() => {
-    loadPosts();
-  }, [currentPage, selectedCategory, searchTerm]);
+    setCurrentPage(1);
+    setPosts([]);
+    setHasMorePosts(true);
+    void loadPosts(1, false);
+  }, [selectedCategory, searchTerm]);
+
+  useEffect(() => {
+    const node = loadMoreRef.current;
+    if (!node || !hasMorePosts || isLoading || isLoadingMore) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        if (entry.isIntersecting) {
+          const nextPage = currentPage + 1;
+          if (nextPage <= totalPages) {
+            void loadPosts(nextPage, true);
+          }
+        }
+      },
+      { threshold: 0.25 },
+    );
+
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [currentPage, hasMorePosts, isLoading, isLoadingMore, totalPages]);
 
   const loadCategories = async () => {
     try {
@@ -48,43 +77,70 @@ export default function PostsPage() {
     }
   };
 
-  const loadPosts = async () => {
-    setIsLoading(true);
+  const loadPosts = async (pageToLoad: number, append: boolean) => {
+    if (append) {
+      setIsLoadingMore(true);
+    } else {
+      setIsLoading(true);
+    }
+
     try {
       const response = await postService.getAllPosts({
-        page: currentPage,
-        limit: 9,
+        page: pageToLoad,
+        limit: PAGE_SIZE,
         search: searchTerm || undefined,
         category: selectedCategory || undefined,
         status: "published",
       });
 
+      const metadata = response.metadata as any;
+      const nextPosts: Post[] = Array.isArray(metadata)
+        ? metadata
+        : Array.isArray(metadata?.data)
+          ? metadata.data
+          : [];
+
+      const nextTotalPages = Number(metadata?.pagination?.totalPages || 1);
+
       if (Array.isArray(response.metadata)) {
-        setPosts(response.metadata);
+        setPosts((prev) => (append ? [...prev, ...nextPosts] : nextPosts));
         setTotalPages(1);
+        setCurrentPage(pageToLoad);
+        setHasMorePosts(false);
       } else if (response.metadata?.data) {
-        setPosts(
-          Array.isArray(response.metadata.data) ? response.metadata.data : [],
-        );
-        setTotalPages(response.metadata.pagination?.totalPages || 1);
+        setPosts((prev) => (append ? [...prev, ...nextPosts] : nextPosts));
+        setTotalPages(nextTotalPages);
+        setCurrentPage(pageToLoad);
+        setHasMorePosts(pageToLoad < nextTotalPages);
       } else {
-        setPosts([]);
+        if (!append) setPosts([]);
         setTotalPages(1);
+        setCurrentPage(pageToLoad);
+        setHasMorePosts(false);
       }
     } catch (error) {
       console.error("Failed to load posts:", error);
-      setPosts([]);
+      if (!append) setPosts([]);
       setTotalPages(1);
+      setHasMorePosts(false);
     } finally {
-      setIsLoading(false);
+      if (append) {
+        setIsLoadingMore(false);
+      } else {
+        setIsLoading(false);
+      }
     }
   };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     setCurrentPage(1);
-    loadPosts();
+    setPosts([]);
+    setHasMorePosts(true);
+    void loadPosts(1, false);
   };
+
+  const compactPosts = useMemo(() => posts, [posts]);
 
   return (
     <div className={`${outfit.className} min-h-[100dvh] bg-slate-50`}>
@@ -152,15 +208,15 @@ export default function PostsPage() {
         </div>
 
         {isLoading ? (
-          <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-            {[1, 2, 3, 4].map((slot) => (
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
+            {Array.from({ length: PAGE_SIZE }).map((_, index) => (
               <div
-                key={slot}
-                className="overflow-hidden rounded-[1.25rem] border border-slate-200 bg-white p-5"
+                key={index}
+                className="overflow-hidden rounded-xl border border-slate-200 bg-white p-3 md:p-4"
               >
-                <div className="mb-4 h-40 animate-pulse rounded-xl bg-slate-200" />
-                <div className="mb-3 h-4 w-2/3 animate-pulse rounded bg-slate-200" />
-                <div className="mb-2 h-3 w-full animate-pulse rounded bg-slate-200" />
+                <div className="mb-2 h-28 animate-pulse rounded-lg bg-slate-200 md:h-32" />
+                <div className="mb-2 h-3 w-2/3 animate-pulse rounded bg-slate-200" />
+                <div className="mb-1 h-3 w-full animate-pulse rounded bg-slate-200" />
                 <div className="h-3 w-4/5 animate-pulse rounded bg-slate-200" />
               </div>
             ))}
@@ -174,37 +230,26 @@ export default function PostsPage() {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-              {posts.map((post) => (
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
+              {compactPosts.map((post) => (
                 <PostCard key={post._id} post={post} />
               ))}
             </div>
 
-            {totalPages > 1 && (
-              <div className="mt-8 flex items-center justify-center gap-2">
-                <button
-                  onClick={() =>
-                    setCurrentPage((prev) => Math.max(1, prev - 1))
-                  }
-                  disabled={currentPage === 1}
-                  className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm text-slate-700 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  Previous
-                </button>
+            {hasMorePosts && (
+              <div
+                ref={loadMoreRef}
+                className="py-6 text-center text-sm text-slate-500"
+              >
+                {isLoadingMore
+                  ? "Đang tải thêm bài viết..."
+                  : "Kéo xuống để tải thêm"}
+              </div>
+            )}
 
-                <span className="px-4 py-2 text-sm text-slate-600">
-                  Page {currentPage} of {totalPages}
-                </span>
-
-                <button
-                  onClick={() =>
-                    setCurrentPage((prev) => Math.min(totalPages, prev + 1))
-                  }
-                  disabled={currentPage === totalPages}
-                  className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm text-slate-700 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  Next
-                </button>
+            {!hasMorePosts && compactPosts.length > 0 && (
+              <div className="py-6 text-center text-xs text-slate-400">
+                Đã hiển thị tất cả bài viết.
               </div>
             )}
           </>
@@ -219,77 +264,82 @@ function PostCard({ post }: { post: Post }) {
   const category = typeof post.category === "object" ? post.category : null;
 
   return (
-    <article className="overflow-hidden rounded-[1.25rem] border border-slate-200/80 bg-white shadow-[0_20px_40px_-18px_rgba(15,23,42,0.12)] transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-[1px] hover:shadow-[0_24px_44px_-18px_rgba(15,23,42,0.14)]">
-      {post.coverImage && (
-        <div className="h-48 bg-slate-200">
-          <img
-            src={post.coverImage}
-            alt={post.title}
-            className="h-full w-full object-cover"
-          />
-        </div>
-      )}
-
-      <div className="p-6">
-        {category && (
-          <span className="mb-3 inline-block rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
-            {category.name}
-          </span>
+    <Link
+      href={`/posts/${post.slug}`}
+      className="group block overflow-hidden rounded-xl border border-slate-200/80 bg-white shadow-[0_14px_28px_-18px_rgba(15,23,42,0.2)] transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-[1px] hover:shadow-[0_20px_34px_-18px_rgba(15,23,42,0.24)]"
+    >
+      <article>
+        {post.coverImage && (
+          <div className="h-32 bg-slate-200 md:h-36">
+            <img
+              src={post.coverImage}
+              alt={post.title}
+              className="h-full w-full object-cover"
+            />
+          </div>
         )}
 
-        <Link href={`/posts/${post.slug}`}>
-          <h2 className="mb-2 line-clamp-2 text-xl font-semibold tracking-tight text-slate-900 transition-colors hover:text-emerald-700">
-            {post.title}
-          </h2>
-        </Link>
-
-        <p className="mb-4 line-clamp-3 text-sm leading-relaxed text-slate-600">
-          {post.excerpt}
-        </p>
-
-        <div className="flex items-center justify-between border-t border-slate-200 pt-4 text-sm text-slate-500">
-          <div className="flex items-center gap-3">
-            <span className="inline-flex items-center gap-1">
-              <Eye size={15} weight="duotone" />
-              <span>{post.viewCount}</span>
-            </span>
-            <span className="inline-flex items-center gap-1">
-              <Heart size={15} weight="duotone" />
-              <span>{post.likesCount}</span>
-            </span>
-            <span className="inline-flex items-center gap-1">
-              <ChatCircleDots size={15} weight="duotone" />
-              <span>{post.commentsCount}</span>
-            </span>
-          </div>
-
-          {post.publishedAt && (
-            <span className="inline-flex items-center gap-1">
-              <CalendarDots size={15} weight="duotone" />
-              <span>{format(new Date(post.publishedAt), "MMM d")}</span>
+        <div className="p-3 md:p-4">
+          {category && (
+            <span className="mb-2 inline-block rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-700">
+              {category.name}
             </span>
           )}
-        </div>
 
-        {author && (
-          <div className="mt-4 flex items-center gap-2 border-t border-slate-200 pt-4">
-            <div className="h-8 w-8 overflow-hidden rounded-full bg-emerald-600">
-              {author.avatar ? (
-                <img
-                  src={author.avatar}
-                  alt={author.fullName || author.username}
-                  className="h-full w-full object-cover"
-                />
-              ) : (
-                <div className="flex h-full w-full items-center justify-center text-sm font-semibold text-white">
-                  {author.username.charAt(0).toUpperCase()}
-                </div>
-              )}
+          <h2 className="mb-1 line-clamp-2 text-sm font-semibold tracking-tight text-slate-900 transition-colors group-hover:text-emerald-700 md:text-base">
+            {post.title}
+          </h2>
+
+          <p className="mb-2 line-clamp-2 text-xs leading-relaxed text-slate-600 md:mb-3 md:text-sm">
+            {post.excerpt}
+          </p>
+
+          <div className="flex flex-wrap items-center justify-between gap-2 border-t border-slate-200 pt-2 text-[11px] text-slate-500 md:text-xs">
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center gap-1 rounded-md bg-slate-100 px-1.5 py-0.5">
+                <Eye size={12} weight="duotone" />
+                <span>{post.viewCount}</span>
+              </span>
+              <span className="inline-flex items-center gap-1 rounded-md bg-slate-100 px-1.5 py-0.5">
+                <Heart size={12} weight="duotone" />
+                <span>{post.likesCount}</span>
+              </span>
+              <span className="inline-flex items-center gap-1 rounded-md bg-slate-100 px-1.5 py-0.5">
+                <ChatCircleDots size={12} weight="duotone" />
+                <span>{post.commentsCount}</span>
+              </span>
             </div>
-            <span className="text-sm text-slate-700">{author.fullName}</span>
+
+            {post.publishedAt && (
+              <span className="inline-flex items-center gap-1 text-[10px] text-slate-400 md:text-xs">
+                <CalendarDots size={12} weight="duotone" />
+                <span>{format(new Date(post.publishedAt), "MMM d")}</span>
+              </span>
+            )}
           </div>
-        )}
-      </div>
-    </article>
+
+          {author && (
+            <div className="mt-2 flex items-center gap-2 border-t border-slate-200 pt-2">
+              <div className="h-6 w-6 overflow-hidden rounded-full bg-emerald-600">
+                {author.avatar ? (
+                  <img
+                    src={author.avatar}
+                    alt={author.fullName || author.username}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center text-[10px] font-semibold text-white">
+                    {author.username.charAt(0).toUpperCase()}
+                  </div>
+                )}
+              </div>
+              <span className="line-clamp-1 text-xs text-slate-700">
+                {author.fullName}
+              </span>
+            </div>
+          )}
+        </div>
+      </article>
+    </Link>
   );
 }
