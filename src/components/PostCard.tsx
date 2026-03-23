@@ -1,12 +1,11 @@
 import Link from "next/link";
-import { ChatCircleText, Eye, PencilSimple } from "@phosphor-icons/react";
+import { Eye, PencilSimple } from "@phosphor-icons/react";
 import { Post } from "@/lib/types";
 
 interface PostCardProps {
   post: Post;
   isAuthorOrAdmin: boolean;
   onEdit: (post: Post) => void;
-  onOpenComments: (post: Post) => void;
   onStatusChange: (postId: string, status: Post["status"]) => void;
 }
 
@@ -20,7 +19,6 @@ export default function PostCard({
   post,
   isAuthorOrAdmin,
   onEdit,
-  onOpenComments,
   onStatusChange,
 }: PostCardProps) {
   return (
@@ -74,18 +72,6 @@ export default function PostCard({
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                void onOpenComments(post);
-              }}
-              className="text-emerald-700 hover:text-emerald-900 bg-emerald-50 p-1.5 rounded-md hover:bg-emerald-100 transition-colors"
-              title="Comments"
-            >
-              <ChatCircleText size={20} weight="duotone" />
-            </button>
-            <button
-              type="button"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
                 onEdit(post);
               }}
               className="rounded-md bg-sky-50 p-1.5 text-sky-700 transition-colors hover:bg-sky-100 hover:text-sky-900"
@@ -93,13 +79,6 @@ export default function PostCard({
             >
               <PencilSimple size={20} weight="duotone" />
             </button>
-            <Link
-              href={`/posts/${post.slug}`}
-              className="rounded-md bg-slate-100 p-1.5 text-slate-600 transition-colors hover:bg-slate-200 hover:text-slate-700"
-              title="View"
-            >
-              <Eye size={20} weight="duotone" />
-            </Link>
           </div>
         </div>
       </div>

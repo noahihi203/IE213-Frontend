@@ -15,10 +15,11 @@ import PostsTab from "../../components/PostsTab";
 import UsersTab from "../../components/UsersTab";
 import TagsTab from "../../components/TagsTab";
 import CategoriesTab from "../../components/CategoriesTab";
+import SettingsTab from "../../components/SettingsTab";
 import TagModal from "../../components/TagModal";
 import CategoryModal from "../../components/CategoryModal";
 
-type ActiveTab = "posts" | "users" | "tags" | "categories";
+type ActiveTab = "posts" | "users" | "tags" | "categories" | "settings";
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -160,6 +161,8 @@ export default function DashboardPage() {
                 onOpenCreate={openCreateCategory}
               />
             )}
+
+            {activeTab === "settings" && <SettingsTab user={user} />}
           </div>
         </div>
       </div>

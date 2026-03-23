@@ -10,17 +10,34 @@ type ReportReason =
   | "offensive"
   | "other";
 
+const TOP_LEVEL_PAGE_SIZE = 5;
+
 export type PostCommentItem = PostComment & {
   userId?: string | User;
   parentId?: string | null;
   commentLeft?: number;
   commentRight?: number;
   likesCount?: number;
+  replyCount?: number;
 };
 
 export interface CommentRenderItem extends PostCommentItem {
   depth: number;
 }
+
+export interface CommentAuthorSummary {
+  userId: string;
+  profileHref: string | null;
+  displayName: string;
+  username: string;
+  mentionLabel: string;
+  avatar: string | null;
+}
+
+type UseCommentsOptions = {
+  postId?: string;
+  onPostsRefresh?: () => Promise<void> | void;
+};
 
 export const resolveCommentUserId = (comment: PostCommentItem): string => {
   const userId = comment.userId ?? comment.authorId;
@@ -38,29 +55,68 @@ export const formatCommentDate = (value?: string | Date) => {
   return date.toLocaleString("vi-VN");
 };
 
+export const resolveCommentAuthorSummary = (
+  comment: PostCommentItem,
+  currentUser?: User | null,
+): CommentAuthorSummary => {
+  const commentUserId = resolveCommentUserId(comment);
+  const rawCommentUser = comment.userId ?? comment.authorId;
+  const commentUser =
+    rawCommentUser && typeof rawCommentUser === "object"
+      ? (rawCommentUser as User)
+      : null;
+
+  const username = (commentUser?.username || "").trim();
+  const fullName = (commentUser?.fullName || "").trim();
+  const isOwnComment = Boolean(
+    currentUser && commentUserId === currentUser._id,
+  );
+  const mentionLabel =
+    fullName || username || `User ${commentUserId.slice(-6) || "ẩn danh"}`;
+
+  return {
+    userId: commentUserId,
+    profileHref: commentUserId ? `/users/${commentUserId}` : null,
+    displayName: isOwnComment ? "Bạn" : mentionLabel,
+    username,
+    mentionLabel,
+    avatar: commentUser?.avatar || null,
+  };
+};
+
 export function useComments(
   currentUser: User | null,
-  options?: {
-    /**
-     * Truyền vào khi dùng inline (PostDetailPage).
-     * Không cần truyền khi dùng qua modal — postId sẽ lấy từ commentTargetPost.
-     */
-    postId?: string;
-    onPostsRefresh?: () => Promise<void> | void;
-  },
+  optionsOrRefresh?: UseCommentsOptions | (() => Promise<void> | void),
 ) {
   const router = useRouter();
-  const { postId: inlinePostId, onPostsRefresh } = options ?? {};
+  const options: UseCommentsOptions =
+    typeof optionsOrRefresh === "function"
+      ? { onPostsRefresh: optionsOrRefresh }
+      : (optionsOrRefresh ?? {});
+  const { postId: inlinePostId, onPostsRefresh } = options;
 
-  // ── Modal state (chỉ dùng khi không có inlinePostId) ─────────────────────
   const [isCommentsModalOpen, setIsCommentsModalOpen] = useState(false);
   const [commentTargetPost, setCommentTargetPost] = useState<Post | null>(null);
 
-  // postId thực tế dùng cho mọi operation
   const activePostId = inlinePostId ?? commentTargetPost?._id ?? null;
 
-  // ── Comment state ─────────────────────────────────────────────────────────
-  const [postComments, setPostComments] = useState<PostCommentItem[]>([]);
+  const [topLevelComments, setTopLevelComments] = useState<PostCommentItem[]>(
+    [],
+  );
+  const [repliesByParent, setRepliesByParent] = useState<
+    Record<string, PostCommentItem[]>
+  >({});
+  const [expandedReplyParentIds, setExpandedReplyParentIds] = useState<
+    Set<string>
+  >(new Set());
+  const [loadingRepliesFor, setLoadingRepliesFor] = useState<string | null>(
+    null,
+  );
+
+  const [hasMoreTopLevelComments, setHasMoreTopLevelComments] = useState(false);
+  const [isLoadingMoreTopLevelComments, setIsLoadingMoreTopLevelComments] =
+    useState(false);
+
   const [isLoadingComments, setIsLoadingComments] = useState(false);
   const [commentsError, setCommentsError] = useState("");
 
@@ -84,26 +140,28 @@ export function useComments(
   );
   const [likingCommentId, setLikingCommentId] = useState<string | null>(null);
 
-  // ── liked comment ids để track trạng thái tim ─────────────────────────────
   const [likedCommentIds, setLikedCommentIds] = useState<Set<string>>(
     new Set(),
   );
 
-  // ── Computed ──────────────────────────────────────────────────────────────
   const commentsWithDepth = useMemo<CommentRenderItem[]>(() => {
-    if (postComments.length === 0) return [];
-    const stack: number[] = [];
-    return postComments.map((comment) => {
-      const left = comment.commentLeft ?? 0;
-      const right = comment.commentRight ?? Number.MAX_SAFE_INTEGER;
-      while (stack.length > 0 && left > stack[stack.length - 1]) stack.pop();
-      const depth = stack.length;
-      stack.push(right);
-      return { ...comment, depth };
-    });
-  }, [postComments]);
+    if (topLevelComments.length === 0) return [];
 
-  // ── Helpers ───────────────────────────────────────────────────────────────
+    const merged: PostCommentItem[] = [];
+    topLevelComments.forEach((topComment) => {
+      merged.push(topComment);
+      if (expandedReplyParentIds.has(topComment._id)) {
+        const replies = repliesByParent[topComment._id] || [];
+        merged.push(...replies);
+      }
+    });
+
+    return merged.map((comment) => ({
+      ...comment,
+      depth: comment.parentId ? 1 : 0,
+    }));
+  }, [topLevelComments, repliesByParent, expandedReplyParentIds]);
+
   const resetCommentForm = () => {
     setNewCommentContent("");
     setActiveReplyCommentId(null);
@@ -111,25 +169,184 @@ export function useComments(
     setEditingCommentId(null);
     setEditCommentContent("");
     setCommentsError("");
+    setRepliesByParent({});
+    setExpandedReplyParentIds(new Set());
+    setLoadingRepliesFor(null);
   };
 
-  // ── Core loaders ──────────────────────────────────────────────────────────
+  const toTopLevelPayload = (metadata: unknown) => {
+    if (Array.isArray(metadata)) {
+      return {
+        comments: metadata as PostCommentItem[],
+        total: metadata.length,
+        hasMore: false,
+      };
+    }
+
+    if (
+      metadata &&
+      typeof metadata === "object" &&
+      "comments" in metadata &&
+      Array.isArray((metadata as { comments?: unknown }).comments)
+    ) {
+      const payload = metadata as {
+        comments: PostCommentItem[];
+        total?: number;
+        hasMore?: boolean;
+      };
+
+      return {
+        comments: payload.comments,
+        total:
+          typeof payload.total === "number"
+            ? payload.total
+            : payload.comments.length,
+        hasMore: typeof payload.hasMore === "boolean" ? payload.hasMore : false,
+      };
+    }
+
+    return { comments: [] as PostCommentItem[], total: 0, hasMore: false };
+  };
+
+  const toCommentArray = (metadata: unknown): PostCommentItem[] => {
+    if (Array.isArray(metadata)) return metadata as PostCommentItem[];
+    return [];
+  };
+
+  const upsertCommentLikes = (
+    targetId: string,
+    nextValue: (current: number) => number,
+  ) => {
+    setTopLevelComments((prev) =>
+      prev.map((comment) =>
+        comment._id === targetId
+          ? { ...comment, likesCount: nextValue(comment.likesCount ?? 0) }
+          : comment,
+      ),
+    );
+
+    setRepliesByParent((prev) => {
+      const next: Record<string, PostCommentItem[]> = {};
+      Object.entries(prev).forEach(([parentId, replies]) => {
+        next[parentId] = replies.map((comment) =>
+          comment._id === targetId
+            ? { ...comment, likesCount: nextValue(comment.likesCount ?? 0) }
+            : comment,
+        );
+      });
+      return next;
+    });
+  };
+
+  const loadTopLevelComments = async ({
+    postId,
+    skip,
+    append,
+  }: {
+    postId: string;
+    skip: number;
+    append: boolean;
+  }) => {
+    const response = await commentService.getPostTopComments(postId, {
+      limit: TOP_LEVEL_PAGE_SIZE,
+      skip,
+    });
+
+    const payload = toTopLevelPayload(response.metadata);
+    setTopLevelComments((prev) => {
+      if (!append) return payload.comments;
+      const existing = new Set(prev.map((comment) => comment._id));
+      const chunk = payload.comments.filter(
+        (comment) => !existing.has(comment._id),
+      );
+      return [...prev, ...chunk];
+    });
+    setHasMoreTopLevelComments(payload.hasMore);
+  };
+
   const loadCommentsForPost = async (postId: string) => {
     try {
       setIsLoadingComments(true);
       setCommentsError("");
-      const response = await commentService.getPostTopComments(postId);
-      setPostComments(
-        Array.isArray(response.metadata)
-          ? (response.metadata as PostCommentItem[])
-          : [],
-      );
+      setRepliesByParent({});
+      setExpandedReplyParentIds(new Set());
+      await loadTopLevelComments({ postId, skip: 0, append: false });
     } catch (err: any) {
-      setPostComments([]);
+      setTopLevelComments([]);
       setCommentsError(err?.message || "Không thể tải bình luận.");
     } finally {
       setIsLoadingComments(false);
     }
+  };
+
+  const loadMoreTopLevelComments = async () => {
+    if (!activePostId || isLoadingComments || isLoadingMoreTopLevelComments) {
+      return;
+    }
+    if (!hasMoreTopLevelComments) return;
+
+    try {
+      setIsLoadingMoreTopLevelComments(true);
+      setCommentsError("");
+      await loadTopLevelComments({
+        postId: activePostId,
+        skip: topLevelComments.length,
+        append: true,
+      });
+    } catch (err: any) {
+      setCommentsError(err?.message || "Không thể tải thêm bình luận.");
+    } finally {
+      setIsLoadingMoreTopLevelComments(false);
+    }
+  };
+
+  const loadRepliesForComment = async (parentCommentId: string) => {
+    if (!activePostId) return;
+
+    try {
+      setLoadingRepliesFor(parentCommentId);
+      setCommentsError("");
+      const response = await commentService.getNextLevelPostComments(
+        activePostId,
+        parentCommentId,
+      );
+      const replies = toCommentArray(response.metadata).sort(
+        (a, b) => (a.commentLeft ?? 0) - (b.commentLeft ?? 0),
+      );
+
+      setRepliesByParent((prev) => ({ ...prev, [parentCommentId]: replies }));
+      setExpandedReplyParentIds((prev) => {
+        const next = new Set(prev);
+        next.add(parentCommentId);
+        return next;
+      });
+    } catch (err: any) {
+      setCommentsError(err?.message || "Không thể tải phản hồi.");
+    } finally {
+      setLoadingRepliesFor(null);
+    }
+  };
+
+  const toggleRepliesForComment = async (parentCommentId: string) => {
+    if (expandedReplyParentIds.has(parentCommentId)) {
+      setExpandedReplyParentIds((prev) => {
+        const next = new Set(prev);
+        next.delete(parentCommentId);
+        return next;
+      });
+      return;
+    }
+
+    if (repliesByParent[parentCommentId]) {
+      setExpandedReplyParentIds((prev) => {
+        const next = new Set(prev);
+        next.add(parentCommentId);
+        return next;
+      });
+      return;
+    }
+
+    await loadRepliesForComment(parentCommentId);
   };
 
   const refreshAfterMutation = async () => {
@@ -142,7 +359,6 @@ export function useComments(
     }
   };
 
-  // ── Modal controls (chỉ dùng khi không có inlinePostId) ──────────────────
   const openCommentsModal = async (post: Post) => {
     setCommentTargetPost(post);
     setIsCommentsModalOpen(true);
@@ -161,15 +377,16 @@ export function useComments(
 
     setIsCommentsModalOpen(false);
     setCommentTargetPost(null);
-    setPostComments([]);
+    setTopLevelComments([]);
     resetCommentForm();
     setReplySubmittingFor(null);
     setIsUpdatingComment(false);
     setDeletingCommentId(null);
     setLikingCommentId(null);
+    setHasMoreTopLevelComments(false);
+    setIsLoadingMoreTopLevelComments(false);
   };
 
-  // ── Handlers ──────────────────────────────────────────────────────────────
   const handleCreateComment = async () => {
     if (!activePostId) return;
     const content = newCommentContent.trim();
@@ -197,12 +414,28 @@ export function useComments(
       setCommentsError("Vui lòng nhập nội dung phản hồi.");
       return;
     }
+
+    const parentComment =
+      topLevelComments.find((item) => item._id === parentCommentId) ||
+      Object.values(repliesByParent)
+        .flat()
+        .find((item) => item._id === parentCommentId);
+
+    const mentionPrefix = parentComment
+      ? `@${resolveCommentAuthorSummary(parentComment).mentionLabel} `
+      : "";
+    const normalizedContent = mentionPrefix
+      ? content.startsWith(mentionPrefix)
+        ? content
+        : `${mentionPrefix}${content}`
+      : content;
+
     try {
       setReplySubmittingFor(parentCommentId);
       setCommentsError("");
       await commentService.createComment({
         postId: activePostId,
-        content,
+        content: normalizedContent,
         parentCommentId,
       });
       setReplyDrafts((prev) => ({ ...prev, [parentCommentId]: "" }));
@@ -213,6 +446,27 @@ export function useComments(
     } finally {
       setReplySubmittingFor(null);
     }
+  };
+
+  const toggleReplyComposerForComment = (comment: PostCommentItem) => {
+    const nextReplyCommentId =
+      activeReplyCommentId === comment._id ? null : comment._id;
+    setActiveReplyCommentId(nextReplyCommentId);
+
+    if (!nextReplyCommentId) return;
+
+    const author = resolveCommentAuthorSummary(comment);
+    const mentionPrefix = author.mentionLabel ? `@${author.mentionLabel} ` : "";
+    if (!mentionPrefix) return;
+
+    setReplyDrafts((prev) => {
+      const currentDraft = prev[comment._id] || "";
+      if (currentDraft.trim().length > 0) return prev;
+      return {
+        ...prev,
+        [comment._id]: mentionPrefix,
+      };
+    });
   };
 
   const startEditComment = (comment: PostCommentItem) => {
@@ -253,8 +507,9 @@ export function useComments(
 
   const handleDeleteComment = async (commentId: string) => {
     if (!activePostId) return;
-    if (!window.confirm("Bạn có chắc chắn muốn xóa bình luận này không?"))
+    if (!window.confirm("Bạn có chắc chắn muốn xóa bình luận này không?")) {
       return;
+    }
     try {
       setDeletingCommentId(commentId);
       setCommentsError("");
@@ -276,19 +531,12 @@ export function useComments(
 
     const wasLiked = likedCommentIds.has(commentId);
 
-    // Optimistic update
     setLikedCommentIds((prev) => {
       const next = new Set(prev);
       wasLiked ? next.delete(commentId) : next.add(commentId);
       return next;
     });
-    setPostComments((prev) =>
-      prev.map((c) =>
-        c._id === commentId
-          ? { ...c, likesCount: (c.likesCount ?? 0) + (wasLiked ? -1 : 1) }
-          : c,
-      ),
-    );
+    upsertCommentLikes(commentId, (current) => current + (wasLiked ? -1 : 1));
 
     try {
       setLikingCommentId(commentId);
@@ -296,26 +544,15 @@ export function useComments(
       const response = await commentService.toggleLikeComment(commentId);
       const nextLikesCount = response.metadata?.likesCount;
       if (typeof nextLikesCount === "number") {
-        setPostComments((prev) =>
-          prev.map((c) =>
-            c._id === commentId ? { ...c, likesCount: nextLikesCount } : c,
-          ),
-        );
+        upsertCommentLikes(commentId, () => nextLikesCount);
       }
     } catch (err: any) {
-      // Rollback nếu API thất bại
       setLikedCommentIds((prev) => {
         const next = new Set(prev);
         wasLiked ? next.add(commentId) : next.delete(commentId);
         return next;
       });
-      setPostComments((prev) =>
-        prev.map((c) =>
-          c._id === commentId
-            ? { ...c, likesCount: (c.likesCount ?? 0) + (wasLiked ? 1 : -1) }
-            : c,
-        ),
-      );
+      upsertCommentLikes(commentId, (current) => current + (wasLiked ? 1 : -1));
       setCommentsError(err?.message || "Không thể cập nhật lượt thích.");
     } finally {
       setLikingCommentId(null);
@@ -327,6 +564,7 @@ export function useComments(
       router.push("/login");
       return;
     }
+
     const validReasons: ReportReason[] = [
       "spam",
       "harassment",
@@ -334,6 +572,7 @@ export function useComments(
       "offensive",
       "other",
     ];
+
     const reasonInput = window
       .prompt(
         "Nhập lý do report (spam, harassment, misinformation, offensive, other)",
@@ -347,6 +586,7 @@ export function useComments(
       setCommentsError("Lý do report không hợp lệ.");
       return;
     }
+
     try {
       setCommentsError("");
       await commentService.reportComment(
@@ -359,44 +599,46 @@ export function useComments(
   };
 
   return {
-    // Modal state
     isCommentsModalOpen,
     commentTargetPost,
     openCommentsModal,
     closeCommentsModal,
 
-    // Comment data
     commentsWithDepth,
+    topLevelComments,
     isLoadingComments,
+    hasMoreTopLevelComments,
+    isLoadingMoreTopLevelComments,
     commentsError,
     likedCommentIds,
+    expandedReplyParentIds,
+    loadingRepliesFor,
 
-    // New comment
     newCommentContent,
     setNewCommentContent,
     isSubmittingComment,
 
-    // Reply
     activeReplyCommentId,
     setActiveReplyCommentId,
     replyDrafts,
     setReplyDrafts,
     replySubmittingFor,
 
-    // Edit
     editingCommentId,
     editCommentContent,
     setEditCommentContent,
     isUpdatingComment,
 
-    // Delete / like
     deletingCommentId,
     likingCommentId,
 
-    // Actions
     loadCommentsForPost,
+    loadMoreTopLevelComments,
+    loadRepliesForComment,
+    toggleRepliesForComment,
     handleCreateComment,
     handleReplyComment,
+    toggleReplyComposerForComment,
     startEditComment,
     cancelEditComment,
     handleSaveCommentEdit,

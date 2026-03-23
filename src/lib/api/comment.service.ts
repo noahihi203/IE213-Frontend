@@ -27,14 +27,33 @@ export interface ReportCommentResponse {
   reportCount: number;
 }
 
+export interface TopLevelCommentsMetadata {
+  comments: Comment[];
+  total: number;
+  hasMore: boolean;
+}
+
+export interface GetTopLevelCommentsParams {
+  parentCommentId?: string;
+  limit?: number;
+  skip?: number;
+}
+
 export const commentService = {
   getPostTopComments: async (
     postId: string,
-    parentCommentId?: string,
-  ): Promise<ApiResponse<Comment[]>> => {
+    options?: GetTopLevelCommentsParams,
+  ): Promise<ApiResponse<TopLevelCommentsMetadata | Comment[]>> => {
+    const { parentCommentId, limit, skip } = options ?? {};
     const params = new URLSearchParams();
     if (parentCommentId) {
       params.append("parentCommentId", parentCommentId);
+    }
+    if (typeof limit === "number") {
+      params.append("limit", String(limit));
+    }
+    if (typeof skip === "number") {
+      params.append("skip", String(skip));
     }
 
     const query = params.toString();

@@ -1,11 +1,14 @@
+import { useMemo } from "react";
 import { Heart, PaperPlaneTilt, Trash, X } from "@phosphor-icons/react";
+import Link from "next/link";
 import { Post, User } from "@/lib/types";
 import {
   CommentRenderItem,
   PostCommentItem,
   formatCommentDate,
-  resolveCommentUserId,
+  resolveCommentAuthorSummary,
 } from "../hooks/useComments";
+import CommentContent from "./CommentContent";
 
 interface CommentsModalProps {
   isOpen: boolean;
@@ -24,11 +27,14 @@ interface CommentsModalProps {
   isUpdatingComment: boolean;
   deletingCommentId: string | null;
   likingCommentId: string | null;
+  expandedReplyParentIds: Set<string>;
+  loadingRepliesFor: string | null;
   onClose: () => void;
   onNewCommentChange: (value: string) => void;
   onCreateComment: () => void;
   onReplyComment: (parentId: string) => void;
   onSetActiveReply: (id: string | null) => void;
+  onToggleReplyComposer: (comment: PostCommentItem) => void;
   onReplyDraftChange: (commentId: string, value: string) => void;
   onStartEdit: (comment: PostCommentItem) => void;
   onCancelEdit: () => void;
@@ -37,6 +43,7 @@ interface CommentsModalProps {
   onDeleteComment: (commentId: string) => void;
   onToggleLike: (commentId: string) => void;
   onReportComment: (commentId: string) => void;
+  onToggleReplies: (parentId: string) => void;
 }
 
 export default function CommentsModal({
@@ -56,11 +63,14 @@ export default function CommentsModal({
   isUpdatingComment,
   deletingCommentId,
   likingCommentId,
+  expandedReplyParentIds,
+  loadingRepliesFor,
   onClose,
   onNewCommentChange,
   onCreateComment,
   onReplyComment,
   onSetActiveReply,
+  onToggleReplyComposer,
   onReplyDraftChange,
   onStartEdit,
   onCancelEdit,
@@ -69,8 +79,13 @@ export default function CommentsModal({
   onDeleteComment,
   onToggleLike,
   onReportComment,
+  onToggleReplies,
 }: CommentsModalProps) {
   if (!isOpen || !targetPost) return null;
+
+  const commentById = useMemo(() => {
+    return new Map(commentsWithDepth.map((item) => [item._id, item]));
+  }, [commentsWithDepth]);
 
   return (
     <div
@@ -149,13 +164,36 @@ export default function CommentsModal({
           ) : (
             <div className="space-y-3 max-h-[52vh] overflow-y-auto pr-1">
               {commentsWithDepth.map((comment) => {
-                const commentUserId = resolveCommentUserId(comment);
-                const isOwnComment = commentUserId === currentUser._id;
+                const author = resolveCommentAuthorSummary(
+                  comment,
+                  currentUser,
+                );
+                const isOwnComment = author.userId === currentUser._id;
                 const canManage = isOwnComment || currentUser.role === "admin";
                 const isEditing = editingCommentId === comment._id;
                 const isReplying = activeReplyCommentId === comment._id;
                 const replyValue = replyDrafts[comment._id] || "";
+                const isTopLevelComment = !comment.parentId;
+                const replyCount = Number(comment.replyCount ?? 0);
+                const canViewReplies = isTopLevelComment && replyCount > 0;
+                const isRepliesExpanded = expandedReplyParentIds.has(
+                  comment._id,
+                );
+                const isLoadingReplies = loadingRepliesFor === comment._id;
                 const leftIndent = `${Math.min(comment.depth, 6) * 16}px`;
+                const parentComment = comment.parentId
+                  ? commentById.get(comment.parentId)
+                  : undefined;
+                const parentAuthor = parentComment
+                  ? resolveCommentAuthorSummary(parentComment, currentUser)
+                  : null;
+                const avatarLetter = (
+                  author.username ||
+                  author.displayName ||
+                  "U"
+                )
+                  .charAt(0)
+                  .toUpperCase();
 
                 return (
                   <div
@@ -165,20 +203,52 @@ export default function CommentsModal({
                   >
                     {/* Comment header */}
                     <div className="flex items-center justify-between mb-2 gap-4">
-                      <div className="text-sm text-slate-700">
-                        <span className="font-medium">
-                          {isOwnComment
-                            ? "Bạn"
-                            : `User ${commentUserId.slice(-6) || "ẩn danh"}`}
-                        </span>
-                        <span className="ml-2 text-slate-400">
-                          {formatCommentDate(comment.createdOn)}
-                        </span>
-                        {comment.isEdited && (
-                          <span className="ml-2 text-xs text-slate-500">
-                            (đã chỉnh sửa)
-                          </span>
+                      <div className="flex min-w-0 items-center gap-3 text-sm text-slate-700">
+                        {author.profileHref ? (
+                          <Link
+                            href={author.profileHref}
+                            className="h-9 w-9 overflow-hidden rounded-full bg-slate-200"
+                          >
+                            {author.avatar ? (
+                              <img
+                                src={author.avatar}
+                                alt={author.displayName}
+                                className="h-full w-full object-cover"
+                              />
+                            ) : (
+                              <span className="flex h-full w-full items-center justify-center text-xs font-semibold text-slate-700">
+                                {avatarLetter}
+                              </span>
+                            )}
+                          </Link>
+                        ) : (
+                          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-200 text-xs font-semibold text-slate-700">
+                            {avatarLetter}
+                          </div>
                         )}
+
+                        <div className="min-w-0">
+                          {author.profileHref ? (
+                            <Link
+                              href={author.profileHref}
+                              className="font-medium text-slate-800 hover:text-blue-700 hover:underline"
+                            >
+                              {author.displayName}
+                            </Link>
+                          ) : (
+                            <span className="font-medium text-slate-800">
+                              {author.displayName}
+                            </span>
+                          )}
+                          <span className="ml-2 text-slate-400">
+                            {formatCommentDate(comment.createdOn)}
+                          </span>
+                          {comment.isEdited && (
+                            <span className="ml-2 text-xs text-slate-500">
+                              (đã chỉnh sửa)
+                            </span>
+                          )}
+                        </div>
                       </div>
 
                       <div className="flex items-center space-x-2">
@@ -196,13 +266,7 @@ export default function CommentsModal({
 
                         <button
                           type="button"
-                          onClick={() => {
-                            onSetActiveReply(
-                              activeReplyCommentId === comment._id
-                                ? null
-                                : comment._id,
-                            );
-                          }}
+                          onClick={() => onToggleReplyComposer(comment)}
                           className="text-xs text-emerald-700 hover:text-emerald-800"
                         >
                           Reply
@@ -275,9 +339,28 @@ export default function CommentsModal({
                         </div>
                       </div>
                     ) : (
-                      <p className="whitespace-pre-wrap text-sm text-slate-700">
-                        {comment.content}
-                      </p>
+                      <>
+                        <CommentContent
+                          content={comment.content}
+                          mentionLabel={parentAuthor?.mentionLabel}
+                          mentionHref={parentAuthor?.profileHref}
+                          className="whitespace-pre-wrap break-words text-sm text-slate-700"
+                        />
+                        {canViewReplies && (
+                          <button
+                            type="button"
+                            onClick={() => onToggleReplies(comment._id)}
+                            disabled={isLoadingReplies}
+                            className="mt-2 text-xs font-medium text-slate-500 hover:text-slate-700 disabled:opacity-60"
+                          >
+                            {isLoadingReplies
+                              ? "Đang tải phản hồi..."
+                              : isRepliesExpanded
+                                ? "Ẩn phản hồi"
+                                : `Xem ${replyCount} phản hồi`}
+                          </button>
+                        )}
+                      </>
                     )}
 
                     {/* Reply box */}

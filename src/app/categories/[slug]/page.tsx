@@ -224,8 +224,18 @@ function PostCard({ post }: { post: Post }) {
 
         {author && (
           <div className="mt-4 flex items-center gap-2 border-t border-slate-200 pt-4">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-600 text-sm font-semibold text-white">
-              {author.username.charAt(0).toUpperCase()}
+            <div className="h-8 w-8 overflow-hidden rounded-full bg-emerald-600">
+              {author.avatar ? (
+                <img
+                  src={author.avatar}
+                  alt={author.fullName || author.username}
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center text-sm font-semibold text-white">
+                  {author.username.charAt(0).toUpperCase()}
+                </div>
+              )}
             </div>
             <span className="text-sm text-slate-700">{author.fullName}</span>
           </div>

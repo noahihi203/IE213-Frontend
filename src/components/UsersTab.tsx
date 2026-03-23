@@ -67,8 +67,18 @@ export default function UsersTab({
                 <tr key={u._id} className="hover:bg-slate-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
-                      <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border border-emerald-200 bg-emerald-100 font-bold text-emerald-700">
-                        {u.username.charAt(0).toUpperCase()}
+                      <div className="h-10 w-10 flex-shrink-0 overflow-hidden rounded-full border border-emerald-200 bg-emerald-100">
+                        {u.avatar ? (
+                          <img
+                            src={u.avatar}
+                            alt={u.fullName || u.username}
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center font-bold text-emerald-700">
+                            {u.username.charAt(0).toUpperCase()}
+                          </div>
+                        )}
                       </div>
                       <div className="ml-4">
                         <div className="text-sm font-medium text-slate-900">

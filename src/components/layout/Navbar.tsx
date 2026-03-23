@@ -22,19 +22,19 @@ const outfit = Outfit({
 const navItems = [
   {
     href: "/",
-    label: "Trang chu",
+    label: "Trang chủ",
     icon: House,
     match: (path: string) => path === "/",
   },
   {
     href: "/posts",
-    label: "Bai viet",
+    label: "Bài viết",
     icon: SquaresFour,
     match: (path: string) => path.startsWith("/posts"),
   },
   {
     href: "/categories",
-    label: "Truong dai hoc",
+    label: "Trường đại học",
     icon: Student,
     match: (path: string) => path.startsWith("/categories"),
   },
@@ -57,7 +57,7 @@ export function Navbar() {
         : "bg-slate-500";
 
   const roleLabel =
-    user?.role === "admin" ? "Admin" : user?.role === "author" ? "CTV" : "User";
+    user?.role === "admin" ? "Quản trị viên" : user?.role === "author" ? "Tác giả" : "Người dùng";
 
   return (
     <nav
@@ -103,8 +103,18 @@ export function Navbar() {
                   href="/dashboard"
                   className="group flex items-center gap-2 rounded-xl px-2 py-1.5 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-white active:scale-[0.98]"
                 >
-                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-600 text-sm font-semibold text-white shadow-[0_8px_20px_-10px_rgba(5,150,105,0.7)]">
-                    {user.username.charAt(0).toUpperCase()}
+                  <div className="h-9 w-9 overflow-hidden rounded-full bg-emerald-600 shadow-[0_8px_20px_-10px_rgba(5,150,105,0.7)]">
+                    {user.avatar ? (
+                      <img
+                        src={user.avatar}
+                        alt={user.fullName || user.username}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center text-sm font-semibold text-white">
+                        {user.username.charAt(0).toUpperCase()}
+                      </div>
+                    )}
                   </div>
                   <span className="hidden text-sm font-medium text-slate-900 md:inline">
                     {user.username}
@@ -123,7 +133,7 @@ export function Navbar() {
                   className="inline-flex items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:border-rose-200 hover:text-rose-600 active:scale-[0.98]"
                 >
                   <SignOut size={16} weight="duotone" />
-                  <span className="hidden xl:inline">Dang xuat</span>
+                  <span className="hidden xl:inline">Đăng xuất</span>
                 </button>
               </div>
             ) : (
@@ -132,14 +142,14 @@ export function Navbar() {
                   href="/login"
                   className="rounded-xl px-3 py-2 text-sm font-medium text-slate-600 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-white hover:text-slate-900 active:scale-[0.98]"
                 >
-                  Dang nhap
+                  Đăng nhập
                 </Link>
                 <Link
                   href="/register"
                   className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-emerald-700 active:-translate-y-[1px]"
                 >
                   <UserCircle size={16} weight="duotone" />
-                  Dang ky
+                  Đăng ký
                 </Link>
               </div>
             )}

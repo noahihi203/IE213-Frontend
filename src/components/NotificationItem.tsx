@@ -72,8 +72,18 @@ export default function NotificationItem({
       {/* Avatar / Icon */}
       <div className="shrink-0 mt-0.5">
         {actor ? (
-          <div className="w-9 h-9 rounded-full bg-emerald-600 flex items-center justify-center text-white text-sm font-bold">
-            {actor.username.charAt(0).toUpperCase()}
+          <div className="w-9 h-9 overflow-hidden rounded-full bg-emerald-600">
+            {actor.avatar ? (
+              <img
+                src={actor.avatar}
+                alt={actor.fullName || actor.username}
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center text-white text-sm font-bold">
+                {actor.username.charAt(0).toUpperCase()}
+              </div>
+            )}
           </div>
         ) : (
           <div className="w-9 h-9 rounded-full bg-slate-200 flex items-center justify-center text-lg">

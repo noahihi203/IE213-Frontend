@@ -1,6 +1,21 @@
 import { axiosClient } from "./client";
 import { ApiResponse, User, UserFilters, PaginatedResponse } from "../types";
 
+export interface UpdateProfilePayload {
+  fullName: string;
+  bio: string;
+  avatar: string;
+}
+
+export interface UpdateEmailPayload {
+  newEmail: string;
+  currentPassword: string;
+}
+
+export interface UpdateUsernamePayload {
+  newUsername: string;
+}
+
 export const userService = {
   // Get user profile by ID
   getUserProfile: async (userId: string): Promise<ApiResponse<User>> => {
@@ -9,19 +24,23 @@ export const userService = {
 
   // Update user profile (Current user)
   updateUserProfile: async (
-    data: Partial<User>,
+    data: UpdateProfilePayload,
   ): Promise<ApiResponse<User>> => {
     return await axiosClient.put(`/user`, data);
   },
 
   // Update user email
-  updateUserEmail: async (email: string): Promise<ApiResponse<User>> => {
-    return await axiosClient.put(`/user/update-email`, { email });
+  updateUserEmail: async (
+    data: UpdateEmailPayload,
+  ): Promise<ApiResponse<User>> => {
+    return await axiosClient.put(`/user/update-email`, data);
   },
 
   // Update user username
-  updateUserUsername: async (username: string): Promise<ApiResponse<User>> => {
-    return await axiosClient.put(`/user/update-username`, { username });
+  updateUserUsername: async (
+    data: UpdateUsernamePayload,
+  ): Promise<ApiResponse<User>> => {
+    return await axiosClient.put(`/user/update-username`, data);
   },
 
   // Get all users (Admin only)

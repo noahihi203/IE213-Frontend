@@ -115,7 +115,6 @@ export default function PostsTab({
               post={post}
               isAuthorOrAdmin={isAuthorOrAdmin}
               onEdit={postForm.openEditModal}
-              onOpenComments={(p) => void comments.openCommentsModal(p)}
               onStatusChange={postForm.handleStatusChange}
             />
           ))}
@@ -179,11 +178,14 @@ export default function PostsTab({
         isUpdatingComment={comments.isUpdatingComment}
         deletingCommentId={comments.deletingCommentId}
         likingCommentId={comments.likingCommentId}
+        expandedReplyParentIds={comments.expandedReplyParentIds}
+        loadingRepliesFor={comments.loadingRepliesFor}
         onClose={() => comments.closeCommentsModal()}
         onNewCommentChange={comments.setNewCommentContent}
         onCreateComment={() => void comments.handleCreateComment()}
         onReplyComment={(id) => void comments.handleReplyComment(id)}
         onSetActiveReply={comments.setActiveReplyCommentId}
+        onToggleReplyComposer={comments.toggleReplyComposerForComment}
         onReplyDraftChange={(id, val) =>
           comments.setReplyDrafts((prev) => ({ ...prev, [id]: val }))
         }
@@ -194,6 +196,7 @@ export default function PostsTab({
         onDeleteComment={(id) => void comments.handleDeleteComment(id)}
         onToggleLike={(id) => void comments.handleToggleLikeComment(id)}
         onReportComment={(id) => void comments.handleReportComment(id)}
+        onToggleReplies={(id) => void comments.toggleRepliesForComment(id)}
       />
     </>
   );

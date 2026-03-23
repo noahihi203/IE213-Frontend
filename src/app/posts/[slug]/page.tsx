@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import dynamic from "next/dynamic";
@@ -24,9 +24,10 @@ import { usePostForm } from "../../../hooks/usePostForm";
 import PostFormModal from "../../../components/PostFormModal";
 import {
   useComments,
-  resolveCommentUserId,
   formatCommentDate,
+  resolveCommentAuthorSummary,
 } from "../../../hooks/useComments";
+import CommentContent from "../../../components/CommentContent";
 
 const MDPreview = dynamic(() => import("@uiw/react-markdown-preview"), {
   ssr: false,
@@ -41,6 +42,7 @@ export default function PostDetailPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isLiked, setIsLiked] = useState(false);
   const [error, setError] = useState("");
+  const loadMoreTriggerRef = useRef<HTMLDivElement | null>(null);
 
   // ── useComments — inline mode, truyền postId khi đã có post ──────────────
   const comments = useComments(user as User | null, {
@@ -66,8 +68,40 @@ export default function PostDetailPage() {
 
   // Load comments khi post._id sẵn sàng
   useEffect(() => {
-    if (post?._id) comments.loadCommentsForPost(post._id);
+    if (post?._id) void comments.loadCommentsForPost(post._id);
   }, [post?._id]);
+
+  useEffect(() => {
+    if (!comments.hasMoreTopLevelComments) return;
+    if (comments.isLoadingComments || comments.isLoadingMoreTopLevelComments) {
+      return;
+    }
+
+    const node = loadMoreTriggerRef.current;
+    if (!node) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        if (entry.isIntersecting) {
+          void comments.loadMoreTopLevelComments();
+        }
+      },
+      { threshold: 0.2 },
+    );
+
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [
+    comments.hasMoreTopLevelComments,
+    comments.isLoadingComments,
+    comments.isLoadingMoreTopLevelComments,
+    comments.loadMoreTopLevelComments,
+  ]);
+
+  const commentById = useMemo(() => {
+    return new Map(comments.commentsWithDepth.map((item) => [item._id, item]));
+  }, [comments.commentsWithDepth]);
 
   // Check xem user đã like post chưa
   useEffect(() => {
@@ -382,14 +416,9 @@ export default function PostDetailPage() {
             ) : (
               <div className="space-y-3">
                 {comments.commentsWithDepth.map((comment) => {
-                  const commentUserId = resolveCommentUserId(comment);
-                  const rawCommentUser = comment.userId ?? comment.authorId;
-                  const commentUser =
-                    rawCommentUser && typeof rawCommentUser === "object"
-                      ? (rawCommentUser as User)
-                      : null;
+                  const author = resolveCommentAuthorSummary(comment, user);
                   const isOwnComment = Boolean(
-                    user && commentUserId === user._id,
+                    user && author.userId === user._id,
                   );
                   const canManageComment =
                     isOwnComment || user?.role === "admin";
@@ -399,8 +428,29 @@ export default function PostDetailPage() {
                   const isLikedComment = comments.likedCommentIds.has(
                     comment._id,
                   );
+                  const isTopLevelComment = !comment.parentId;
+                  const replyCount = Number(comment.replyCount ?? 0);
+                  const canViewReplies = isTopLevelComment && replyCount > 0;
+                  const isRepliesExpanded = comments.expandedReplyParentIds.has(
+                    comment._id,
+                  );
+                  const isLoadingReplies =
+                    comments.loadingRepliesFor === comment._id;
                   const replyValue = comments.replyDrafts[comment._id] || "";
                   const leftIndent = `${Math.min(comment.depth, 6) * 16}px`;
+                  const parentComment = comment.parentId
+                    ? commentById.get(comment.parentId)
+                    : undefined;
+                  const parentAuthor = parentComment
+                    ? resolveCommentAuthorSummary(parentComment, user)
+                    : null;
+                  const avatarLetter = (
+                    author.username ||
+                    author.displayName ||
+                    "U"
+                  )
+                    .charAt(0)
+                    .toUpperCase();
 
                   return (
                     <div
@@ -409,22 +459,52 @@ export default function PostDetailPage() {
                       style={{ marginLeft: leftIndent }}
                     >
                       <div className="flex items-center justify-between mb-2 gap-4">
-                        <div className="text-sm text-slate-700">
-                          <span className="font-medium">
-                            {isOwnComment
-                              ? "Bạn"
-                              : commentUser?.fullName ||
-                                commentUser?.username ||
-                                `User ${commentUserId.slice(-6) || "ẩn danh"}`}
-                          </span>
-                          <span className="text-slate-400 ml-2">
-                            {formatCommentDate(comment.createdOn)}
-                          </span>
-                          {comment.isEdited && (
-                            <span className="ml-2 text-xs text-slate-500">
-                              (đã chỉnh sửa)
-                            </span>
+                        <div className="flex min-w-0 items-center gap-3 text-sm text-slate-700">
+                          {author.profileHref ? (
+                            <Link
+                              href={author.profileHref}
+                              className="h-9 w-9 overflow-hidden rounded-full bg-slate-200"
+                            >
+                              {author.avatar ? (
+                                <img
+                                  src={author.avatar}
+                                  alt={author.displayName}
+                                  className="h-full w-full object-cover"
+                                />
+                              ) : (
+                                <span className="flex h-full w-full items-center justify-center text-xs font-semibold text-slate-700">
+                                  {avatarLetter}
+                                </span>
+                              )}
+                            </Link>
+                          ) : (
+                            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-200 text-xs font-semibold text-slate-700">
+                              {avatarLetter}
+                            </div>
                           )}
+
+                          <div className="min-w-0">
+                            {author.profileHref ? (
+                              <Link
+                                href={author.profileHref}
+                                className="font-medium text-slate-800 hover:text-blue-700 hover:underline"
+                              >
+                                {author.displayName}
+                              </Link>
+                            ) : (
+                              <span className="font-medium text-slate-800">
+                                {author.displayName}
+                              </span>
+                            )}
+                            <span className="text-slate-400 ml-2">
+                              {formatCommentDate(comment.createdOn)}
+                            </span>
+                            {comment.isEdited && (
+                              <span className="ml-2 text-xs text-slate-500">
+                                (đã chỉnh sửa)
+                              </span>
+                            )}
+                          </div>
                         </div>
 
                         <div className="flex items-center space-x-2">
@@ -452,11 +532,9 @@ export default function PostDetailPage() {
 
                           <button
                             type="button"
-                            onClick={() => {
-                              comments.setActiveReplyCommentId((prev) =>
-                                prev === comment._id ? null : comment._id,
-                              );
-                            }}
+                            onClick={() =>
+                              comments.toggleReplyComposerForComment(comment)
+                            }
                             className="text-xs text-blue-600 hover:text-blue-700"
                           >
                             Reply
@@ -539,9 +617,30 @@ export default function PostDetailPage() {
                           </div>
                         </div>
                       ) : (
-                        <p className="text-sm text-slate-700 whitespace-pre-wrap">
-                          {comment.content}
-                        </p>
+                        <>
+                          <CommentContent
+                            content={comment.content}
+                            mentionLabel={parentAuthor?.mentionLabel}
+                            mentionHref={parentAuthor?.profileHref}
+                            className="text-sm text-slate-700 whitespace-pre-wrap break-words"
+                          />
+                          {canViewReplies && (
+                            <button
+                              type="button"
+                              onClick={() =>
+                                comments.toggleRepliesForComment(comment._id)
+                              }
+                              disabled={isLoadingReplies}
+                              className="mt-2 text-xs font-medium text-slate-500 hover:text-slate-700 disabled:opacity-60"
+                            >
+                              {isLoadingReplies
+                                ? "Đang tải phản hồi..."
+                                : isRepliesExpanded
+                                  ? "Ẩn phản hồi"
+                                  : `Xem ${replyCount} phản hồi`}
+                            </button>
+                          )}
+                        </>
                       )}
 
                       {/* Reply box */}
@@ -592,6 +691,24 @@ export default function PostDetailPage() {
                     </div>
                   );
                 })}
+
+                {comments.hasMoreTopLevelComments && (
+                  <div
+                    ref={loadMoreTriggerRef}
+                    className="py-4 text-center text-sm text-slate-500"
+                  >
+                    {comments.isLoadingMoreTopLevelComments
+                      ? "Đang tải thêm bình luận..."
+                      : "Kéo xuống để tải thêm bình luận"}
+                  </div>
+                )}
+
+                {!comments.hasMoreTopLevelComments &&
+                  comments.topLevelComments.length > 0 && (
+                    <div className="py-4 text-center text-xs text-slate-400">
+                      Đã hiển thị tất cả bình luận gốc.
+                    </div>
+                  )}
               </div>
             )}
           </div>
