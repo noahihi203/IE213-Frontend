@@ -1,13 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { postService } from "@/lib/api/post.service";
-import { commentService } from "@/lib/api/comment.service";
 import { useAuthStore } from "@/store/authStore";
-import { Comment as PostComment, Post, User } from "@/lib/types";
+import { Post, User } from "@/lib/types";
 import { format } from "date-fns";
 import {
   ArrowLeft,
@@ -21,49 +20,17 @@ import {
   Trash,
 } from "@phosphor-icons/react";
 
-// ── 1. Import usePostForm + PostFormModal (điều chỉnh path theo project) ──────
 import { usePostForm } from "../../../hooks/usePostForm";
 import PostFormModal from "../../../components/PostFormModal";
+import {
+  useComments,
+  resolveCommentUserId,
+  formatCommentDate,
+} from "../../../hooks/useComments";
 
-// ── 2. Dùng MDPreview thay dangerouslySetInnerHTML ────────────────────────────
 const MDPreview = dynamic(() => import("@uiw/react-markdown-preview"), {
   ssr: false,
 });
-
-type ReportReason =
-  | "spam"
-  | "harassment"
-  | "misinformation"
-  | "offensive"
-  | "other";
-
-type PostCommentItem = PostComment & {
-  userId?: string | User;
-  parentId?: string | null;
-  commentLeft?: number;
-  commentRight?: number;
-  likesCount?: number;
-};
-
-interface CommentRenderItem extends PostCommentItem {
-  depth: number;
-}
-
-const resolveCommentUserId = (comment: PostCommentItem): string => {
-  const userId = comment.userId ?? comment.authorId;
-  if (typeof userId === "string") return userId;
-  if (userId && typeof userId === "object" && "_id" in userId) {
-    return String((userId as User)._id || "");
-  }
-  return "";
-};
-
-const formatCommentDate = (value?: string | Date) => {
-  if (!value) return "";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "";
-  return date.toLocaleString("vi-VN");
-};
 
 export default function PostDetailPage() {
   const params = useParams();
@@ -75,53 +42,34 @@ export default function PostDetailPage() {
   const [isLiked, setIsLiked] = useState(false);
   const [error, setError] = useState("");
 
-  const [postComments, setPostComments] = useState<PostCommentItem[]>([]);
-  const [isLoadingComments, setIsLoadingComments] = useState(false);
-  const [commentsError, setCommentsError] = useState("");
-  const [newCommentContent, setNewCommentContent] = useState("");
-  const [isSubmittingComment, setIsSubmittingComment] = useState(false);
-  const [activeReplyCommentId, setActiveReplyCommentId] = useState<
-    string | null
-  >(null);
-  const [replyDrafts, setReplyDrafts] = useState<Record<string, string>>({});
-  const [replySubmittingFor, setReplySubmittingFor] = useState<string | null>(
-    null,
-  );
-  const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
-  const [editCommentContent, setEditCommentContent] = useState("");
-  const [isUpdatingComment, setIsUpdatingComment] = useState(false);
-  const [deletingCommentId, setDeletingCommentId] = useState<string | null>(
-    null,
-  );
-  const [likingCommentId, setLikingCommentId] = useState<string | null>(null);
+  // ── useComments — inline mode, truyền postId khi đã có post ──────────────
+  const comments = useComments(user as User | null, {
+    postId: post?._id,
+    onPostsRefresh: async () => {
+      if (post?.slug) await loadPost(post.slug);
+    },
+  });
 
-  // ── 3. Khởi tạo usePostForm, reload bài sau khi lưu ──────────────────────
-  const refreshPost = async () => {
+  // ── usePostForm ───────────────────────────────────────────────────────────
+  const postForm = usePostForm(async () => {
     if (post?.slug) await loadPost(post.slug);
-  };
-  const postForm = usePostForm(refreshPost);
+  });
 
   const handleOpenEditModal = () => {
     if (post) postForm.openEditModal(post);
   };
 
-  const commentsWithDepth = useMemo<CommentRenderItem[]>(() => {
-    if (postComments.length === 0) return [];
-    const stack: number[] = [];
-    return postComments.map((comment) => {
-      const left = comment.commentLeft ?? 0;
-      const right = comment.commentRight ?? Number.MAX_SAFE_INTEGER;
-      while (stack.length > 0 && left > stack[stack.length - 1]) stack.pop();
-      const depth = stack.length;
-      stack.push(right);
-      return { ...comment, depth };
-    });
-  }, [postComments]);
-
+  // ── Load post ─────────────────────────────────────────────────────────────
   useEffect(() => {
     if (params.slug) loadPost(params.slug as string);
   }, [params.slug]);
 
+  // Load comments khi post._id sẵn sàng
+  useEffect(() => {
+    if (post?._id) comments.loadCommentsForPost(post._id);
+  }, [post?._id]);
+
+  // Check xem user đã like post chưa
   useEffect(() => {
     if (!post?._id || !authInitialized) return;
     if (!isAuthenticated) {
@@ -147,47 +95,12 @@ export default function PostDetailPage() {
     setError("");
     try {
       const response = await postService.getPostBySlug(slug);
-      const loadedPost = response.metadata || null;
-      setPost(loadedPost);
-      setPostComments([]);
-      setCommentsError("");
-      setNewCommentContent("");
-      setActiveReplyCommentId(null);
-      setReplyDrafts({});
-      setEditingCommentId(null);
-      setEditCommentContent("");
-      if (loadedPost?._id) {
-        const comments = await loadCommentsForPost(loadedPost._id);
-        setPost((prev) =>
-          prev && prev._id === loadedPost._id
-            ? { ...prev, commentsCount: comments.length }
-            : prev,
-        );
-      }
+      setPost(response.metadata || null);
     } catch (err: any) {
       setError(err.message || "Post not found");
       setPost(null);
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const loadCommentsForPost = async (postId: string) => {
-    try {
-      setIsLoadingComments(true);
-      setCommentsError("");
-      const response = await commentService.getPostComments(postId);
-      const comments = Array.isArray(response.metadata)
-        ? (response.metadata as PostCommentItem[])
-        : [];
-      setPostComments(comments);
-      return comments;
-    } catch (error: any) {
-      setPostComments([]);
-      setCommentsError(error?.message || "Không thể tải bình luận.");
-      return [];
-    } finally {
-      setIsLoadingComments(false);
     }
   };
 
@@ -215,194 +128,7 @@ export default function PostDetailPage() {
     }
   };
 
-  const refreshAfterCommentMutation = async (postId: string) => {
-    const comments = await loadCommentsForPost(postId);
-    setPost((prev) =>
-      prev && prev._id === postId
-        ? { ...prev, commentsCount: comments.length }
-        : prev,
-    );
-  };
-
-  const handleCreateComment = async () => {
-    if (!post) return;
-    if (!isAuthenticated) {
-      router.push("/login");
-      return;
-    }
-    const content = newCommentContent.trim();
-    if (!content) {
-      setCommentsError("Vui lòng nhập nội dung bình luận.");
-      return;
-    }
-    try {
-      setIsSubmittingComment(true);
-      setCommentsError("");
-      await commentService.createComment({ postId: post._id, content });
-      setNewCommentContent("");
-      await refreshAfterCommentMutation(post._id);
-    } catch (error: any) {
-      setCommentsError(error?.message || "Không thể tạo bình luận.");
-    } finally {
-      setIsSubmittingComment(false);
-    }
-  };
-
-  const handleReplyComment = async (parentCommentId: string) => {
-    if (!post) return;
-    if (!isAuthenticated) {
-      router.push("/login");
-      return;
-    }
-    const replyContent = replyDrafts[parentCommentId]?.trim() || "";
-    if (!replyContent) {
-      setCommentsError("Vui lòng nhập nội dung phản hồi.");
-      return;
-    }
-    try {
-      setReplySubmittingFor(parentCommentId);
-      setCommentsError("");
-      await commentService.createComment({
-        postId: post._id,
-        content: replyContent,
-        parentCommentId,
-      });
-      setReplyDrafts((prev) => ({ ...prev, [parentCommentId]: "" }));
-      setActiveReplyCommentId(null);
-      await refreshAfterCommentMutation(post._id);
-    } catch (error: any) {
-      setCommentsError(error?.message || "Không thể gửi phản hồi.");
-    } finally {
-      setReplySubmittingFor(null);
-    }
-  };
-
-  const startEditComment = (comment: PostCommentItem) => {
-    setCommentsError("");
-    setEditingCommentId(comment._id);
-    setEditCommentContent(comment.content || "");
-    setActiveReplyCommentId(null);
-  };
-
-  const cancelEditComment = () => {
-    setEditingCommentId(null);
-    setEditCommentContent("");
-  };
-
-  const handleSaveCommentEdit = async () => {
-    if (!post || !editingCommentId) return;
-    if (!isAuthenticated) {
-      router.push("/login");
-      return;
-    }
-    const content = editCommentContent.trim();
-    if (!content) {
-      setCommentsError("Nội dung bình luận không được để trống.");
-      return;
-    }
-    try {
-      setIsUpdatingComment(true);
-      setCommentsError("");
-      await commentService.updateComment({
-        commentId: editingCommentId,
-        content,
-      });
-      setEditingCommentId(null);
-      setEditCommentContent("");
-      await refreshAfterCommentMutation(post._id);
-    } catch (error: any) {
-      setCommentsError(error?.message || "Không thể cập nhật bình luận.");
-    } finally {
-      setIsUpdatingComment(false);
-    }
-  };
-
-  const handleDeleteComment = async (commentId: string) => {
-    if (!post) return;
-    if (!isAuthenticated) {
-      router.push("/login");
-      return;
-    }
-    if (!window.confirm("Bạn có chắc chắn muốn xóa bình luận này không?"))
-      return;
-    try {
-      setDeletingCommentId(commentId);
-      setCommentsError("");
-      await commentService.deleteComment({ postId: post._id, commentId });
-      if (editingCommentId === commentId) cancelEditComment();
-      await refreshAfterCommentMutation(post._id);
-    } catch (error: any) {
-      setCommentsError(error?.message || "Không thể xóa bình luận.");
-    } finally {
-      setDeletingCommentId(null);
-    }
-  };
-
-  const handleToggleLikeComment = async (commentId: string) => {
-    if (!isAuthenticated) {
-      router.push("/login");
-      return;
-    }
-    try {
-      setLikingCommentId(commentId);
-      setCommentsError("");
-      const response = await commentService.toggleLikeComment(commentId);
-      const nextLikesCount = response.metadata?.likesCount;
-      setPostComments((prev) =>
-        prev.map((comment) =>
-          comment._id === commentId
-            ? {
-                ...comment,
-                likesCount:
-                  typeof nextLikesCount === "number"
-                    ? nextLikesCount
-                    : comment.likesCount,
-              }
-            : comment,
-        ),
-      );
-    } catch (error: any) {
-      setCommentsError(error?.message || "Không thể cập nhật lượt thích.");
-    } finally {
-      setLikingCommentId(null);
-    }
-  };
-
-  const handleReportComment = async (commentId: string) => {
-    if (!isAuthenticated) {
-      router.push("/login");
-      return;
-    }
-    const reasonInput = window
-      .prompt(
-        "Nhập lý do report (spam, harassment, misinformation, offensive, other)",
-        "other",
-      )
-      ?.trim()
-      .toLowerCase();
-    if (!reasonInput) return;
-    const validReasons: ReportReason[] = [
-      "spam",
-      "harassment",
-      "misinformation",
-      "offensive",
-      "other",
-    ];
-    if (!validReasons.includes(reasonInput as ReportReason)) {
-      setCommentsError("Lý do report không hợp lệ.");
-      return;
-    }
-    try {
-      setCommentsError("");
-      await commentService.reportComment(
-        commentId,
-        reasonInput as ReportReason,
-      );
-    } catch (error: any) {
-      setCommentsError(error?.message || "Không thể report bình luận.");
-    }
-  };
-
+  // ── Loading / error states ────────────────────────────────────────────────
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -437,7 +163,6 @@ export default function PostDetailPage() {
 
   const category = typeof post.category === "object" ? post.category : null;
 
-  // ── 4. canEdit mở rộng cho cả admin ──────────────────────────────────────
   const canEdit =
     user && ((author && user._id === author._id) || user.role === "admin");
 
@@ -455,7 +180,6 @@ export default function PostDetailPage() {
               <span>Back</span>
             </button>
 
-            {/* ── Đổi từ Link sang button gọi modal ── */}
             {canEdit && (
               <button
                 type="button"
@@ -536,7 +260,6 @@ export default function PostDetailPage() {
           </div>
         </header>
 
-        {/* ── Render markdown thay vì dangerouslySetInnerHTML ── */}
         <div className="mb-8" data-color-mode="light">
           <MDPreview
             source={post.content}
@@ -564,7 +287,7 @@ export default function PostDetailPage() {
         <div className="flex items-center space-x-4 py-6 border-t border-slate-200">
           <button
             onClick={handleLike}
-            className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-medium ${
+            className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-medium transition-colors ${
               isLiked
                 ? "bg-red-100 text-red-700"
                 : "bg-slate-100 text-slate-700"
@@ -579,7 +302,7 @@ export default function PostDetailPage() {
           </button>
         </div>
 
-        {/* Comments */}
+        {/* ── Comments section ────────────────────────────────────────────── */}
         <section className="py-6 border-t border-slate-200">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-bold text-slate-900">Bình luận</h2>
@@ -588,13 +311,14 @@ export default function PostDetailPage() {
             </span>
           </div>
 
-          {commentsError && (
+          {comments.commentsError && (
             <div className="mb-4 rounded-md border border-red-200 bg-red-50 text-red-700 px-3 py-2 text-sm">
-              {commentsError}
+              {comments.commentsError}
             </div>
           )}
 
           <div className="space-y-4">
+            {/* Comment composer */}
             {!authInitialized ? (
               <div className="rounded-lg border border-dashed border-slate-300 py-5 text-center text-slate-500">
                 Đang tải trạng thái đăng nhập...
@@ -610,20 +334,24 @@ export default function PostDetailPage() {
                 <textarea
                   id="new-comment"
                   rows={3}
-                  value={newCommentContent}
-                  onChange={(e) => setNewCommentContent(e.target.value)}
+                  value={comments.newCommentContent}
+                  onChange={(e) =>
+                    comments.setNewCommentContent(e.target.value)
+                  }
                   className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-emerald-500"
                   placeholder="Nhập nội dung bình luận..."
                 />
                 <div className="mt-3 flex justify-end">
                   <button
                     type="button"
-                    onClick={handleCreateComment}
-                    disabled={isSubmittingComment}
+                    onClick={comments.handleCreateComment}
+                    disabled={comments.isSubmittingComment}
                     className="inline-flex items-center space-x-2 px-4 py-2 bg-emerald-600 text-white rounded-md font-medium hover:bg-emerald-700 disabled:opacity-60"
                   >
                     <PaperPlaneTilt className="w-4 h-4" />
-                    <span>{isSubmittingComment ? "Đang gửi..." : "Gửi"}</span>
+                    <span>
+                      {comments.isSubmittingComment ? "Đang gửi..." : "Gửi"}
+                    </span>
                   </button>
                 </div>
               </div>
@@ -642,17 +370,18 @@ export default function PostDetailPage() {
               </div>
             )}
 
-            {isLoadingComments ? (
+            {/* Comment list */}
+            {comments.isLoadingComments ? (
               <div className="py-10 text-center text-slate-500">
                 Đang tải bình luận...
               </div>
-            ) : commentsWithDepth.length === 0 ? (
+            ) : comments.commentsWithDepth.length === 0 ? (
               <div className="rounded-lg border border-dashed border-slate-300 py-10 text-center text-slate-500">
                 Chưa có bình luận nào cho bài viết này.
               </div>
             ) : (
               <div className="space-y-3">
-                {commentsWithDepth.map((comment) => {
+                {comments.commentsWithDepth.map((comment) => {
                   const commentUserId = resolveCommentUserId(comment);
                   const rawCommentUser = comment.userId ?? comment.authorId;
                   const commentUser =
@@ -664,9 +393,13 @@ export default function PostDetailPage() {
                   );
                   const canManageComment =
                     isOwnComment || user?.role === "admin";
-                  const isEditing = editingCommentId === comment._id;
-                  const isReplying = activeReplyCommentId === comment._id;
-                  const replyValue = replyDrafts[comment._id] || "";
+                  const isEditing = comments.editingCommentId === comment._id;
+                  const isReplying =
+                    comments.activeReplyCommentId === comment._id;
+                  const isLikedComment = comments.likedCommentIds.has(
+                    comment._id,
+                  );
+                  const replyValue = comments.replyDrafts[comment._id] || "";
                   const leftIndent = `${Math.min(comment.depth, 6) * 16}px`;
 
                   return (
@@ -695,24 +428,32 @@ export default function PostDetailPage() {
                         </div>
 
                         <div className="flex items-center space-x-2">
+                          {/* Like button — đổi màu đỏ khi đã like */}
                           <button
                             type="button"
-                            onClick={() => handleToggleLikeComment(comment._id)}
-                            disabled={likingCommentId === comment._id}
-                            className="inline-flex items-center space-x-1 text-rose-600 hover:text-rose-700 disabled:opacity-60"
+                            onClick={() =>
+                              comments.handleToggleLikeComment(comment._id)
+                            }
+                            disabled={comments.likingCommentId === comment._id}
+                            className={`inline-flex items-center space-x-1 transition-colors disabled:opacity-60 ${
+                              isLikedComment
+                                ? "text-red-500"
+                                : "text-slate-400 hover:text-rose-400"
+                            }`}
                           >
-                            <Heart className="w-4 h-4" />
+                            <Heart
+                              className="w-4 h-4"
+                              weight={isLikedComment ? "fill" : "regular"}
+                            />
                             <span className="text-xs">
-                              {comment.likesCount || 0}
+                              {comment.likesCount ?? 0}
                             </span>
                           </button>
 
                           <button
                             type="button"
                             onClick={() => {
-                              setCommentsError("");
-                              setEditingCommentId(null);
-                              setActiveReplyCommentId((prev) =>
+                              comments.setActiveReplyCommentId((prev) =>
                                 prev === comment._id ? null : comment._id,
                               );
                             }}
@@ -724,7 +465,9 @@ export default function PostDetailPage() {
                           {!isOwnComment && (
                             <button
                               type="button"
-                              onClick={() => handleReportComment(comment._id)}
+                              onClick={() =>
+                                comments.handleReportComment(comment._id)
+                              }
                               className="text-xs text-orange-600 hover:text-orange-700"
                             >
                               Report
@@ -734,7 +477,7 @@ export default function PostDetailPage() {
                           {canManageComment && !isEditing && (
                             <button
                               type="button"
-                              onClick={() => startEditComment(comment)}
+                              onClick={() => comments.startEditComment(comment)}
                               className="text-xs text-indigo-600 hover:text-indigo-700"
                             >
                               Sửa
@@ -744,13 +487,17 @@ export default function PostDetailPage() {
                           {canManageComment && (
                             <button
                               type="button"
-                              onClick={() => handleDeleteComment(comment._id)}
-                              disabled={deletingCommentId === comment._id}
+                              onClick={() =>
+                                comments.handleDeleteComment(comment._id)
+                              }
+                              disabled={
+                                comments.deletingCommentId === comment._id
+                              }
                               className="inline-flex items-center space-x-1 text-xs text-red-600 hover:text-red-700 disabled:opacity-60"
                             >
                               <Trash className="w-3.5 h-3.5" />
                               <span>
-                                {deletingCommentId === comment._id
+                                {comments.deletingCommentId === comment._id
                                   ? "Đang xóa"
                                   : "Xóa"}
                               </span>
@@ -759,32 +506,35 @@ export default function PostDetailPage() {
                         </div>
                       </div>
 
+                      {/* Edit mode */}
                       {isEditing ? (
                         <div className="space-y-2">
                           <textarea
                             rows={3}
-                            value={editCommentContent}
+                            value={comments.editCommentContent}
                             onChange={(e) =>
-                              setEditCommentContent(e.target.value)
+                              comments.setEditCommentContent(e.target.value)
                             }
                             className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-emerald-500"
                           />
                           <div className="flex justify-end gap-2">
                             <button
                               type="button"
-                              onClick={cancelEditComment}
-                              disabled={isUpdatingComment}
+                              onClick={comments.cancelEditComment}
+                              disabled={comments.isUpdatingComment}
                               className="px-3 py-1.5 border border-slate-300 rounded-md text-slate-700 hover:bg-slate-50 text-sm disabled:opacity-60"
                             >
                               Hủy
                             </button>
                             <button
                               type="button"
-                              onClick={handleSaveCommentEdit}
-                              disabled={isUpdatingComment}
+                              onClick={comments.handleSaveCommentEdit}
+                              disabled={comments.isUpdatingComment}
                               className="px-3 py-1.5 bg-emerald-600 text-white rounded-md text-sm hover:bg-emerald-700 disabled:opacity-60"
                             >
-                              {isUpdatingComment ? "Đang lưu..." : "Lưu"}
+                              {comments.isUpdatingComment
+                                ? "Đang lưu..."
+                                : "Lưu"}
                             </button>
                           </div>
                         </div>
@@ -794,13 +544,14 @@ export default function PostDetailPage() {
                         </p>
                       )}
 
+                      {/* Reply box */}
                       {isReplying && !isEditing && (
                         <div className="mt-3 pt-3 border-t border-slate-100 space-y-2">
                           <textarea
                             rows={2}
                             value={replyValue}
                             onChange={(e) =>
-                              setReplyDrafts((prev) => ({
+                              comments.setReplyDrafts((prev) => ({
                                 ...prev,
                                 [comment._id]: e.target.value,
                               }))
@@ -811,19 +562,27 @@ export default function PostDetailPage() {
                           <div className="flex justify-end gap-2">
                             <button
                               type="button"
-                              onClick={() => setActiveReplyCommentId(null)}
-                              disabled={replySubmittingFor === comment._id}
+                              onClick={() =>
+                                comments.setActiveReplyCommentId(null)
+                              }
+                              disabled={
+                                comments.replySubmittingFor === comment._id
+                              }
                               className="px-3 py-1.5 border border-slate-300 rounded-md text-slate-700 hover:bg-slate-50 text-sm disabled:opacity-60"
                             >
                               Hủy
                             </button>
                             <button
                               type="button"
-                              onClick={() => handleReplyComment(comment._id)}
-                              disabled={replySubmittingFor === comment._id}
+                              onClick={() =>
+                                comments.handleReplyComment(comment._id)
+                              }
+                              disabled={
+                                comments.replySubmittingFor === comment._id
+                              }
                               className="px-3 py-1.5 bg-emerald-600 text-white rounded-md text-sm hover:bg-emerald-700 disabled:opacity-60"
                             >
-                              {replySubmittingFor === comment._id
+                              {comments.replySubmittingFor === comment._id
                                 ? "Đang gửi..."
                                 : "Gửi phản hồi"}
                             </button>
@@ -839,7 +598,7 @@ export default function PostDetailPage() {
         </section>
       </article>
 
-      {/* ── 5. Edit Post Modal ── */}
+      {/* Edit Post Modal */}
       <PostFormModal
         mode="edit"
         isOpen={postForm.isEditModalOpen}

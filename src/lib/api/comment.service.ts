@@ -28,7 +28,7 @@ export interface ReportCommentResponse {
 }
 
 export const commentService = {
-  getPostComments: async (
+  getPostTopComments: async (
     postId: string,
     parentCommentId?: string,
   ): Promise<ApiResponse<Comment[]>> => {
@@ -41,6 +41,23 @@ export const commentService = {
     const endpoint = query
       ? `/posts/${postId}/comments?${query}`
       : `/posts/${postId}/comments`;
+
+    return await axiosClient.get(endpoint);
+  },
+
+  getNextLevelPostComments: async (
+    postId: string,
+    parentCommentId?: string,
+  ): Promise<ApiResponse<Comment[]>> => {
+    const params = new URLSearchParams();
+    if (parentCommentId) {
+      params.append("parentCommentId", parentCommentId);
+    }
+
+    const query = params.toString();
+    const endpoint = query
+      ? `/posts/${postId}/next-comments?${query}`
+      : `/posts/${postId}/next-comments`;
 
     return await axiosClient.get(endpoint);
   },

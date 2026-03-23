@@ -16,15 +16,35 @@ export function useCategories() {
   });
   const [isSubmittingCategory, setIsSubmittingCategory] = useState(false);
 
+  // const loadCategories = async () => {
+  //   setIsLoadingCategories(true);
+  //   try {
+  //     const res = await categoryService.getAllCategories();
+  //     setCategories(
+  //       Array.isArray(res.metadata)
+  //         ? res.metadata
+  //         : Array.isArray(res.metadata?.data)
+  //           ? res.metadata.data
+  //           : [],
+  //     );
+  //   } catch (err) {
+  //     console.error("Failed to load categories:", err);
+  //     setCategories([]);
+  //   } finally {
+  //     setIsLoadingCategories(false);
+  //   }
+  // };
+
   const loadCategories = async () => {
     setIsLoadingCategories(true);
     try {
       const res = await categoryService.getAllCategories();
+      const meta = res.metadata as Category[] | { data: Category[] } | null;
       setCategories(
-        Array.isArray(res.metadata)
-          ? res.metadata
-          : Array.isArray(res.metadata?.data)
-            ? res.metadata.data
+        Array.isArray(meta)
+          ? meta
+          : Array.isArray((meta as { data: Category[] })?.data)
+            ? (meta as { data: Category[] }).data
             : [],
       );
     } catch (err) {

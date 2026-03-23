@@ -39,13 +39,27 @@ export const formatCommentDate = (value?: string | Date) => {
 };
 
 export function useComments(
-  currentUser: User,
-  onPostsRefresh?: () => Promise<void> | void,
+  currentUser: User | null,
+  options?: {
+    /**
+     * Truyền vào khi dùng inline (PostDetailPage).
+     * Không cần truyền khi dùng qua modal — postId sẽ lấy từ commentTargetPost.
+     */
+    postId?: string;
+    onPostsRefresh?: () => Promise<void> | void;
+  },
 ) {
   const router = useRouter();
+  const { postId: inlinePostId, onPostsRefresh } = options ?? {};
 
+  // ── Modal state (chỉ dùng khi không có inlinePostId) ─────────────────────
   const [isCommentsModalOpen, setIsCommentsModalOpen] = useState(false);
   const [commentTargetPost, setCommentTargetPost] = useState<Post | null>(null);
+
+  // postId thực tế dùng cho mọi operation
+  const activePostId = inlinePostId ?? commentTargetPost?._id ?? null;
+
+  // ── Comment state ─────────────────────────────────────────────────────────
   const [postComments, setPostComments] = useState<PostCommentItem[]>([]);
   const [isLoadingComments, setIsLoadingComments] = useState(false);
   const [commentsError, setCommentsError] = useState("");
@@ -70,6 +84,12 @@ export function useComments(
   );
   const [likingCommentId, setLikingCommentId] = useState<string | null>(null);
 
+  // ── liked comment ids để track trạng thái tim ─────────────────────────────
+  const [likedCommentIds, setLikedCommentIds] = useState<Set<string>>(
+    new Set(),
+  );
+
+  // ── Computed ──────────────────────────────────────────────────────────────
   const commentsWithDepth = useMemo<CommentRenderItem[]>(() => {
     if (postComments.length === 0) return [];
     const stack: number[] = [];
@@ -83,11 +103,22 @@ export function useComments(
     });
   }, [postComments]);
 
+  // ── Helpers ───────────────────────────────────────────────────────────────
+  const resetCommentForm = () => {
+    setNewCommentContent("");
+    setActiveReplyCommentId(null);
+    setReplyDrafts({});
+    setEditingCommentId(null);
+    setEditCommentContent("");
+    setCommentsError("");
+  };
+
+  // ── Core loaders ──────────────────────────────────────────────────────────
   const loadCommentsForPost = async (postId: string) => {
     try {
       setIsLoadingComments(true);
       setCommentsError("");
-      const response = await commentService.getPostComments(postId);
+      const response = await commentService.getPostTopComments(postId);
       setPostComments(
         Array.isArray(response.metadata)
           ? (response.metadata as PostCommentItem[])
@@ -101,20 +132,21 @@ export function useComments(
     }
   };
 
-  const refreshAfterMutation = async (postId: string) => {
-    await loadCommentsForPost(postId);
-    onPostsRefresh ? await onPostsRefresh() : router.refresh();
+  const refreshAfterMutation = async () => {
+    if (!activePostId) return;
+    await loadCommentsForPost(activePostId);
+    if (onPostsRefresh) {
+      await onPostsRefresh();
+    } else {
+      router.refresh();
+    }
   };
 
+  // ── Modal controls (chỉ dùng khi không có inlinePostId) ──────────────────
   const openCommentsModal = async (post: Post) => {
     setCommentTargetPost(post);
     setIsCommentsModalOpen(true);
-    setCommentsError("");
-    setNewCommentContent("");
-    setActiveReplyCommentId(null);
-    setReplyDrafts({});
-    setEditingCommentId(null);
-    setEditCommentContent("");
+    resetCommentForm();
     await loadCommentsForPost(post._id);
   };
 
@@ -130,20 +162,16 @@ export function useComments(
     setIsCommentsModalOpen(false);
     setCommentTargetPost(null);
     setPostComments([]);
-    setCommentsError("");
-    setNewCommentContent("");
-    setActiveReplyCommentId(null);
-    setReplyDrafts({});
+    resetCommentForm();
     setReplySubmittingFor(null);
-    setEditingCommentId(null);
-    setEditCommentContent("");
     setIsUpdatingComment(false);
     setDeletingCommentId(null);
     setLikingCommentId(null);
   };
 
+  // ── Handlers ──────────────────────────────────────────────────────────────
   const handleCreateComment = async () => {
-    if (!commentTargetPost) return;
+    if (!activePostId) return;
     const content = newCommentContent.trim();
     if (!content) {
       setCommentsError("Vui lòng nhập nội dung bình luận.");
@@ -152,12 +180,9 @@ export function useComments(
     try {
       setIsSubmittingComment(true);
       setCommentsError("");
-      await commentService.createComment({
-        postId: commentTargetPost._id,
-        content,
-      });
+      await commentService.createComment({ postId: activePostId, content });
       setNewCommentContent("");
-      await refreshAfterMutation(commentTargetPost._id);
+      await refreshAfterMutation();
     } catch (err: any) {
       setCommentsError(err?.message || "Không thể tạo bình luận.");
     } finally {
@@ -166,7 +191,7 @@ export function useComments(
   };
 
   const handleReplyComment = async (parentCommentId: string) => {
-    if (!commentTargetPost) return;
+    if (!activePostId) return;
     const content = replyDrafts[parentCommentId]?.trim() || "";
     if (!content) {
       setCommentsError("Vui lòng nhập nội dung phản hồi.");
@@ -176,13 +201,13 @@ export function useComments(
       setReplySubmittingFor(parentCommentId);
       setCommentsError("");
       await commentService.createComment({
-        postId: commentTargetPost._id,
+        postId: activePostId,
         content,
         parentCommentId,
       });
       setReplyDrafts((prev) => ({ ...prev, [parentCommentId]: "" }));
       setActiveReplyCommentId(null);
-      await refreshAfterMutation(commentTargetPost._id);
+      await refreshAfterMutation();
     } catch (err: any) {
       setCommentsError(err?.message || "Không thể gửi phản hồi.");
     } finally {
@@ -203,7 +228,7 @@ export function useComments(
   };
 
   const handleSaveCommentEdit = async () => {
-    if (!commentTargetPost || !editingCommentId) return;
+    if (!activePostId || !editingCommentId) return;
     const content = editCommentContent.trim();
     if (!content) {
       setCommentsError("Nội dung bình luận không được để trống.");
@@ -218,7 +243,7 @@ export function useComments(
       });
       setEditingCommentId(null);
       setEditCommentContent("");
-      await refreshAfterMutation(commentTargetPost._id);
+      await refreshAfterMutation();
     } catch (err: any) {
       setCommentsError(err?.message || "Không thể cập nhật bình luận.");
     } finally {
@@ -227,18 +252,15 @@ export function useComments(
   };
 
   const handleDeleteComment = async (commentId: string) => {
-    if (!commentTargetPost) return;
+    if (!activePostId) return;
     if (!window.confirm("Bạn có chắc chắn muốn xóa bình luận này không?"))
       return;
     try {
       setDeletingCommentId(commentId);
       setCommentsError("");
-      await commentService.deleteComment({
-        postId: commentTargetPost._id,
-        commentId,
-      });
+      await commentService.deleteComment({ postId: activePostId, commentId });
       if (editingCommentId === commentId) cancelEditComment();
-      await refreshAfterMutation(commentTargetPost._id);
+      await refreshAfterMutation();
     } catch (err: any) {
       setCommentsError(err?.message || "Không thể xóa bình luận.");
     } finally {
@@ -247,25 +269,53 @@ export function useComments(
   };
 
   const handleToggleLikeComment = async (commentId: string) => {
+    if (!currentUser) {
+      router.push("/login");
+      return;
+    }
+
+    const wasLiked = likedCommentIds.has(commentId);
+
+    // Optimistic update
+    setLikedCommentIds((prev) => {
+      const next = new Set(prev);
+      wasLiked ? next.delete(commentId) : next.add(commentId);
+      return next;
+    });
+    setPostComments((prev) =>
+      prev.map((c) =>
+        c._id === commentId
+          ? { ...c, likesCount: (c.likesCount ?? 0) + (wasLiked ? -1 : 1) }
+          : c,
+      ),
+    );
+
     try {
       setLikingCommentId(commentId);
       setCommentsError("");
       const response = await commentService.toggleLikeComment(commentId);
       const nextLikesCount = response.metadata?.likesCount;
+      if (typeof nextLikesCount === "number") {
+        setPostComments((prev) =>
+          prev.map((c) =>
+            c._id === commentId ? { ...c, likesCount: nextLikesCount } : c,
+          ),
+        );
+      }
+    } catch (err: any) {
+      // Rollback nếu API thất bại
+      setLikedCommentIds((prev) => {
+        const next = new Set(prev);
+        wasLiked ? next.add(commentId) : next.delete(commentId);
+        return next;
+      });
       setPostComments((prev) =>
         prev.map((c) =>
           c._id === commentId
-            ? {
-                ...c,
-                likesCount:
-                  typeof nextLikesCount === "number"
-                    ? nextLikesCount
-                    : c.likesCount,
-              }
+            ? { ...c, likesCount: (c.likesCount ?? 0) + (wasLiked ? 1 : -1) }
             : c,
         ),
       );
-    } catch (err: any) {
       setCommentsError(err?.message || "Không thể cập nhật lượt thích.");
     } finally {
       setLikingCommentId(null);
@@ -273,6 +323,10 @@ export function useComments(
   };
 
   const handleReportComment = async (commentId: string) => {
+    if (!currentUser) {
+      router.push("/login");
+      return;
+    }
     const validReasons: ReportReason[] = [
       "spam",
       "harassment",
@@ -293,7 +347,6 @@ export function useComments(
       setCommentsError("Lý do report không hợp lệ.");
       return;
     }
-
     try {
       setCommentsError("");
       await commentService.reportComment(
@@ -306,27 +359,42 @@ export function useComments(
   };
 
   return {
+    // Modal state
     isCommentsModalOpen,
     commentTargetPost,
+    openCommentsModal,
+    closeCommentsModal,
+
+    // Comment data
     commentsWithDepth,
     isLoadingComments,
     commentsError,
+    likedCommentIds,
+
+    // New comment
     newCommentContent,
     setNewCommentContent,
     isSubmittingComment,
+
+    // Reply
     activeReplyCommentId,
     setActiveReplyCommentId,
     replyDrafts,
     setReplyDrafts,
     replySubmittingFor,
+
+    // Edit
     editingCommentId,
     editCommentContent,
     setEditCommentContent,
     isUpdatingComment,
+
+    // Delete / like
     deletingCommentId,
     likingCommentId,
-    openCommentsModal,
-    closeCommentsModal,
+
+    // Actions
+    loadCommentsForPost,
     handleCreateComment,
     handleReplyComment,
     startEditComment,
