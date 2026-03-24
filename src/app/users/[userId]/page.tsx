@@ -85,15 +85,6 @@ export default function UserProfilePage() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
-      <div className="mb-5">
-        <Link
-          href="/posts"
-          className="inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-slate-900"
-        >
-          <ArrowLeft size={16} weight="bold" />
-          Quay lại bài viết
-        </Link>
-      </div>
 
       <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
         <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import {
   Archive,
   CaretLeft,
@@ -117,7 +118,10 @@ export default function UsersTab({
                 {users.map((u) => (
                   <tr key={u._id} className="align-top hover:bg-slate-50/80">
                     <td className="px-3 py-4 md:px-4">
-                      <div className="flex items-start gap-3">
+                      <Link
+                        href={`/users/${u._id}`}
+                        className="group flex items-start gap-3 rounded-xl p-1 transition-colors hover:bg-emerald-50/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+                      >
                         <div className="h-10 w-10 flex-shrink-0 overflow-hidden rounded-full border border-emerald-200 bg-emerald-100">
                           {u.avatar ? (
                             <img
@@ -133,14 +137,14 @@ export default function UsersTab({
                         </div>
 
                         <div className="min-w-0 flex-1">
-                          <div className="break-words text-sm font-semibold text-slate-900">
+                          <div className="break-words text-sm font-semibold text-slate-900 transition-colors group-hover:text-emerald-700">
                             {u.fullName || "Chưa cập nhật tên"}
                           </div>
                           <div className="break-words text-sm text-slate-500">
                             @{u.username}
                           </div>
                         </div>
-                      </div>
+                      </Link>
                     </td>
 
                     <td className="px-3 py-4 md:px-4">
