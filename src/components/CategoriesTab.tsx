@@ -88,11 +88,11 @@ export default function CategoriesTab({
           Không có danh mục nào hoặc không thể tải dữ liệu
         </div>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-slate-200">
+        <div className="rounded-2xl border border-slate-200">
+          <table className="w-full divide-y divide-slate-200">
             <thead className="bg-slate-50">
               <tr>
-                {["TÊN DANH MỤC", "SLUG", "MÔ TẢ", "HÀNH ĐỘNG"].map((h) => (
+                {["TÊN DANH MỤC", "MÔ TẢ", "HÀNH ĐỘNG"].map((h) => (
                   <th
                     key={h}
                     className={`px-6 py-3 text-xs font-medium uppercase tracking-wider text-slate-500 ${
@@ -110,10 +110,7 @@ export default function CategoriesTab({
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">
                     {category.name}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
-                    {category.slug}
-                  </td>
-                  <td className="max-w-xs break-words px-6 py-4 text-sm text-slate-500">
+                  <td className="max-w-2xl break-words px-6 py-4 text-sm text-slate-500">
                     {category.description ? (
                       <div>
                         <div

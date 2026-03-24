@@ -35,6 +35,7 @@ export default function DashboardPage() {
   const {
     users,
     isLoadingUsers,
+    pagination,
     loadUsers,
     handleRoleChange,
     handleDeleteUser,
@@ -133,7 +134,9 @@ export default function DashboardPage() {
               <UsersTab
                 currentUser={user}
                 users={users}
+                pagination={pagination}
                 isLoading={isLoadingUsers}
+                onPageChange={loadUsers}
                 onRoleChange={handleRoleChange}
                 onDelete={handleDeleteUser}
                 onRestore={handleRestoreUser}
