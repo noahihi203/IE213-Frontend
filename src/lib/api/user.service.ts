@@ -16,6 +16,25 @@ export interface UpdateUsernamePayload {
   newUsername: string;
 }
 
+export interface FollowListQuery {
+  page?: number;
+  limit?: number;
+  search?: string;
+}
+
+export interface FollowListResponse {
+  followers?: User[];
+  following?: User[];
+  pagination: {
+    currentPage: number;
+    totalPages: number;
+    totalUsers: number;
+    limit: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+  };
+}
+
 export const userService = {
   // Get user profile by ID
   getUserProfile: async (userId: string): Promise<ApiResponse<User>> => {
@@ -74,5 +93,31 @@ export const userService = {
     role: "user" | "author" | "admin",
   ): Promise<ApiResponse<User>> => {
     return await axiosClient.put(`/user/${userId}/role`, { role });
+  },
+
+  getMyFollowers: async (
+    query?: FollowListQuery,
+  ): Promise<ApiResponse<FollowListResponse>> => {
+    const params = new URLSearchParams();
+
+    if (query?.page) params.append("page", query.page.toString());
+    if (query?.limit) params.append("limit", query.limit.toString());
+    if (query?.search) params.append("search", query.search);
+
+    const suffix = params.toString() ? `?${params.toString()}` : "";
+    return await axiosClient.get(`/user/followers${suffix}`);
+  },
+
+  getMyFollowing: async (
+    query?: FollowListQuery,
+  ): Promise<ApiResponse<FollowListResponse>> => {
+    const params = new URLSearchParams();
+
+    if (query?.page) params.append("page", query.page.toString());
+    if (query?.limit) params.append("limit", query.limit.toString());
+    if (query?.search) params.append("search", query.search);
+
+    const suffix = params.toString() ? `?${params.toString()}` : "";
+    return await axiosClient.get(`/user/following${suffix}`);
   },
 };
