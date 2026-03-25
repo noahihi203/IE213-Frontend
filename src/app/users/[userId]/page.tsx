@@ -3,10 +3,12 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft } from "@phosphor-icons/react";
+import { ArrowLeft, CircleNotch, X } from "@phosphor-icons/react";
 import { useAuthStore } from "@/store/authStore";
 import { User } from "@/lib/types";
 import { userService } from "@/lib/api/user.service";
+
+type FollowModalType = "followers" | "following";
 
 export default function UserProfilePage() {
   const params = useParams();
@@ -20,8 +22,95 @@ export default function UserProfilePage() {
   const [profile, setProfile] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [modalType, setModalType] = useState<FollowModalType | null>(null);
+  const [modalUsers, setModalUsers] = useState<User[]>([]);
+  const [isModalLoading, setIsModalLoading] = useState(false);
+  const [followersCount, setFollowersCount] = useState(0);
+  const [followingCount, setFollowingCount] = useState(0);
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [isSubmittingFollow, setIsSubmittingFollow] = useState(false);
 
   const userId = String(params.userId || "");
+
+  const loadRelationStats = async (targetUserId: string, username: string) => {
+    try {
+      const [followersRes, followingRes, myFollowingRes] = await Promise.all([
+        userService.getUserFollowers(targetUserId, { page: 1, limit: 1 }),
+        userService.getUserFollowing(targetUserId, { page: 1, limit: 1 }),
+        userService.getMyFollowing({ page: 1, limit: 50, search: username }),
+      ]);
+
+      setFollowersCount(
+        Number(followersRes.metadata?.pagination?.totalUsers || 0),
+      );
+      setFollowingCount(
+        Number(followingRes.metadata?.pagination?.totalUsers || 0),
+      );
+
+      const myFollowingList = myFollowingRes.metadata?.following || [];
+      setIsFollowing(myFollowingList.some((item) => item._id === targetUserId));
+    } catch (relationError) {
+      console.error("Failed to load relation stats", relationError);
+      setFollowersCount(0);
+      setFollowingCount(0);
+      setIsFollowing(false);
+    }
+  };
+
+  const openFollowModal = async (type: FollowModalType) => {
+    if (!profile) return;
+
+    setModalType(type);
+    setIsModalLoading(true);
+
+    try {
+      if (type === "followers") {
+        const res = await userService.getUserFollowers(profile._id, {
+          page: 1,
+          limit: 50,
+        });
+        setModalUsers(res.metadata?.followers || []);
+      } else {
+        const res = await userService.getUserFollowing(profile._id, {
+          page: 1,
+          limit: 50,
+        });
+        setModalUsers(res.metadata?.following || []);
+      }
+    } catch (modalError) {
+      console.error("Failed to load follow modal users", modalError);
+      setModalUsers([]);
+    } finally {
+      setIsModalLoading(false);
+    }
+  };
+
+  const closeFollowModal = () => {
+    setModalType(null);
+    setModalUsers([]);
+  };
+
+  const handleFollowToggle = async () => {
+    if (!profile || !currentUser || currentUser._id === profile._id) return;
+
+    try {
+      setIsSubmittingFollow(true);
+
+      if (isFollowing) {
+        await userService.unfollowUser(profile._id);
+        setIsFollowing(false);
+        setFollowersCount((prev) => Math.max(0, prev - 1));
+      } else {
+        await userService.followUser(profile._id);
+        setIsFollowing(true);
+        setFollowersCount((prev) => prev + 1);
+      }
+    } catch (followError) {
+      console.error("Failed to toggle follow", followError);
+    } finally {
+      setIsSubmittingFollow(false);
+    }
+  };
 
   useEffect(() => {
     if (!authInitialized) return;
@@ -41,7 +130,12 @@ export default function UserProfilePage() {
         setIsLoading(true);
         setError("");
         const response = await userService.getUserProfile(userId);
-        setProfile(response.metadata || null);
+        const fetchedProfile = response.metadata || null;
+        setProfile(fetchedProfile);
+
+        if (fetchedProfile) {
+          await loadRelationStats(fetchedProfile._id, fetchedProfile.username);
+        }
       } catch (err: any) {
         setError(err?.message || "Không thể tải hồ sơ người dùng.");
         setProfile(null);
@@ -85,7 +179,6 @@ export default function UserProfilePage() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
-
       <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
         <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
           <div className="h-20 w-20 overflow-hidden rounded-full bg-slate-200">
@@ -115,6 +208,43 @@ export default function UserProfilePage() {
                 Đây là hồ sơ của bạn
               </p>
             )}
+
+            {currentUser?._id !== profile._id && (
+              <button
+                onClick={handleFollowToggle}
+                disabled={isSubmittingFollow}
+                className="mt-3 inline-flex items-center rounded-lg bg-emerald-600 px-3.5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {isSubmittingFollow
+                  ? "Đang xử lý..."
+                  : isFollowing
+                    ? "Unfollow"
+                    : "Follow"}
+              </button>
+            )}
+
+            <div className="mt-4 grid max-w-xs grid-cols-2 gap-2">
+              <button
+                onClick={() => openFollowModal("followers")}
+                className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-center transition-colors hover:bg-slate-100"
+              >
+                <p className="text-xs font-medium text-slate-500">Follower</p>
+                <p className="text-base font-semibold text-slate-900">
+                  {followersCount}
+                </p>
+              </button>
+              <button
+                onClick={() => openFollowModal("following")}
+                className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-center transition-colors hover:bg-slate-100"
+              >
+                <p className="text-xs font-medium text-slate-500">
+                  Đang follow
+                </p>
+                <p className="text-base font-semibold text-slate-900">
+                  {followingCount}
+                </p>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -127,6 +257,76 @@ export default function UserProfilePage() {
           </p>
         </div>
       </section>
+
+      {modalType && (
+        <div
+          onClick={closeFollowModal}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/55 p-4"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-lg rounded-2xl border border-slate-200 bg-white shadow-xl"
+          >
+            <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
+              <h3 className="text-lg font-semibold text-slate-900">
+                {modalType === "followers" ? "Người theo dõi" : "Đang theo dõi"}
+              </h3>
+              <button
+                onClick={closeFollowModal}
+                className="rounded-lg p-1.5 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700"
+              >
+                <X size={18} weight="bold" />
+              </button>
+            </div>
+
+            <div className="max-h-[60vh] overflow-y-auto px-5 py-4">
+              {isModalLoading ? (
+                <div className="flex items-center justify-center py-10 text-slate-500">
+                  <CircleNotch size={20} className="mr-2 animate-spin" />
+                  Đang tải danh sách...
+                </div>
+              ) : modalUsers.length === 0 ? (
+                <div className="py-8 text-center text-slate-500">
+                  Chưa có dữ liệu.
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {modalUsers.map((item) => (
+                    <Link
+                      key={item._id}
+                      href={`/users/${item._id}`}
+                      className="flex items-center gap-3 rounded-xl border border-slate-200 px-3 py-2 transition-colors hover:bg-slate-50"
+                    >
+                      <div className="h-10 w-10 overflow-hidden rounded-full bg-emerald-100">
+                        {item.avatar ? (
+                          <img
+                            src={item.avatar}
+                            alt={item.fullName || item.username}
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center font-bold text-emerald-700">
+                            {item.username.charAt(0).toUpperCase()}
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-semibold text-slate-900">
+                          {item.fullName || "Chưa cập nhật tên"}
+                        </p>
+                        <p className="truncate text-sm text-slate-500">
+                          @{item.username}
+                        </p>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -120,4 +120,40 @@ export const userService = {
     const suffix = params.toString() ? `?${params.toString()}` : "";
     return await axiosClient.get(`/user/following${suffix}`);
   },
+
+  getUserFollowers: async (
+    userId: string,
+    query?: FollowListQuery,
+  ): Promise<ApiResponse<FollowListResponse>> => {
+    const params = new URLSearchParams();
+
+    if (query?.page) params.append("page", query.page.toString());
+    if (query?.limit) params.append("limit", query.limit.toString());
+    if (query?.search) params.append("search", query.search);
+
+    const suffix = params.toString() ? `?${params.toString()}` : "";
+    return await axiosClient.get(`/user/${userId}/followers${suffix}`);
+  },
+
+  getUserFollowing: async (
+    userId: string,
+    query?: FollowListQuery,
+  ): Promise<ApiResponse<FollowListResponse>> => {
+    const params = new URLSearchParams();
+
+    if (query?.page) params.append("page", query.page.toString());
+    if (query?.limit) params.append("limit", query.limit.toString());
+    if (query?.search) params.append("search", query.search);
+
+    const suffix = params.toString() ? `?${params.toString()}` : "";
+    return await axiosClient.get(`/user/${userId}/following${suffix}`);
+  },
+
+  followUser: async (userId: string): Promise<ApiResponse> => {
+    return await axiosClient.post(`/user/${userId}/follow`);
+  },
+
+  unfollowUser: async (userId: string): Promise<ApiResponse> => {
+    return await axiosClient.post(`/user/${userId}/unfollow`);
+  },
 };
