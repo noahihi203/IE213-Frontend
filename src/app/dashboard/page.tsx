@@ -35,6 +35,7 @@ export default function DashboardPage() {
   const {
     users,
     isLoadingUsers,
+    actionError,
     pagination,
     loadUsers,
     handleRoleChange,
@@ -136,6 +137,7 @@ export default function DashboardPage() {
                 users={users}
                 pagination={pagination}
                 isLoading={isLoadingUsers}
+                actionError={actionError}
                 onPageChange={loadUsers}
                 onRoleChange={handleRoleChange}
                 onDelete={handleDeleteUser}
