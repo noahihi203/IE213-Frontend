@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import {
   Archive,
@@ -24,10 +25,18 @@ interface UsersTabProps {
   users: User[];
   pagination: UsersPagination;
   isLoading: boolean;
+  actionError: string | null;
   onPageChange: (page: number) => void;
   onRoleChange: (userId: string, currentRole: string, newRole: string) => void;
   onDelete: (userId: string) => void;
   onRestore: (userId: string) => void;
+}
+
+interface PendingRoleChange {
+  userId: string;
+  currentRole: string;
+  newRole: string;
+  displayName: string;
 }
 
 const getVisiblePages = (currentPage: number, totalPages: number): number[] => {
@@ -42,16 +51,30 @@ const getVisiblePages = (currentPage: number, totalPages: number): number[] => {
   return Array.from(pages).sort((a, b) => a - b);
 };
 
+const CURRENT_ACCOUNT_OPTION_VALUE = "__current_account__";
+
+const ROLE_SELECT_STYLES: Record<User["role"], string> = {
+  user: "border-slate-300 bg-slate-50 text-slate-700 focus:border-slate-400 focus:ring-slate-200",
+  author:
+    "border-emerald-300 bg-emerald-50 text-emerald-800 focus:border-emerald-500 focus:ring-emerald-200",
+  admin:
+    "border-rose-300 bg-rose-50 text-rose-800 focus:border-rose-500 focus:ring-rose-200",
+};
+
 export default function UsersTab({
   currentUser,
   users,
   pagination,
   isLoading,
+  actionError,
   onPageChange,
   onRoleChange,
   onDelete,
   onRestore,
 }: UsersTabProps) {
+  const [pendingRoleChange, setPendingRoleChange] =
+    useState<PendingRoleChange | null>(null);
+
   const {
     currentPage,
     totalPages,
@@ -66,8 +89,39 @@ export default function UsersTab({
     totalUsers === 0 ? 0 : Math.min(currentPage * limit, totalUsers);
   const pageNumbers = getVisiblePages(currentPage, totalPages);
 
+  const roleLabel: Record<string, string> = {
+    user: "Người dùng",
+    author: "Tác giả",
+    admin: "Quản trị viên",
+  };
+
+  const handleOpenRoleConfirm = (
+    userId: string,
+    currentRole: string,
+    newRole: string,
+    displayName: string,
+  ) => {
+    if (currentRole === newRole) return;
+    setPendingRoleChange({
+      userId,
+      currentRole,
+      newRole,
+      displayName,
+    });
+  };
+
+  const handleConfirmRoleChange = () => {
+    if (!pendingRoleChange) return;
+    onRoleChange(
+      pendingRoleChange.userId,
+      pendingRoleChange.currentRole,
+      pendingRoleChange.newRole,
+    );
+    setPendingRoleChange(null);
+  };
+
   return (
-    <div className="rounded-[1.5rem] border border-slate-200/80 bg-white p-4 shadow-[0_20px_40px_-15px_rgba(15,23,42,0.08)] md:p-6">
+    <div className="rounded-[1.5rem] border border-slate-200/80 bg-gradient-to-b from-white to-slate-50/60 p-4 shadow-[0_20px_40px_-15px_rgba(15,23,42,0.08)] md:p-6">
       <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
@@ -80,6 +134,12 @@ export default function UsersTab({
           <span className="font-semibold text-slate-900">{totalUsers}</span>
         </div>
       </div>
+
+      {actionError ? (
+        <div className="mb-4 rounded-xl border border-rose-200 bg-rose-50/90 px-4 py-3 text-sm font-medium text-rose-800">
+          {actionError}
+        </div>
+      ) : null}
 
       {isLoading ? (
         <div className="text-center py-8">
@@ -96,33 +156,36 @@ export default function UsersTab({
         </div>
       ) : (
         <div className="space-y-4">
-          <div className="rounded-2xl border border-slate-200">
-            <table className="w-full table-auto divide-y divide-slate-200">
-              <thead className="bg-slate-50">
+          <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white">
+            <table className="min-w-[760px] w-full table-auto divide-y divide-slate-200">
+              <thead className="sticky top-0 z-10 bg-slate-100/95 backdrop-blur">
                 <tr>
                   <th className="w-[38%] px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-600 md:px-4">
                     Người dùng
                   </th>
-                  <th className="w-[18%] px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-600 md:px-4">
+                  <th className="w-[28%] px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-600 md:px-4">
                     Vai trò
                   </th>
                   <th className="w-[16%] px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-600 md:px-4">
                     Trạng thái
                   </th>
-                  <th className="w-[28%] px-3 py-3 text-right text-xs font-semibold uppercase tracking-wider text-slate-600 md:px-4">
+                  <th className="w-[18%] px-3 py-3 text-right text-xs font-semibold uppercase tracking-wider text-slate-600 md:px-4">
                     Thao tác
                   </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200 bg-white">
                 {users.map((u) => (
-                  <tr key={u._id} className="align-top hover:bg-slate-50/80">
+                  <tr
+                    key={u._id}
+                    className="align-top transition-colors hover:bg-emerald-50/30"
+                  >
                     <td className="px-3 py-4 md:px-4">
                       <Link
                         href={`/users/${u._id}`}
-                        className="group flex items-start gap-3 rounded-xl p-1 transition-colors hover:bg-emerald-50/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+                        className="group flex items-start gap-3 rounded-xl p-2 transition-colors hover:bg-emerald-50/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
                       >
-                        <div className="h-10 w-10 flex-shrink-0 overflow-hidden rounded-full border border-emerald-200 bg-emerald-100">
+                        <div className="h-10 w-10 flex-shrink-0 overflow-hidden rounded-full border border-emerald-200 bg-emerald-100 shadow-sm">
                           {u.avatar ? (
                             <img
                               src={u.avatar}
@@ -148,21 +211,37 @@ export default function UsersTab({
                     </td>
 
                     <td className="px-3 py-4 md:px-4">
-                      <span
-                        className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${
-                          u.role === "admin"
-                            ? "bg-rose-100 text-rose-700"
-                            : u.role === "author"
-                              ? "bg-emerald-100 text-emerald-700"
-                              : "bg-slate-100 text-slate-700"
-                        }`}
-                      >
-                        {u.role === "admin"
-                          ? "Quản trị viên"
-                          : u.role === "author"
-                            ? "Tác giả"
-                            : "Người dùng"}
-                      </span>
+                      <div className="flex flex-col items-start gap-2">
+                        {u._id !== currentUser._id ? (
+                          <select
+                            value={u.role}
+                            onChange={(e) =>
+                              handleOpenRoleConfirm(
+                                u._id,
+                                u.role,
+                                e.target.value,
+                                u.fullName || u.username,
+                              )
+                            }
+                            className={`w-auto max-w-full rounded-lg px-3 py-2 text-sm font-medium shadow-sm focus:outline-none focus:ring-2 ${ROLE_SELECT_STYLES[u.role]}`}
+                          >
+                            <option value="user">Người dùng</option>
+                            <option value="author">Tác giả</option>
+                            <option value="admin">Quản trị viên</option>
+                          </select>
+                        ) : (
+                          <select
+                            value={CURRENT_ACCOUNT_OPTION_VALUE}
+                            disabled
+                            className="w-auto max-w-full cursor-not-allowed rounded-lg border border-slate-200 bg-slate-100 px-3 py-2 text-sm font-medium text-slate-500 shadow-sm"
+                            aria-label="Tài khoản hiện tại"
+                          >
+                            <option value={CURRENT_ACCOUNT_OPTION_VALUE}>
+                              Tài khoản hiện tại
+                            </option>
+                          </select>
+                        )}
+                      </div>
                     </td>
 
                     <td className="px-3 py-4 md:px-4">
@@ -179,23 +258,11 @@ export default function UsersTab({
 
                     <td className="px-3 py-4 text-right text-sm font-medium md:px-4">
                       {u._id !== currentUser._id ? (
-                        <div className="flex flex-col items-end gap-2 lg:flex-row lg:flex-wrap lg:items-center lg:justify-end">
-                          <select
-                            value={u.role}
-                            onChange={(e) =>
-                              onRoleChange(u._id, u.role, e.target.value)
-                            }
-                            className="w-24 rounded-md border border-slate-300 py-1 pl-2 pr-6 text-sm focus:border-emerald-500 focus:outline-none focus:ring-emerald-500 lg:w-28"
-                          >
-                            <option value="user">Người dùng</option>
-                            <option value="author">Tác giả</option>
-                            <option value="admin">Admin</option>
-                          </select>
-
+                        <div className="flex items-center justify-end">
                           {u.isActive ? (
                             <button
                               onClick={() => onDelete(u._id)}
-                              className="rounded-md bg-red-50 p-1.5 text-red-600 transition-colors hover:bg-red-100 hover:text-red-900"
+                              className="rounded-lg bg-red-50 p-2 text-red-600 transition-colors hover:bg-red-100 hover:text-red-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300"
                               title="Khóa/Xóa người dùng"
                             >
                               <Trash size={16} weight="duotone" />
@@ -203,7 +270,7 @@ export default function UsersTab({
                           ) : (
                             <button
                               onClick={() => onRestore(u._id)}
-                              className="rounded-md bg-emerald-50 p-1.5 text-emerald-600 transition-colors hover:bg-emerald-100 hover:text-emerald-900"
+                              className="rounded-lg bg-emerald-50 p-2 text-emerald-600 transition-colors hover:bg-emerald-100 hover:text-emerald-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300"
                               title="Khôi phục người dùng"
                             >
                               <Archive size={16} weight="duotone" />
@@ -211,8 +278,8 @@ export default function UsersTab({
                           )}
                         </div>
                       ) : (
-                        <span className="text-xs font-medium text-slate-400">
-                          Tài khoản hiện tại
+                        <span className="text-xs font-medium text-slate-300">
+                          -
                         </span>
                       )}
                     </td>
@@ -222,7 +289,7 @@ export default function UsersTab({
             </table>
           </div>
 
-          <div className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-slate-50/80 px-3 py-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="text-sm text-slate-600">
               Hiển thị{" "}
               <span className="font-semibold text-slate-800">{startIndex}</span>
@@ -235,7 +302,7 @@ export default function UsersTab({
               người dùng
             </div>
 
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1.5">
               <button
                 onClick={() => onPageChange(currentPage - 1)}
                 disabled={!hasPrevPage || isLoading}
@@ -252,7 +319,7 @@ export default function UsersTab({
                   disabled={page === currentPage || isLoading}
                   className={`min-w-9 rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors disabled:cursor-not-allowed ${
                     page === currentPage
-                      ? "border-emerald-200 bg-emerald-100 text-emerald-700"
+                      ? "border-emerald-300 bg-emerald-100 text-emerald-800"
                       : "border-slate-300 bg-white text-slate-700 hover:bg-slate-100"
                   }`}
                 >
@@ -272,6 +339,43 @@ export default function UsersTab({
           </div>
         </div>
       )}
+
+      {pendingRoleChange ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/45 p-4">
+          <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-5 shadow-2xl">
+            <h3 className="text-lg font-semibold text-slate-900">
+              Xác nhận thay đổi vai trò
+            </h3>
+            <p className="mt-2 text-sm leading-6 text-slate-600">
+              Bạn có chắc chắn muốn đổi vai trò của
+              <span className="font-semibold text-slate-900">
+                {` ${pendingRoleChange.displayName}`}
+              </span>{" "}
+              sang
+              <span className="font-semibold text-emerald-700">
+                {` ${roleLabel[pendingRoleChange.newRole] || pendingRoleChange.newRole}`}
+              </span>
+              ?
+            </p>
+            <div className="mt-5 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setPendingRoleChange(null)}
+                className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100"
+              >
+                Không
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmRoleChange}
+                className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700"
+              >
+                Có, xác nhận
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

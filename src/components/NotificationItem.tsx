@@ -4,6 +4,7 @@ import {
   NotificationItem as NotiItemType,
   NotificationActor,
 } from "@/lib/types";
+import { postService } from "@/lib/api/post.service";
 import { formatDistanceToNow } from "date-fns";
 import { vi } from "date-fns/locale";
 import { Trash } from "lucide-react";
@@ -39,18 +40,33 @@ export default function NotificationItem({
   const router = useRouter();
   const actor = resolveActor(item.actorId);
 
-  const handleClick = () => {
+  const resolvePostPath = async (postId: string) => {
+    try {
+      const response = await postService.getPostById(postId);
+      const slug = response?.metadata?.slug;
+
+      if (typeof slug === "string" && slug.trim().length > 0) {
+        return `/posts/${slug}`;
+      }
+    } catch (error) {
+      console.error("Failed to resolve post slug from notification", error);
+    }
+
+    return `/posts/${postId}`;
+  };
+
+  const handleClick = async () => {
     if (!item.isRead) onMarkRead(item._id);
 
     switch (item.targetType) {
       case "post":
-        router.push(`/posts/${item.targetId}`);
+        router.push(await resolvePostPath(item.targetId));
         break;
       case "comment":
         router.push(`/posts/${item.targetId}#comment-${item._id}`);
         break;
       case "user":
-        router.push(`/profile/${item.targetId}`);
+        router.push(`/users/${item.targetId}`);
         break;
     }
   };
@@ -67,7 +83,9 @@ export default function NotificationItem({
       className={`flex items-start gap-3 px-4 py-3 hover:bg-slate-50 cursor-pointer transition-colors group ${
         !item.isRead ? "bg-emerald-50" : ""
       }`}
-      onClick={handleClick}
+      onClick={() => {
+        void handleClick();
+      }}
     >
       {/* Avatar / Icon */}
       <div className="shrink-0 mt-0.5">
