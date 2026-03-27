@@ -1,10 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { Metadata } from "next";
-import { notFound } from "next/navigation";
-import PostDetailClient from "./PostDetailClient";
-import { ApiResponse, Post } from "@/lib/types";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import dynamic from "next/dynamic";
@@ -63,68 +59,133 @@ export default function PostDetailPage() {
 
   const handleOpenEditModal = () => {
     if (post) postForm.openEditModal(post);
-
-
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000/v1/api";
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
-
-interface PageProps {
-  params: {
-    slug: string;
   };
-}
 
-const stripMarkdown = (content: string) =>
-  content
-    .replace(/```[\s\S]*?```/g, " ")
-    .replace(/`[^`]*`/g, " ")
-    .replace(/!\[[^\]]*\]\([^)]*\)/g, " ")
-    .replace(/\[[^\]]*\]\([^)]*\)/g, " ")
-    .replace(/[>#*_~\-|]/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
+  // ── Load post ─────────────────────────────────────────────────────────────
+  useEffect(() => {
+    if (params.slug) loadPost(params.slug as string);
+  }, [params.slug]);
 
-const buildCanonicalUrl = (slug: string) => `${SITE_URL}/posts/${slug}`;
+  // Load comments khi post._id sẵn sàng
+  useEffect(() => {
+    if (post?._id) void comments.loadCommentsForPost(post._id);
+  }, [post?._id]);
 
-async function fetchPostBySlug(slug: string): Promise<Post | null> {
-  try {
-    const response = await fetch(
-      `${API_BASE_URL}/posts/slug/${encodeURIComponent(slug)}`,
-      {
-        next: { revalidate: 300 },
-      },
-    );
-
-    if (!response.ok) {
-      return null;
+  useEffect(() => {
+    if (!comments.hasMoreTopLevelComments) return;
+    if (comments.isLoadingComments || comments.isLoadingMoreTopLevelComments) {
+      return;
     }
 
-    const payload = (await response.json()) as ApiResponse<Post>;
-    return payload?.metadata ?? null;
-  } catch {
-    return null;
-  }
-}
+    const node = loadMoreTriggerRef.current;
+    if (!node) return;
 
-export async function generateMetadata({
-  params,
-}: PageProps): Promise<Metadata> {
-  const slug = params.slug;
-  const post = await fetchPostBySlug(slug);
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        if (entry.isIntersecting) {
+          void comments.loadMoreTopLevelComments();
+        }
+      },
+      { threshold: 0.2 },
+    );
 
-  if (!post) {
-    return {
-      title: "Post Not Found | IE213 Blog",
-      description: "The requested post is unavailable.",
-      robots: {
-        index: false,
-        follow: false,
-      },
-      alternates: {
-        canonical: `/posts/${slug}`,
-      },
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [
+    comments.hasMoreTopLevelComments,
+    comments.isLoadingComments,
+    comments.isLoadingMoreTopLevelComments,
+    comments.loadMoreTopLevelComments,
+  ]);
+
+  const commentById = useMemo(() => {
+    return new Map(comments.commentsWithDepth.map((item) => [item._id, item]));
+  }, [comments.commentsWithDepth]);
+
+  // Check xem user đã like post chưa
+  useEffect(() => {
+    if (!post?._id || !authInitialized) return;
+    if (!isAuthenticated) {
+      setIsLiked(false);
+      return;
+    }
+    let cancelled = false;
+    postService
+      .isPostLikedByUser(post._id)
+      .then((res) => {
+        if (!cancelled) setIsLiked(Boolean(res.metadata));
+      })
+      .catch(() => {
+        if (!cancelled) setIsLiked(false);
+      });
+    return () => {
+      cancelled = true;
     };
+  }, [post?._id, isAuthenticated, authInitialized]);
+
+  const loadPost = async (slug: string) => {
+    setIsLoading(true);
+    setError("");
+    try {
+      const response = await postService.getPostBySlug(slug);
+      setPost(response.metadata || null);
+    } catch (err: any) {
+      setError(err.message || "Post not found");
+      setPost(null);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleLike = async () => {
+    if (!isAuthenticated) {
+      router.push("/login");
+      return;
+    }
+    if (!post) return;
+    try {
+      if (isLiked) {
+        await postService.unlikePost(post._id);
+        setPost((prev) =>
+          prev ? { ...prev, likesCount: prev.likesCount - 1 } : null,
+        );
+      } else {
+        await postService.likePost(post._id);
+        setPost((prev) =>
+          prev ? { ...prev, likesCount: prev.likesCount + 1 } : null,
+        );
+      }
+      setIsLiked((prev) => !prev);
+    } catch (err) {
+      console.error("Failed to like/unlike post:", err);
+    }
+  };
+
+  // ── Loading / error states ────────────────────────────────────────────────
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600" />
+      </div>
+    );
+  }
+
+  if (error || !post) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold mb-2">Post Not Found</h2>
+          <p className="text-slate-600 mb-4">{error}</p>
+          <Link
+            href="/posts"
+            className="inline-flex rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-700"
+          >
+            Back to Posts
+          </Link>
+        </div>
+      </div>
+    );
   }
 
   const author =
@@ -482,135 +543,201 @@ export async function generateMetadata({
                           >
                             Reply
                           </button>
-  const description =
-    post.excerpt?.trim() ||
-    stripMarkdown(post.content).slice(0, 160) ||
-    "Read this post on IE213 Blog.";
 
-  const author = typeof post.authorId === "object" ? post.authorId : undefined;
+                          {!isOwnComment && (
+                            <button
+                              type="button"
+                              onClick={() =>
+                                comments.handleReportComment(comment._id)
+                              }
+                              className="text-xs text-orange-600 hover:text-orange-700"
+                            >
+                              Report
+                            </button>
+                          )}
 
-  const isPublished = post.status === "published";
+                          {canManageComment && !isEditing && (
+                            <button
+                              type="button"
+                              onClick={() => comments.startEditComment(comment)}
+                              className="text-xs text-indigo-600 hover:text-indigo-700"
+                            >
+                              Sửa
+                            </button>
+                          )}
 
-  return {
-    title: `${post.title} | IE213 Blog`,
-    description,
-    robots: {
-      index: isPublished,
-      follow: isPublished,
-    },
-    alternates: {
-      canonical: `/posts/${post.slug}`,
-    },
-    keywords: post.tags?.map((tag) => tag.name).filter(Boolean),
-    openGraph: {
-      title: post.title,
-      description,
-      type: "article",
-      url: `/posts/${post.slug}`,
-      images: post.coverImage
-        ? [
-            {
-              url: post.coverImage,
-              alt: post.title,
-            },
-          ]
-        : undefined,
-      publishedTime: post.publishedAt
-        ? new Date(post.publishedAt).toISOString()
-        : undefined,
-      authors: author ? [author.fullName || author.username] : undefined,
-      tags: post.tags?.map((tag) => tag.name),
-    },
-    twitter: {
-      card: post.coverImage ? "summary_large_image" : "summary",
-      title: post.title,
-      description,
-      images: post.coverImage ? [post.coverImage] : undefined,
-    },
-  };
-}
+                          {canManageComment && (
+                            <button
+                              type="button"
+                              onClick={() =>
+                                comments.handleDeleteComment(comment._id)
+                              }
+                              disabled={
+                                comments.deletingCommentId === comment._id
+                              }
+                              className="inline-flex items-center space-x-1 text-xs text-red-600 hover:text-red-700 disabled:opacity-60"
+                            >
+                              <Trash className="w-3.5 h-3.5" />
+                              <span>
+                                {comments.deletingCommentId === comment._id
+                                  ? "Đang xóa"
+                                  : "Xóa"}
+                              </span>
+                            </button>
+                          )}
+                        </div>
+                      </div>
 
-export default async function PostDetailPage({ params }: PageProps) {
-  const slug = params.slug;
-  const post = await fetchPostBySlug(slug);
+                      {/* Edit mode */}
+                      {isEditing ? (
+                        <div className="space-y-2">
+                          <textarea
+                            rows={3}
+                            value={comments.editCommentContent}
+                            onChange={(e) =>
+                              comments.setEditCommentContent(e.target.value)
+                            }
+                            className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                          />
+                          <div className="flex justify-end gap-2">
+                            <button
+                              type="button"
+                              onClick={comments.cancelEditComment}
+                              disabled={comments.isUpdatingComment}
+                              className="px-3 py-1.5 border border-slate-300 rounded-md text-slate-700 hover:bg-slate-50 text-sm disabled:opacity-60"
+                            >
+                              Hủy
+                            </button>
+                            <button
+                              type="button"
+                              onClick={comments.handleSaveCommentEdit}
+                              disabled={comments.isUpdatingComment}
+                              className="px-3 py-1.5 bg-emerald-600 text-white rounded-md text-sm hover:bg-emerald-700 disabled:opacity-60"
+                            >
+                              {comments.isUpdatingComment
+                                ? "Đang lưu..."
+                                : "Lưu"}
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <>
+                          <CommentContent
+                            content={comment.content}
+                            mentionLabel={parentAuthor?.mentionLabel}
+                            mentionHref={parentAuthor?.profileHref}
+                            className="text-sm text-slate-700 whitespace-pre-wrap break-words"
+                          />
+                          {canViewReplies && (
+                            <button
+                              type="button"
+                              onClick={() =>
+                                comments.toggleRepliesForComment(comment._id)
+                              }
+                              disabled={isLoadingReplies}
+                              className="mt-2 text-xs font-medium text-slate-500 hover:text-slate-700 disabled:opacity-60"
+                            >
+                              {isLoadingReplies
+                                ? "Đang tải phản hồi..."
+                                : isRepliesExpanded
+                                  ? "Ẩn phản hồi"
+                                  : `Xem ${replyCount} phản hồi`}
+                            </button>
+                          )}
+                        </>
+                      )}
 
-  if (!post) {
-    notFound();
-  }
+                      {/* Reply box */}
+                      {isReplying && !isEditing && (
+                        <div className="mt-3 pt-3 border-t border-slate-100 space-y-2">
+                          <textarea
+                            rows={2}
+                            value={replyValue}
+                            onChange={(e) =>
+                              comments.setReplyDrafts((prev) => ({
+                                ...prev,
+                                [comment._id]: e.target.value,
+                              }))
+                            }
+                            className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                            placeholder="Viết phản hồi..."
+                          />
+                          <div className="flex justify-end gap-2">
+                            <button
+                              type="button"
+                              onClick={() =>
+                                comments.setActiveReplyCommentId(null)
+                              }
+                              disabled={
+                                comments.replySubmittingFor === comment._id
+                              }
+                              className="px-3 py-1.5 border border-slate-300 rounded-md text-slate-700 hover:bg-slate-50 text-sm disabled:opacity-60"
+                            >
+                              Hủy
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() =>
+                                comments.handleReplyComment(comment._id)
+                              }
+                              disabled={
+                                comments.replySubmittingFor === comment._id
+                              }
+                              className="px-3 py-1.5 bg-emerald-600 text-white rounded-md text-sm hover:bg-emerald-700 disabled:opacity-60"
+                            >
+                              {comments.replySubmittingFor === comment._id
+                                ? "Đang gửi..."
+                                : "Gửi phản hồi"}
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
 
-  const author = typeof post.authorId === "object" ? post.authorId : undefined;
+                {comments.hasMoreTopLevelComments && (
+                  <div
+                    ref={loadMoreTriggerRef}
+                    className="py-4 text-center text-sm text-slate-500"
+                  >
+                    {comments.isLoadingMoreTopLevelComments
+                      ? "Đang tải thêm bình luận..."
+                      : "Kéo xuống để tải thêm bình luận"}
+                  </div>
+                )}
 
-  const description =
-    post.excerpt?.trim() ||
-    stripMarkdown(post.content).slice(0, 160) ||
-    "Read this post on IE213 Blog.";
+                {!comments.hasMoreTopLevelComments &&
+                  comments.topLevelComments.length > 0 && (
+                    <div className="py-4 text-center text-xs text-slate-400">
+                      Đã hiển thị tất cả bình luận gốc.
+                    </div>
+                  )}
+              </div>
+            )}
+          </div>
+        </section>
+      </article>
 
-  const canonicalUrl = buildCanonicalUrl(post.slug);
-
-  const articleJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "BlogPosting",
-    headline: post.title,
-    description,
-    image: post.coverImage ? [post.coverImage] : undefined,
-    datePublished: post.publishedAt
-      ? new Date(post.publishedAt).toISOString()
-      : undefined,
-    dateModified: new Date(post.modifiedOn).toISOString(),
-    author: author
-      ? {
-          "@type": "Person",
-          name: author.fullName || author.username,
+      {/* Edit Post Modal */}
+      <PostFormModal
+        mode="edit"
+        isOpen={postForm.isEditModalOpen}
+        formData={postForm.editFormData}
+        categories={postForm.categories}
+        availableTags={postForm.availableTags}
+        isLoadingFormOptions={postForm.isLoadingFormOptions}
+        formOptionsError={postForm.formOptionsError}
+        error={postForm.editError}
+        isSubmitting={postForm.isUpdatingPost}
+        onClose={() => postForm.closeEditModal()}
+        onInputChange={postForm.handleEditInputChange}
+        onContentChange={(md) =>
+          postForm.setEditFormData((prev) => ({ ...prev, content: md }))
         }
-      : undefined,
-    publisher: {
-      "@type": "Organization",
-      name: "IE213 Blog",
-      url: SITE_URL,
-    },
-    mainEntityOfPage: canonicalUrl,
-  };
-
-  const breadcrumbJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: [
-      {
-        "@type": "ListItem",
-        position: 1,
-        name: "Home",
-        item: SITE_URL,
-      },
-      {
-        "@type": "ListItem",
-        position: 2,
-        name: "Posts",
-        item: `${SITE_URL}/posts`,
-      },
-      {
-        "@type": "ListItem",
-        position: 3,
-        name: post.title,
-        item: canonicalUrl,
-      },
-    ],
-  };
-
-  return (
-    <>
-      <PostDetailClient slug={slug} initialPost={post} />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(articleJsonLd),
-        }}
+        onTagToggle={postForm.handleEditTagToggle}
+        onSave={() => void postForm.handleUpdatePost()}
       />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(breadcrumbJsonLd),
-        }}
-      />
-    </>
+    </div>
   );
 }

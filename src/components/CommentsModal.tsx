@@ -1,9 +1,6 @@
-"use client";
-
 import { useMemo } from "react";
 import { Heart, PaperPlaneTilt, Trash, X } from "@phosphor-icons/react";
 import Link from "next/link";
-import Image from "next/image";
 import { Post, User } from "@/lib/types";
 import {
   CommentRenderItem,
@@ -213,12 +210,9 @@ export default function CommentsModal({
                             className="h-9 w-9 overflow-hidden rounded-full bg-slate-200"
                           >
                             {author.avatar ? (
-                              <Image
+                              <img
                                 src={author.avatar}
                                 alt={author.displayName}
-                                width={36}
-                                height={36}
-                                loading="lazy"
                                 className="h-full w-full object-cover"
                               />
                             ) : (
