@@ -1,13 +1,12 @@
-import type { Metadata } from "next";
-import { notFound } from "next/navigation";
-import { ApiResponse, Post } from "@/lib/types";
+"use client";
+
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { postService } from "@/lib/api/post.service";
 import { useAuthStore } from "@/store/authStore";
-import { User } from "@/lib/types";
+import { Post, User } from "@/lib/types";
 import { format } from "date-fns";
 import {
   ArrowLeft,
@@ -19,6 +18,7 @@ import {
   PencilSimple,
   Trash,
 } from "@phosphor-icons/react";
+
 import { usePostForm } from "../../../hooks/usePostForm";
 import PostFormModal from "../../../components/PostFormModal";
 import {
@@ -28,7 +28,6 @@ import {
 } from "../../../hooks/useComments";
 import CommentContent from "../../../components/CommentContent";
 import PostShareActions from "@/components/post/PostShareActions";
-import PostDetailClient from "./PostDetailClient";
 
 const MDPreview = dynamic(() => import("@uiw/react-markdown-preview"), {
   ssr: false,
@@ -38,12 +37,14 @@ export default function PostDetailPage() {
   const params = useParams();
   const router = useRouter();
   const { user, isAuthenticated, authInitialized } = useAuthStore();
+
   const [post, setPost] = useState<Post | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isLiked, setIsLiked] = useState(false);
   const [error, setError] = useState("");
   const loadMoreTriggerRef = useRef<HTMLDivElement | null>(null);
 
+  // ── useComments — inline mode, truyền postId khi đã có post ──────────────
   const comments = useComments(user as User | null, {
     postId: post?._id,
     onPostsRefresh: async () => {
@@ -51,6 +52,7 @@ export default function PostDetailPage() {
     },
   });
 
+  // ── usePostForm ───────────────────────────────────────────────────────────
   const postForm = usePostForm(async () => {
     if (post?.slug) await loadPost(post.slug);
   });
@@ -59,6 +61,7 @@ export default function PostDetailPage() {
     if (post) postForm.openEditModal(post);
   };
 
+  // ── Load post ─────────────────────────────────────────────────────────────
   useEffect(() => {
     if (params.slug) loadPost(params.slug as string);
   }, [params.slug]);
@@ -184,11 +187,6 @@ export default function PostDetailPage() {
       </div>
     );
   }
-
-const description =
-    post.excerpt?.trim() ||
-    stripMarkdown(post.content).slice(0, 160) ||
-    "Read this post on IE213 Blog.";
 
   const author =
     typeof post.authorId === "object"
@@ -514,6 +512,7 @@ const description =
                         </div>
 
                         <div className="flex items-center space-x-2">
+                          {/* Like button — đổi màu đỏ khi đã like */}
                           <button
                             type="button"
                             onClick={() =>
