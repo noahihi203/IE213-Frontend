@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { Outfit } from "next/font/google";
@@ -173,12 +172,10 @@ function PostCard({ post }: { post: Post }) {
   return (
     <article className="overflow-hidden rounded-[1.25rem] border border-slate-200/80 bg-white shadow-[0_20px_40px_-18px_rgba(15,23,42,0.12)] transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-[1px] hover:shadow-[0_24px_44px_-18px_rgba(15,23,42,0.14)]">
       {post.coverImage && (
-        <div className="relative h-48 bg-slate-200">
-          <Image
+        <div className="h-48 bg-slate-200">
+          <img
             src={post.coverImage}
             alt={post.title}
-            fill
-            sizes="(min-width: 768px) 50vw, 100vw"
             className="h-full w-full object-cover"
           />
         </div>
@@ -229,12 +226,9 @@ function PostCard({ post }: { post: Post }) {
           <div className="mt-4 flex items-center gap-2 border-t border-slate-200 pt-4">
             <div className="h-8 w-8 overflow-hidden rounded-full bg-emerald-600">
               {author.avatar ? (
-                <Image
+                <img
                   src={author.avatar}
                   alt={author.fullName || author.username}
-                  width={32}
-                  height={32}
-                  loading="lazy"
                   className="h-full w-full object-cover"
                 />
               ) : (
