@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import dynamic from "next/dynamic";
+import Image from "next/image";
 import { postService } from "@/lib/api/post.service";
 import { useAuthStore } from "@/store/authStore";
 import { Post, User } from "@/lib/types";
@@ -21,7 +22,6 @@ import {
 } from "@phosphor-icons/react";
 
 import { usePostForm } from "../../../hooks/usePostForm";
-import PostFormModal from "../../../components/PostFormModal";
 import {
   useComments,
   formatCommentDate,
@@ -31,7 +31,19 @@ import CommentContent from "../../../components/CommentContent";
 
 const MDPreview = dynamic(() => import("@uiw/react-markdown-preview"), {
   ssr: false,
+  loading: () => (
+    <div className="rounded-lg border border-slate-200 bg-white p-4 text-sm text-slate-500">
+      Đang tải nội dung bài viết...
+    </div>
+  ),
 });
+
+const PostFormModal = dynamic(
+  () => import("../../../components/PostFormModal"),
+  {
+    ssr: false,
+  },
+);
 
 export default function PostDetailPage() {
   const params = useParams();
@@ -231,12 +243,17 @@ export default function PostDetailPage() {
       {/* Content */}
       <article className="container mx-auto px-4 py-8 max-w-4xl">
         {post.coverImage && (
-          <div className="mb-8 rounded-lg overflow-hidden">
-            <img
-              src={post.coverImage}
-              alt={post.title}
-              className="w-full h-96 object-cover"
-            />
+          <div className="mb-8 overflow-hidden rounded-lg">
+            <div className="relative aspect-[16/9] w-full">
+              <Image
+                src={post.coverImage}
+                alt={post.title}
+                fill
+                priority
+                sizes="(max-width: 768px) 100vw, 896px"
+                className="object-cover"
+              />
+            </div>
           </div>
         )}
 
@@ -465,9 +482,13 @@ export default function PostDetailPage() {
                               className="h-9 w-9 overflow-hidden rounded-full bg-slate-200"
                             >
                               {author.avatar ? (
-                                <img
+                                <Image
                                   src={author.avatar}
                                   alt={author.displayName}
+                                  width={36}
+                                  height={36}
+                                  loading="lazy"
+                                  sizes="36px"
                                   className="h-full w-full object-cover"
                                 />
                               ) : (

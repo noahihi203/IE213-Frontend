@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Outfit } from "next/font/google";
 import { categoryService } from "@/lib/api/category.service";
 import { Category } from "@/lib/types";
@@ -87,10 +88,14 @@ export default function CategoriesPage() {
                   <div className="flex items-start gap-4">
                     {category.icon ? (
                       <div className="h-12 w-12 shrink-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-100">
-                        <img
+                        <Image
                           className="h-full w-full object-cover"
                           src={category.icon}
                           alt={category.name}
+                          width={48}
+                          height={48}
+                          loading="lazy"
+                          sizes="48px"
                         />
                       </div>
                     ) : (

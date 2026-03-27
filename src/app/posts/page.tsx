@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Outfit } from "next/font/google";
 import { format } from "date-fns";
 import { postService } from "@/lib/api/post.service";
@@ -270,11 +271,14 @@ function PostCard({ post }: { post: Post }) {
     >
       <article>
         {post.coverImage && (
-          <div className="h-32 bg-slate-200 md:h-36">
-            <img
+          <div className="relative h-32 bg-slate-200 md:h-36">
+            <Image
               src={post.coverImage}
               alt={post.title}
-              className="h-full w-full object-cover"
+              fill
+              loading="lazy"
+              sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              className="object-cover"
             />
           </div>
         )}
@@ -322,9 +326,13 @@ function PostCard({ post }: { post: Post }) {
             <div className="mt-2 flex items-center gap-2 border-t border-slate-200 pt-2">
               <div className="h-6 w-6 overflow-hidden rounded-full bg-emerald-600">
                 {author.avatar ? (
-                  <img
+                  <Image
                     src={author.avatar}
                     alt={author.fullName || author.username}
+                    width={24}
+                    height={24}
+                    loading="lazy"
+                    sizes="24px"
                     className="h-full w-full object-cover"
                   />
                 ) : (
