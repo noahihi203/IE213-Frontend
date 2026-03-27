@@ -51,9 +51,9 @@ export default function LoginPage() {
               <SignIn size={28} weight="duotone" />
             </div>
           </div>
-          <h1 className="text-3xl font-semibold tracking-tight text-slate-900">
+          <h2 className="text-3xl font-semibold tracking-tight text-slate-900">
             Welcome Back
-          </h1>
+          </h2>
           <p className="mt-2 text-sm text-slate-600">Sign in to your account</p>
         </div>
 

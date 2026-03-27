@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 import { Eye, PencilSimple } from "@phosphor-icons/react";
 import { Post } from "@/lib/types";

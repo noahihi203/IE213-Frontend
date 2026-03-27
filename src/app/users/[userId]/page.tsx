@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, CircleNotch, X } from "@phosphor-icons/react";
 import { useAuthStore } from "@/store/authStore";
@@ -184,11 +183,9 @@ export default function UserProfilePage() {
         <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
           <div className="h-20 w-20 overflow-hidden rounded-full bg-slate-200">
             {profile.avatar ? (
-              <Image
+              <img
                 src={profile.avatar}
                 alt={profile.fullName || profile.username}
-                width={80}
-                height={80}
                 className="h-full w-full object-cover"
               />
             ) : (
@@ -302,12 +299,9 @@ export default function UserProfilePage() {
                     >
                       <div className="h-10 w-10 overflow-hidden rounded-full bg-emerald-100">
                         {item.avatar ? (
-                          <Image
+                          <img
                             src={item.avatar}
                             alt={item.fullName || item.username}
-                            width={40}
-                            height={40}
-                            loading="lazy"
                             className="h-full w-full object-cover"
                           />
                         ) : (

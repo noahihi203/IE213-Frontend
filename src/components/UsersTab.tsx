@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import {
   Archive,
   CaretLeft,
@@ -188,12 +187,9 @@ export default function UsersTab({
                       >
                         <div className="h-10 w-10 flex-shrink-0 overflow-hidden rounded-full border border-emerald-200 bg-emerald-100 shadow-sm">
                           {u.avatar ? (
-                            <Image
+                            <img
                               src={u.avatar}
                               alt={u.fullName || u.username}
-                              width={40}
-                              height={40}
-                              loading="lazy"
                               className="h-full w-full object-cover"
                             />
                           ) : (
