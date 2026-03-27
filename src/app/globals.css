@@ -30,6 +30,13 @@ body {
   .text-balance {
     text-wrap: balance;
   }
+
+  @media (max-width: 768px) {
+    .tap-target {
+      min-width: 48px;
+      min-height: 48px;
+    }
+  }
 }
 
 /* Custom styles */
