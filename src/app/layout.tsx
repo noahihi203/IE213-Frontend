@@ -12,8 +12,21 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: "IE213 Blog - Share Your Knowledge",
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000",
+  ),
+  title: {
+    default: "IE213 Blog - Share Your Knowledge",
+    template: "%s",
+  },
   description: "A modern blog platform built with Next.js and Express",
+  robots: {
+    index: true,
+    follow: true,
+  },
+  alternates: {
+    canonical: "/",
+  },
 };
 
 export default function RootLayout({
