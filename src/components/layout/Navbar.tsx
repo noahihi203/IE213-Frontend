@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useAuthStore } from "@/store/authStore";
 import { Outfit } from "next/font/google";
@@ -57,7 +58,11 @@ export function Navbar() {
         : "bg-slate-500";
 
   const roleLabel =
-    user?.role === "admin" ? "Quản trị viên" : user?.role === "author" ? "Tác giả" : "Người dùng";
+    user?.role === "admin"
+      ? "Quản trị viên"
+      : user?.role === "author"
+        ? "Tác giả"
+        : "Người dùng";
 
   return (
     <nav
@@ -67,7 +72,7 @@ export function Navbar() {
         <div className="flex h-16 items-center justify-between gap-4">
           <Link
             href="/"
-            className="flex items-center gap-2 rounded-xl px-2 py-1.5 text-lg font-semibold tracking-tight text-slate-900 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-white active:scale-[0.98]"
+            className="tap-target flex items-center gap-2 rounded-xl px-2 py-1.5 text-lg font-semibold tracking-tight text-slate-900 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-white active:scale-[0.98]"
           >
             <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
               <Student size={20} weight="duotone" />
@@ -101,13 +106,16 @@ export function Navbar() {
               <div className="flex items-center gap-2 md:gap-3">
                 <Link
                   href="/dashboard"
-                  className="group flex items-center gap-2 rounded-xl px-2 py-1.5 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-white active:scale-[0.98]"
+                  className="tap-target group flex items-center gap-2 rounded-xl px-2 py-1.5 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-white active:scale-[0.98]"
                 >
                   <div className="h-9 w-9 overflow-hidden rounded-full bg-emerald-600 shadow-[0_8px_20px_-10px_rgba(5,150,105,0.7)]">
                     {user.avatar ? (
-                      <img
+                      <Image
                         src={user.avatar}
                         alt={user.fullName || user.username}
+                        width={36}
+                        height={36}
+                        loading="lazy"
                         className="h-full w-full object-cover"
                       />
                     ) : (
@@ -130,7 +138,7 @@ export function Navbar() {
                 <NotificationBell />
                 <button
                   onClick={handleLogout}
-                  className="inline-flex items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:border-rose-200 hover:text-rose-600 active:scale-[0.98]"
+                  className="tap-target inline-flex items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:border-rose-200 hover:text-rose-600 active:scale-[0.98]"
                 >
                   <SignOut size={16} weight="duotone" />
                   <span className="hidden xl:inline">Đăng xuất</span>
@@ -140,13 +148,13 @@ export function Navbar() {
               <div className="flex items-center gap-2 sm:gap-3">
                 <Link
                   href="/login"
-                  className="rounded-xl px-3 py-2 text-sm font-medium text-slate-600 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-white hover:text-slate-900 active:scale-[0.98]"
+                  className="tap-target rounded-xl px-3 py-2 text-sm font-medium text-slate-600 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-white hover:text-slate-900 active:scale-[0.98]"
                 >
                   Đăng nhập
                 </Link>
                 <Link
                   href="/register"
-                  className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-emerald-700 active:-translate-y-[1px]"
+                  className="tap-target inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-emerald-700 active:-translate-y-[1px]"
                 >
                   <UserCircle size={16} weight="duotone" />
                   Đăng ký
@@ -164,7 +172,7 @@ export function Navbar() {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`inline-flex items-center justify-center gap-1 rounded-xl px-2 py-2 text-xs font-medium transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.98] ${
+                className={`tap-target inline-flex items-center justify-center gap-1 rounded-xl px-2 py-2 text-xs font-medium transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.98] ${
                   active
                     ? "bg-emerald-100 text-emerald-800"
                     : "text-slate-600 hover:bg-white hover:text-slate-900"

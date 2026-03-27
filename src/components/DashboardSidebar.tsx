@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import {
   CircleNotch,
   Folder,
@@ -131,9 +132,11 @@ export default function DashboardSidebar({
         <div className="mb-6 text-center">
           <div className="mx-auto mb-3 h-20 w-20 overflow-hidden rounded-full bg-emerald-600">
             {user.avatar ? (
-              <img
+              <Image
                 src={user.avatar}
                 alt={user.fullName || user.username}
+                width={80}
+                height={80}
                 className="h-full w-full object-cover"
               />
             ) : (
@@ -246,9 +249,12 @@ export default function DashboardSidebar({
                     >
                       <div className="h-10 w-10 overflow-hidden rounded-full bg-emerald-100">
                         {item.avatar ? (
-                          <img
+                          <Image
                             src={item.avatar}
                             alt={item.fullName || item.username}
+                            width={40}
+                            height={40}
+                            loading="lazy"
                             className="h-full w-full object-cover"
                           />
                         ) : (

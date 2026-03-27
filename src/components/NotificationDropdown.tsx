@@ -1,4 +1,3 @@
-// src/components/notifications/NotificationDropdown.tsx
 "use client";
 
 import { useEffect, useState } from "react";
