@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { Post } from "@/lib/types";
 
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000/v1/api";
+  process.env.API_BASE_URL ||
+  process.env.NEXT_PUBLIC_API_BASE_URL ||
+  "http://localhost:5000/v1/api";
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
 interface MetadataProps {
@@ -67,11 +69,25 @@ export async function generateMetadata({
   const post = await fetchPostBySlug(params.slug);
 
   if (!post) {
+    const fallbackDescription = "Read the latest article from IE213 Blog.";
     return {
+      metadataBase: new URL(SITE_URL),
       title: "Post | IE213 Blog",
-      description: "Read the latest article from IE213 Blog.",
+      description: fallbackDescription,
       alternates: {
         canonical: canonicalUrl,
+      },
+      openGraph: {
+        type: "article",
+        title: "Post | IE213 Blog",
+        description: fallbackDescription,
+        url: canonicalUrl,
+        siteName: "IE213 Blog",
+      },
+      twitter: {
+        card: "summary",
+        title: "Post | IE213 Blog",
+        description: fallbackDescription,
       },
     };
   }
@@ -82,6 +98,7 @@ export async function generateMetadata({
   const image = toAbsoluteUrl(post.coverImage);
 
   return {
+    metadataBase: new URL(SITE_URL),
     title,
     description,
     alternates: {

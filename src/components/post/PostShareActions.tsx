@@ -21,21 +21,39 @@ interface PostShareActionsProps {
 }
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+const SHARE_TEXT_MAX = 200;
+
+const normalizeShareText = (value?: string) => {
+  if (!value) return "";
+  return value.replace(/\s+/g, " ").trim();
+};
+
+const truncateShareText = (value: string, maxLength: number) => {
+  if (value.length <= maxLength) return value;
+  const suffix = "...";
+  const sliceLength = Math.max(0, maxLength - suffix.length);
+  return `${value.slice(0, sliceLength).trim()}${suffix}`;
+};
+
+const getShareText = (excerpt: string | undefined, title: string) => {
+  const base = normalizeShareText(excerpt) || normalizeShareText(title);
+  return truncateShareText(base, SHARE_TEXT_MAX);
+};
 
 const buildShareUrl = (
   platform: Exclude<SharePlatform, "copy" | "native">,
   url: string,
-  title: string,
+  shareText: string,
 ) => {
   const encodedUrl = encodeURIComponent(url);
-  const encodedTitle = encodeURIComponent(title);
+  const encodedText = encodeURIComponent(shareText);
 
   if (platform === "facebook") {
     return `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`;
   }
 
   if (platform === "x") {
-    return `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`;
+    return `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedText}`;
   }
 
   return `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`;
@@ -128,11 +146,11 @@ export default function PostShareActions({
         document.execCommand("copy");
         document.body.removeChild(temporaryInput);
       }
-      toast.success("Da sao chep lien ket bai viet!");
+      toast.success("Đã sao chép liên kết bài viết!");
       trackShareEvent("copy", postId, slug);
     } catch (error) {
       console.error("Failed to copy post link", error);
-      toast.error("Khong the sao chep lien ket. Thu lai nhe.");
+      toast.error("Không thể sao chép liên kết bài viết.");
     }
   };
 
@@ -142,9 +160,10 @@ export default function PostShareActions({
     }
 
     try {
+      const shareText = getShareText(excerpt, title);
       await navigator.share({
         title,
-        text: excerpt || title,
+        text: shareText,
         url: postUrl,
       });
       trackShareEvent("native", postId, slug);
@@ -158,7 +177,8 @@ export default function PostShareActions({
   const handleSocialShare = async (
     platform: Exclude<SharePlatform, "copy" | "native">,
   ) => {
-    const shareUrl = buildShareUrl(platform, postUrl, title);
+    const shareText = getShareText(excerpt, title);
+    const shareUrl = buildShareUrl(platform, postUrl, shareText);
     openSharePopup(shareUrl);
     trackShareEvent(platform, postId, slug);
     await tryTrackBackendShare(isAuthenticated, postId, platform, title);
