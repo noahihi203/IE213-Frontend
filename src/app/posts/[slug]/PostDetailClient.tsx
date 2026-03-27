@@ -206,7 +206,7 @@ export default function PostDetailClient({
           <p className="text-slate-600 mb-4">{error}</p>
           <Link
             href="/posts"
-            className="inline-flex rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-700"
+            className="tap-target inline-flex rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-700"
           >
             Back to Posts
           </Link>
@@ -235,7 +235,7 @@ export default function PostDetailClient({
           <div className="flex items-center justify-between">
             <button
               onClick={() => router.back()}
-              className="flex items-center space-x-2 text-slate-600 hover:text-slate-900"
+              className="tap-target flex items-center space-x-2 text-slate-600 hover:text-slate-900"
             >
               <ArrowLeft className="w-5 h-5" />
               <span>Back</span>
@@ -245,7 +245,7 @@ export default function PostDetailClient({
               <button
                 type="button"
                 onClick={handleOpenEditModal}
-                className="flex items-center space-x-2 text-emerald-600 hover:text-emerald-700"
+                className="tap-target flex items-center space-x-2 text-emerald-600 hover:text-emerald-700"
               >
                 <PencilSimple className="w-5 h-5" />
                 <span>Edit Post</span>
@@ -276,7 +276,7 @@ export default function PostDetailClient({
           {category && (
             <Link
               href={`/categories/${category.slug}`}
-              className="inline-block px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-sm font-medium mb-4"
+              className="tap-target inline-flex items-center px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-sm font-medium mb-4"
             >
               {category.name}
             </Link>
@@ -353,7 +353,7 @@ export default function PostDetailClient({
         <div className="flex items-center space-x-4 py-6 border-t border-slate-200">
           <button
             onClick={handleLike}
-            className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-medium transition-colors ${
+            className={`tap-target flex items-center space-x-2 px-6 py-3 rounded-lg font-medium transition-colors ${
               isLiked
                 ? "bg-red-100 text-red-700"
                 : "bg-slate-100 text-slate-700"
@@ -362,7 +362,7 @@ export default function PostDetailClient({
             <Heart className={`w-5 h-5 ${isLiked ? "fill-current" : ""}`} />
             <span>{isLiked ? "Liked" : "Like"}</span>
           </button>
-          <button className="flex items-center space-x-2 px-6 py-3 bg-slate-100 text-slate-700 rounded-lg">
+          <button className="tap-target flex items-center space-x-2 px-6 py-3 bg-slate-100 text-slate-700 rounded-lg">
             <ShareNetwork className="w-5 h-5" />
             <span>Share</span>
           </button>
@@ -412,7 +412,7 @@ export default function PostDetailClient({
                     type="button"
                     onClick={comments.handleCreateComment}
                     disabled={comments.isSubmittingComment}
-                    className="inline-flex items-center space-x-2 px-4 py-2 bg-emerald-600 text-white rounded-md font-medium hover:bg-emerald-700 disabled:opacity-60"
+                    className="tap-target inline-flex items-center space-x-2 px-4 py-2 bg-emerald-600 text-white rounded-md font-medium hover:bg-emerald-700 disabled:opacity-60"
                   >
                     <PaperPlaneTilt className="w-4 h-4" />
                     <span>
@@ -428,7 +428,7 @@ export default function PostDetailClient({
                 </p>
                 <Link
                   href="/login"
-                  className="inline-flex items-center rounded-md bg-emerald-600 px-4 py-2 text-white hover:bg-emerald-700"
+                  className="tap-target inline-flex items-center rounded-md bg-emerald-600 px-4 py-2 text-white hover:bg-emerald-700"
                 >
                   Đăng nhập
                 </Link>
@@ -550,7 +550,7 @@ export default function PostDetailClient({
                               comments.handleToggleLikeComment(comment._id)
                             }
                             disabled={comments.likingCommentId === comment._id}
-                            className={`inline-flex items-center space-x-1 transition-colors disabled:opacity-60 ${
+                            className={`tap-target inline-flex items-center space-x-1 transition-colors disabled:opacity-60 ${
                               isLikedComment
                                 ? "text-red-500"
                                 : "text-slate-400 hover:text-rose-400"
@@ -570,7 +570,7 @@ export default function PostDetailClient({
                             onClick={() =>
                               comments.toggleReplyComposerForComment(comment)
                             }
-                            className="text-xs text-blue-600 hover:text-blue-700"
+                            className="tap-target px-2 text-xs text-blue-600 hover:text-blue-700"
                           >
                             Reply
                           </button>
@@ -581,7 +581,7 @@ export default function PostDetailClient({
                               onClick={() =>
                                 comments.handleReportComment(comment._id)
                               }
-                              className="text-xs text-orange-600 hover:text-orange-700"
+                              className="tap-target px-2 text-xs text-orange-600 hover:text-orange-700"
                             >
                               Report
                             </button>
@@ -591,7 +591,7 @@ export default function PostDetailClient({
                             <button
                               type="button"
                               onClick={() => comments.startEditComment(comment)}
-                              className="text-xs text-indigo-600 hover:text-indigo-700"
+                              className="tap-target px-2 text-xs text-indigo-600 hover:text-indigo-700"
                             >
                               Sửa
                             </button>
@@ -606,7 +606,7 @@ export default function PostDetailClient({
                               disabled={
                                 comments.deletingCommentId === comment._id
                               }
-                              className="inline-flex items-center space-x-1 text-xs text-red-600 hover:text-red-700 disabled:opacity-60"
+                              className="tap-target inline-flex items-center space-x-1 text-xs text-red-600 hover:text-red-700 disabled:opacity-60"
                             >
                               <Trash className="w-3.5 h-3.5" />
                               <span>
@@ -635,7 +635,7 @@ export default function PostDetailClient({
                               type="button"
                               onClick={comments.cancelEditComment}
                               disabled={comments.isUpdatingComment}
-                              className="px-3 py-1.5 border border-slate-300 rounded-md text-slate-700 hover:bg-slate-50 text-sm disabled:opacity-60"
+                              className="tap-target px-3 py-1.5 border border-slate-300 rounded-md text-slate-700 hover:bg-slate-50 text-sm disabled:opacity-60"
                             >
                               Hủy
                             </button>
@@ -643,7 +643,7 @@ export default function PostDetailClient({
                               type="button"
                               onClick={comments.handleSaveCommentEdit}
                               disabled={comments.isUpdatingComment}
-                              className="px-3 py-1.5 bg-emerald-600 text-white rounded-md text-sm hover:bg-emerald-700 disabled:opacity-60"
+                              className="tap-target px-3 py-1.5 bg-emerald-600 text-white rounded-md text-sm hover:bg-emerald-700 disabled:opacity-60"
                             >
                               {comments.isUpdatingComment
                                 ? "Đang lưu..."
@@ -666,7 +666,7 @@ export default function PostDetailClient({
                                 comments.toggleRepliesForComment(comment._id)
                               }
                               disabled={isLoadingReplies}
-                              className="mt-2 text-xs font-medium text-slate-500 hover:text-slate-700 disabled:opacity-60"
+                              className="tap-target mt-2 px-2 text-xs font-medium text-slate-500 hover:text-slate-700 disabled:opacity-60"
                             >
                               {isLoadingReplies
                                 ? "Đang tải phản hồi..."
@@ -702,7 +702,7 @@ export default function PostDetailClient({
                               disabled={
                                 comments.replySubmittingFor === comment._id
                               }
-                              className="px-3 py-1.5 border border-slate-300 rounded-md text-slate-700 hover:bg-slate-50 text-sm disabled:opacity-60"
+                              className="tap-target px-3 py-1.5 border border-slate-300 rounded-md text-slate-700 hover:bg-slate-50 text-sm disabled:opacity-60"
                             >
                               Hủy
                             </button>
@@ -714,7 +714,7 @@ export default function PostDetailClient({
                               disabled={
                                 comments.replySubmittingFor === comment._id
                               }
-                              className="px-3 py-1.5 bg-emerald-600 text-white rounded-md text-sm hover:bg-emerald-700 disabled:opacity-60"
+                              className="tap-target px-3 py-1.5 bg-emerald-600 text-white rounded-md text-sm hover:bg-emerald-700 disabled:opacity-60"
                             >
                               {comments.replySubmittingFor === comment._id
                                 ? "Đang gửi..."
