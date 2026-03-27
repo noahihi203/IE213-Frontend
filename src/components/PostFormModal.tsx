@@ -1,3 +1,5 @@
+"use client";
+
 import { type ChangeEvent } from "react";
 import { X } from "@phosphor-icons/react";
 import { Category, Tag } from "@/lib/types";

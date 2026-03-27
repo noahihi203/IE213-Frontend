@@ -1,4 +1,6 @@
-// src/components/notifications/NotificationItem.tsx
+"use client";
+
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
   NotificationItem as NotiItemType,
@@ -92,9 +94,12 @@ export default function NotificationItem({
         {actor ? (
           <div className="w-9 h-9 overflow-hidden rounded-full bg-emerald-600">
             {actor.avatar ? (
-              <img
+              <Image
                 src={actor.avatar}
                 alt={actor.fullName || actor.username}
+                width={36}
+                height={36}
+                loading="lazy"
                 className="h-full w-full object-cover"
               />
             ) : (

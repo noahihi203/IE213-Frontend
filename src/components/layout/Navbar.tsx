@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useAuthStore } from "@/store/authStore";
 import { Outfit } from "next/font/google";
@@ -57,7 +58,11 @@ export function Navbar() {
         : "bg-slate-500";
 
   const roleLabel =
-    user?.role === "admin" ? "Quản trị viên" : user?.role === "author" ? "Tác giả" : "Người dùng";
+    user?.role === "admin"
+      ? "Quản trị viên"
+      : user?.role === "author"
+        ? "Tác giả"
+        : "Người dùng";
 
   return (
     <nav
@@ -105,9 +110,12 @@ export function Navbar() {
                 >
                   <div className="h-9 w-9 overflow-hidden rounded-full bg-emerald-600 shadow-[0_8px_20px_-10px_rgba(5,150,105,0.7)]">
                     {user.avatar ? (
-                      <img
+                      <Image
                         src={user.avatar}
                         alt={user.fullName || user.username}
+                        width={36}
+                        height={36}
+                        loading="lazy"
                         className="h-full w-full object-cover"
                       />
                     ) : (
