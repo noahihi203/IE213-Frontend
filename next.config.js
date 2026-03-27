@@ -14,13 +14,19 @@ const nextConfig = {
     optimizePackageImports: ["@phosphor-icons/react", "date-fns"],
   },
   images: {
-    domains: ["localhost"],
     remotePatterns: [
       {
         protocol: "https",
         hostname: "**",
       },
+      {
+        protocol: "http",
+        hostname: "localhost",
+      },
     ],
+    dangerouslyAllowSVG: true,
+    contentDispositionType: "attachment",
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
   transpilePackages: ["@uiw/react-md-editor", "@uiw/react-markdown-preview"],
 };
