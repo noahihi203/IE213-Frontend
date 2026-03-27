@@ -175,7 +175,7 @@ export default function PostDetailPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold mb-2">Post Not Found</h2>
+          <h1 className="text-2xl font-bold mb-2">Post Not Found</h1>
           <p className="text-slate-600 mb-4">{error}</p>
           <Link
             href="/posts"
@@ -394,13 +394,12 @@ export default function PostDetailPage() {
                 <p className="text-slate-700 mb-3">
                   Đăng nhập để bình luận bài viết này.
                 </p>
-                <button
-                  type="button"
-                  onClick={() => router.push("/login")}
+                <Link
+                  href="/login"
                   className="inline-flex items-center rounded-md bg-emerald-600 px-4 py-2 text-white hover:bg-emerald-700"
                 >
                   Đăng nhập
-                </button>
+                </Link>
               </div>
             )}
 
