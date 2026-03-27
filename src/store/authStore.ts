@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { User, LoginData, RegisterData } from "@/lib/types";
 import { authService } from "@/lib/api/auth.service";
 import apiClient from "@/lib/api/client";
+import { toast } from "sonner";
 
 interface AuthState {
   user: User | null;
@@ -29,18 +30,20 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ isLoading: true, error: null });
     try {
       const response = await authService.login(data);
-      // console.log("data:::", data);
       set({
         user: response.metadata.user,
         isAuthenticated: true,
         authInitialized: true,
         isLoading: false,
       });
+      toast.success("Đăng nhập thành công!"); // Success notification
     } catch (error: any) {
+      const errorMsg = error.message || "Đăng nhập thất bại";
       set({
-        error: error.message || "Login failed",
+        error: errorMsg,
         isLoading: false,
       });
+      toast.error(errorMsg); 
       throw error;
     }
   },
@@ -48,18 +51,18 @@ export const useAuthStore = create<AuthState>((set) => ({
   register: async (data: RegisterData) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await authService.register(data);
+      await authService.register(data);
       set({
-        user: response.metadata.user,
-        isAuthenticated: true,
-        authInitialized: true,
         isLoading: false,
       });
+      // We don't need a toast here because the UI changes to the "Check your email" screen
     } catch (error: any) {
+      const errorMsg = error.message || "Đăng ký thất bại";
       set({
-        error: error.message || "Registration failed",
+        error: errorMsg,
         isLoading: false,
       });
+      toast.error(errorMsg); // Validation errors (like Zod password requirements) will show up here!
       throw error;
     }
   },
@@ -68,6 +71,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ isLoading: true });
     try {
       await authService.logout();
+      toast.success("Đã đăng xuất thành công");
     } catch (error) {
       console.error("Logout error:", error);
     } finally {

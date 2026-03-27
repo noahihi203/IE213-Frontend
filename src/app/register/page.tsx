@@ -3,12 +3,21 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { motion } from "framer-motion";
 import { useAuthStore } from "@/store/authStore";
-import { ArrowRight, UserPlus } from "@phosphor-icons/react";
+import {
+  EnvelopeSimple,
+  Eye,
+  EyeSlash,
+  CircleNotch,
+  UserPlus,
+} from "@phosphor-icons/react";
 
 export default function RegisterPage() {
   const router = useRouter();
   const { register, isLoading, error, clearError } = useAuthStore();
+
+  const [isSuccess, setIsSuccess] = useState(false);
 
   const [formData, setFormData] = useState({
     username: "",
@@ -18,6 +27,8 @@ export default function RegisterPage() {
     confirmPassword: "",
   });
 
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [validationError, setValidationError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -25,24 +36,22 @@ export default function RegisterPage() {
     clearError();
     setValidationError("");
 
-    // Validate passwords match
     if (formData.password !== formData.confirmPassword) {
-      setValidationError("Passwords do not match");
+      setValidationError("Mật khẩu xác nhận không khớp.");
       return;
     }
 
-    // Validate password length
-    if (formData.password.length < 6) {
-      setValidationError("Password must be at least 6 characters");
+    if (formData.password.length < 8) {
+      setValidationError("Mật khẩu phải có ít nhất 8 ký tự.");
       return;
     }
 
     try {
       const { confirmPassword, ...registerData } = formData;
       await register(registerData);
-      router.push("/dashboard");
-    } catch (error) {
-      console.error("Registration error:", error);
+      setIsSuccess(true);
+    } catch (err) {
+      console.error("Registration error:", err);
     }
   };
 
@@ -54,189 +63,193 @@ export default function RegisterPage() {
   };
 
   const displayError = error || validationError;
+
   const inputClassName =
-    "w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-emerald-500";
+    "w-full rounded-xl border border-slate-200 bg-slate-50/60 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 transition-all duration-200 focus:border-emerald-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-emerald-500/10";
 
   return (
-    <div className="min-h-[100dvh] bg-slate-50 px-4 py-8 md:px-6 md:py-12">
-      <div className="mx-auto grid w-full max-w-6xl grid-cols-1 overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-[0_20px_40px_-20px_rgba(15,23,42,0.15)] lg:grid-cols-[1.1fr_0.9fr]">
-        <section className="flex flex-col justify-between border-b border-slate-200 bg-slate-100/70 p-8 lg:border-b-0 lg:border-r lg:p-10">
-          <div>
-            <div className="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-600 text-white shadow-sm">
-              <UserPlus size={28} weight="duotone" />
-            </div>
-            <h1 className="text-4xl font-semibold tracking-tight text-slate-900 md:text-5xl">
-              Bắt đầu hồ sơ tác giả mới
-            </h1>
-            <p className="mt-4 max-w-[48ch] text-base leading-relaxed text-slate-600">
-              Tạo tài khoản để quản lý bài viết, theo dõi phản hồi và xây dựng
-              nhịp xuất bản riêng của bạn.
-            </p>
-          </div>
+    <div className="relative flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 via-white to-emerald-50 px-4">
+      {/* floating background glow */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -top-24 left-1/2 h-[300px] w-[300px] -translate-x-1/2 rounded-full bg-emerald-200/30 blur-3xl" />
+      </div>
 
-          <div className="mt-10 grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <div className="rounded-xl border border-slate-200 bg-white p-4">
-              <p className="text-xs uppercase tracking-wide text-slate-500">
-                Không gian làm việc
-              </p>
-              <p className="mt-1 text-sm font-medium text-slate-800">
-                Dashboard tác giả
-              </p>
+      <motion.div
+        initial={{ opacity: 0, y: 30, scale: 0.96 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.5 }}
+        className="relative w-full max-w-md rounded-3xl border border-slate-200/60 bg-white/90 p-8 shadow-[0_20px_60px_rgba(0,0,0,0.06)] backdrop-blur"
+      >
+        {isSuccess ? (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="text-center"
+          >
+            <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-emerald-50 text-emerald-600 ring-8 ring-emerald-50/50">
+              <EnvelopeSimple size={36} weight="duotone" />
             </div>
-            <div className="rounded-xl border border-slate-200 bg-white p-4">
-              <p className="text-xs uppercase tracking-wide text-slate-500">
-                Bảo mật
-              </p>
-              <p className="mt-1 text-sm font-medium text-slate-800">
-                Xác thực tài khoản an toàn
-              </p>
-            </div>
-          </div>
-        </section>
 
-        <section className="p-6 md:p-8 lg:p-10">
-          <div className="mb-8">
-            <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
-              Tạo tài khoản
+            <h2 className="text-2xl font-bold text-slate-900">
+              Kiểm tra email của bạn
             </h2>
-            <p className="mt-2 text-sm text-slate-600">
-              Điền thông tin bên dưới để truy cập hệ thống biên tập.
+
+            <p className="mt-3 text-slate-600">
+              Chúng tôi đã gửi liên kết xác thực đến
+              <br />
+              <span className="font-semibold text-slate-900">
+                {formData.email}
+              </span>
             </p>
-          </div>
 
-          <form className="space-y-5" onSubmit={handleSubmit}>
-            <div className="space-y-2">
-              <label
-                htmlFor="username"
-                className="text-sm font-medium text-slate-700"
-              >
-                Username
-              </label>
-              <input
-                id="username"
-                name="username"
-                type="text"
-                required
-                value={formData.username}
-                onChange={handleChange}
-                className={inputClassName}
-                placeholder="linh-phan"
-              />
-            </div>
+            <Link
+              href="/login"
+              className="mt-8 inline-flex w-full items-center justify-center rounded-xl bg-slate-900 px-6 py-3 font-medium text-white transition hover:bg-slate-800 active:scale-[0.98]"
+            >
+              Về trang đăng nhập
+            </Link>
+          </motion.div>
+        ) : (
+          <>
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="mb-8 text-center"
+            >
+              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-600">
+                <UserPlus size={24} weight="duotone" />
+              </div>
 
-            <div className="space-y-2">
-              <label
-                htmlFor="fullName"
-                className="text-sm font-medium text-slate-700"
-              >
-                Full Name
-              </label>
-              <input
-                id="fullName"
-                name="fullName"
-                type="text"
-                required
-                value={formData.fullName}
-                onChange={handleChange}
-                className={inputClassName}
-                placeholder="Minh Khoa Tran"
-              />
-            </div>
+              <h1 className="text-2xl font-bold text-slate-900">
+                Tạo tài khoản
+              </h1>
 
-            <div className="space-y-2">
-              <label
-                htmlFor="email"
-                className="text-sm font-medium text-slate-700"
-              >
-                Email Address
-              </label>
+              <p className="mt-1 text-sm text-slate-500">
+                Điền thông tin để bắt đầu sử dụng UniSyncHCM
+              </p>
+            </motion.div>
+
+            <form className="space-y-5" onSubmit={handleSubmit}>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <input
+                  name="username"
+                  placeholder="Username"
+                  required
+                  value={formData.username}
+                  onChange={handleChange}
+                  className={inputClassName}
+                />
+
+                <input
+                  name="fullName"
+                  placeholder="Full name"
+                  required
+                  value={formData.fullName}
+                  onChange={handleChange}
+                  className={inputClassName}
+                />
+              </div>
+
               <input
-                id="email"
                 name="email"
                 type="email"
+                placeholder="Email address"
                 required
                 value={formData.email}
                 onChange={handleChange}
                 className={inputClassName}
-                placeholder="you@studio-mail.com"
               />
-            </div>
 
-            <div className="space-y-2">
-              <label
-                htmlFor="password"
-                className="text-sm font-medium text-slate-700"
-              >
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                required
-                value={formData.password}
-                onChange={handleChange}
-                className={inputClassName}
-                placeholder="Minimum 6 characters"
-              />
-              <p className="text-xs text-slate-500">Tối thiểu 6 ký tự.</p>
-            </div>
+              <div className="relative">
+                <input
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Password"
+                  required
+                  value={formData.password}
+                  onChange={handleChange}
+                  className={`${inputClassName} pr-10`}
+                />
 
-            <div className="space-y-2">
-              <label
-                htmlFor="confirmPassword"
-                className="text-sm font-medium text-slate-700"
-              >
-                Confirm Password
-              </label>
-              <input
-                id="confirmPassword"
-                name="confirmPassword"
-                type="password"
-                required
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                className={inputClassName}
-                placeholder="Re-enter your password"
-              />
-            </div>
-
-            {displayError && (
-              <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-                {displayError}
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400"
+                >
+                  {showPassword ? <EyeSlash size={18} /> : <Eye size={18} />}
+                </button>
               </div>
-            )}
 
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 font-medium text-white transition active:scale-[0.98] hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {isLoading ? (
-                <span className="flex w-full items-center justify-center gap-2">
-                  <span className="h-2 w-20 animate-pulse rounded bg-emerald-300" />
-                  <span className="h-2 w-12 animate-pulse rounded bg-emerald-300" />
-                </span>
-              ) : (
-                <>
-                  <span>Create Account</span>
-                  <ArrowRight size={16} weight="bold" />
-                </>
+              <div className="relative">
+                <input
+                  name="confirmPassword"
+                  type={showConfirmPassword ? "text" : "password"}
+                  placeholder="Confirm password"
+                  required
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  className={`${inputClassName} pr-10`}
+                />
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    setShowConfirmPassword(!showConfirmPassword)
+                  }
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400"
+                >
+                  {showConfirmPassword ? (
+                    <EyeSlash size={18} />
+                  ) : (
+                    <Eye size={18} />
+                  )}
+                </button>
+              </div>
+
+              {displayError && (
+                <motion.div
+                  initial={{ opacity: 0, y: -5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-600"
+                >
+                  {displayError}
+                </motion.div>
               )}
-            </button>
 
-            <p className="text-center text-sm text-slate-600">
-              Already have an account?{" "}
-              <Link
-                href="/login"
-                className="font-medium text-emerald-700 transition-colors hover:text-emerald-800"
+              <motion.button
+                whileTap={{ scale: 0.97 }}
+                whileHover={{ scale: 1.01 }}
+                type="submit"
+                disabled={isLoading}
+                className="flex w-full items-center justify-center rounded-xl bg-emerald-600 px-4 py-3 font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-emerald-400"
               >
-                Sign in
-              </Link>
-            </p>
-          </form>
-        </section>
-      </div>
+                {isLoading ? (
+                  <>
+                    <CircleNotch
+                      size={20}
+                      className="mr-2 animate-spin"
+                    />
+                    Đang tạo tài khoản...
+                  </>
+                ) : (
+                  "Tạo tài khoản"
+                )}
+              </motion.button>
+
+              <p className="text-center text-sm text-slate-500">
+                Đã có tài khoản?{' '}
+                <Link
+                  href="/login"
+                  className="font-semibold text-emerald-600 hover:text-emerald-700"
+                >
+                  Đăng nhập
+                </Link>
+              </p>
+            </form>
+          </>
+        )}
+      </motion.div>
     </div>
   );
 }
