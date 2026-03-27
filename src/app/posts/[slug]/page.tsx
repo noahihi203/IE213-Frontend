@@ -16,7 +16,6 @@ import {
   Heart,
   PaperPlaneTilt,
   PencilSimple,
-  ShareNetwork,
   Trash,
 } from "@phosphor-icons/react";
 
@@ -28,6 +27,7 @@ import {
   resolveCommentAuthorSummary,
 } from "../../../hooks/useComments";
 import CommentContent from "../../../components/CommentContent";
+import PostShareActions from "@/components/post/PostShareActions";
 
 const MDPreview = dynamic(() => import("@uiw/react-markdown-preview"), {
   ssr: false,
@@ -330,10 +330,14 @@ export default function PostDetailPage() {
             <Heart className={`w-5 h-5 ${isLiked ? "fill-current" : ""}`} />
             <span>{isLiked ? "Liked" : "Like"}</span>
           </button>
-          <button className="flex items-center space-x-2 px-6 py-3 bg-slate-100 text-slate-700 rounded-lg">
-            <ShareNetwork className="w-5 h-5" />
-            <span>Share</span>
-          </button>
+
+          <PostShareActions
+            postId={post._id}
+            title={post.title}
+            excerpt={post.excerpt}
+            slug={post.slug}
+            isAuthenticated={isAuthenticated}
+          />
         </div>
 
         {/* ── Comments section ────────────────────────────────────────────── */}
