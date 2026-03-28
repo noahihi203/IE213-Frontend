@@ -7,8 +7,9 @@ import { useAuthStore } from "@/store/authStore";
 import { postService } from "@/lib/api/post.service";
 import { categoryService } from "@/lib/api/category.service";
 import { tagService } from "@/lib/api/tag.services";
+import { uploadService } from "@/lib/api/upload.service"; // Added upload service
 import { Category, Tag } from "@/lib/types";
-import { Eye, FloppyDisk } from "@phosphor-icons/react";
+import { Eye, FloppyDisk, UploadSimple, CircleNotch } from "@phosphor-icons/react"; // Added upload icons
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -21,6 +22,7 @@ export default function CreatePostPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [availableTags, setAvailableTags] = useState<Tag[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isUploadingImage, setIsUploadingImage] = useState(false); // Added state for image upload
   const [error, setError] = useState("");
 
   const [formData, setFormData] = useState({
@@ -71,6 +73,23 @@ export default function CreatePostPage() {
     } catch (loadError) {
       console.error("Failed to load tags:", loadError);
       setAvailableTags([]);
+    }
+  };
+
+  // Added handler for image upload
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploadingImage(true);
+    setError("");
+    try {
+      const response = await uploadService.uploadImage(file);
+      setFormData((prev) => ({ ...prev, coverImage: response.metadata.imageUrl }));
+    } catch (err: any) {
+      setError(err.message || "Failed to upload image");
+    } finally {
+      setIsUploadingImage(false);
     }
   };
 
@@ -230,22 +249,48 @@ export default function CreatePostPage() {
               />
             </div>
 
+            {/* Updated Cover Image section */}
             <div className="grid gap-2">
               <label
                 htmlFor="coverImage"
                 className="text-sm font-semibold text-slate-800"
               >
-                Cover Image URL
+                Cover Image
               </label>
-              <input
-                type="url"
-                id="coverImage"
-                name="coverImage"
-                value={formData.coverImage}
-                onChange={handleChange}
-                className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm text-slate-800 outline-none transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
-                placeholder="https://example.com/image.jpg"
-              />
+              <div className="flex items-center gap-3">
+                <input
+                  type="url"
+                  id="coverImage"
+                  name="coverImage"
+                  value={formData.coverImage}
+                  onChange={handleChange}
+                  className="flex-1 rounded-xl border border-slate-300 px-4 py-2.5 text-sm text-slate-800 outline-none transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+                  placeholder="https://example.com/image.jpg"
+                />
+                <span className="text-sm font-medium text-slate-500">hoặc</span>
+                <label className="cursor-pointer inline-flex items-center gap-2 rounded-xl bg-slate-100 px-4 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-200">
+                  {isUploadingImage ? (
+                    <CircleNotch size={18} className="animate-spin text-emerald-600" />
+                  ) : (
+                    <UploadSimple size={18} weight="duotone" className="text-emerald-600" />
+                  )}
+                  <span>Tải ảnh lên</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleImageUpload}
+                    disabled={isUploadingImage}
+                  />
+                </label>
+              </div>
+              
+              {/* Optional: Show a preview if an image is selected */}
+              {formData.coverImage && (
+                <div className="mt-3 h-48 w-full overflow-hidden rounded-xl border border-slate-200 bg-slate-100 sm:max-w-md">
+                  <img src={formData.coverImage} alt="Cover Preview" className="h-full w-full object-cover" />
+                </div>
+              )}
             </div>
 
             <div className="grid gap-2">
@@ -283,7 +328,7 @@ export default function CreatePostPage() {
             <button
               type="button"
               onClick={(e) => handleSubmit(e, "draft")}
-              disabled={isLoading}
+              disabled={isLoading || isUploadingImage}
               className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-slate-100 disabled:opacity-50"
             >
               <FloppyDisk size={18} weight="duotone" />
@@ -293,7 +338,7 @@ export default function CreatePostPage() {
             <button
               type="button"
               onClick={(e) => handleSubmit(e, "published")}
-              disabled={isLoading}
+              disabled={isLoading || isUploadingImage}
               className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-emerald-700 active:-translate-y-[1px] disabled:opacity-50"
             >
               <Eye size={18} weight="duotone" />
@@ -303,8 +348,8 @@ export default function CreatePostPage() {
             <button
               type="button"
               onClick={() => router.back()}
-              disabled={isLoading}
-              className="ml-auto rounded-xl px-4 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:text-slate-900"
+              disabled={isLoading || isUploadingImage}
+              className="ml-auto rounded-xl px-4 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:text-slate-900 disabled:opacity-50"
             >
               Cancel
             </button>
