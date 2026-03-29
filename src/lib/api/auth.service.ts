@@ -91,4 +91,18 @@ export const authService = {
   isAuthenticated: (): boolean => {
     return apiClient.isAuthenticated();
   },
+  
+  verifyEmail: async (data: { token: string }): Promise<ApiResponse> => {
+    return (await axiosClient.post("/verify-email", data)) as unknown as ApiResponse;
+  },
+
+  // Forgot Password
+  forgotPassword: async (data: { email: string }): Promise<ApiResponse> => {
+    return (await axiosClient.post("/forgot-password", data)) as unknown as ApiResponse;
+  },
+
+  // Reset Password
+  resetPassword: async (data: { token: string; newPassword: string }): Promise<ApiResponse> => {
+    return (await axiosClient.post("/reset-password", data)) as unknown as ApiResponse;
+  },
 };

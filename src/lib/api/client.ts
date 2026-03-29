@@ -5,7 +5,7 @@ import axios, {
 } from "axios";
 
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5001/v1/api";
+  process.env.NEXT_PUBLIC_API_BASE_URL;
 
 class ApiClient {
   private client: AxiosInstance;
@@ -50,14 +50,42 @@ class ApiClient {
     this.client.interceptors.response.use(
       (response) => response.data, // Return only data
       async (error: AxiosError) => {
+        const responseData = error.response?.data as any;
         if (error.response?.status === 401) {
-          // Token expired or invalid - redirect to login
-          this.clearTokens();
           if (typeof window !== "undefined") {
-            window.location.href = "/login";
+            const publicPaths = [
+              "/login",
+              "/register",
+              "/verify-email",
+              "/forgot-password",
+              "/reset-password",
+            ];
+            if (!publicPaths.includes(window.location.pathname)) {
+              this.clearTokens();
+              window.location.href = "/login";
+            }
           }
         }
-        return Promise.reject(error.response?.data || error.message);
+
+        // 2. Safely extract the exact error message from the backend
+        let errorMessage = "Đã có lỗi xảy ra từ máy chủ. Vui lòng thử lại.";
+        
+        if (responseData) {
+          if (typeof responseData.message === "string") {
+            errorMessage = responseData.message;
+          } else if (Array.isArray(responseData.errors) && responseData.errors[0]?.message) {
+            // Handle Zod array errors if backend sends them under 'errors'
+            errorMessage = responseData.errors[0].message;
+          } else if (responseData.message && Array.isArray(responseData.message)) {
+            // Handle Zod array errors if backend sends them under 'message'
+            errorMessage = responseData.message[0]?.message || responseData.message[0];
+          }
+        } else if (error.message) {
+          errorMessage = error.message;
+        }
+
+        // Reject with a standard Javascript Error object so Zustand can read `error.message`
+        return Promise.reject(new Error(errorMessage));
       },
     );
   }

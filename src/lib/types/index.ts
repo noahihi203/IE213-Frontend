@@ -215,3 +215,16 @@ export interface NotificationListMetadata {
   total: number;
   unreadCount: number;
 }
+
+export interface VerifyEmailData {
+  token: string;
+}
+
+export interface ForgotPasswordData {
+  email: string;
+}
+
+export interface ResetPasswordData {
+  token: string;
+  newPassword: string;
+}
