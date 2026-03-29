@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Outfit } from "next/font/google";
+import { Montserrat } from "next/font/google";
 import {
   BookOpenText,
   Lightning,
@@ -7,8 +7,8 @@ import {
   UsersThree,
 } from "@phosphor-icons/react/dist/ssr";
 
-const outfit = Outfit({
-  subsets: ["latin"],
+const montserrat = Montserrat({
+  subsets: ["latin", "vietnamese"],
   weight: ["400", "500", "600", "700"],
 });
 
@@ -46,7 +46,7 @@ const highlights = [
 export default function HomePage() {
   return (
     <div
-      className={`${outfit.className} min-h-[100dvh] bg-slate-50 text-slate-900`}
+      className={`${montserrat.className} min-h-[100dvh] bg-slate-50 text-slate-900`}
     >
       <section className="relative overflow-hidden border-b border-slate-200/70">
         <div className="pointer-events-none absolute inset-x-0 top-0 h-48 bg-gradient-to-b from-emerald-100/70 to-transparent" />

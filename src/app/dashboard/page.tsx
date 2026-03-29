@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/authStore";
-import { Outfit } from "next/font/google";
+import { Montserrat } from "next/font/google";
 
 import { usePosts } from "../../hooks/usePosts";
 import { useUsers } from "../../hooks/useUsers";
@@ -21,8 +21,8 @@ import CategoryModal from "../../components/CategoryModal";
 
 type ActiveTab = "posts" | "users" | "tags" | "categories" | "settings";
 
-const outfit = Outfit({
-  subsets: ["latin"],
+const montserrat = Montserrat({
+  subsets: ["latin", "vietnamese"],
   weight: ["400", "500", "600", "700"],
 });
 
@@ -107,7 +107,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className={`${outfit.className} min-h-[100dvh] bg-slate-50`}>
+    <div className={`${montserrat.className} min-h-[100dvh] bg-slate-50`}>
       <div className="mx-auto max-w-7xl px-4 py-8 md:px-6 lg:px-10">
         <div className="grid gap-6 lg:grid-cols-4 lg:gap-8">
           {/* ── Sidebar ── */}

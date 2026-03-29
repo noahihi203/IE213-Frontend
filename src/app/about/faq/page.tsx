@@ -1,10 +1,10 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { Outfit } from "next/font/google";
+import { Montserrat } from "next/font/google";
 import { CaretDown } from "@phosphor-icons/react/dist/ssr";
 
-const outfit = Outfit({
-  subsets: ["latin"],
+const montserrat = Montserrat({
+  subsets: ["latin", "vietnamese"],
   weight: ["400", "500", "600", "700"],
 });
 
@@ -120,7 +120,7 @@ export default async function FAQPage() {
   const faqs = await getFAQData();
 
   return (
-    <div className={`${outfit.className} min-h-[100dvh] bg-slate-50`}>
+    <div className={`${montserrat.className} min-h-[100dvh] bg-slate-50`}>
       <div className="border-b border-slate-200 bg-white">
         <div className="mx-auto max-w-7xl px-4 py-12 md:px-6 lg:px-10">
           <h1 className="text-4xl font-semibold tracking-tighter text-slate-900 md:text-5xl">

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuthStore } from "@/store/authStore";
-import { Outfit } from "next/font/google";
+import { Montserrat } from "next/font/google";
 import {
   CompassTool,
   House,
@@ -14,8 +14,8 @@ import {
 } from "@phosphor-icons/react";
 import NotificationBell from "../NotificationBell";
 
-const outfit = Outfit({
-  subsets: ["latin"],
+const montserrat = Montserrat({
+  subsets: ["latin", "vietnamese"],
   weight: ["400", "500", "600", "700"],
 });
 
@@ -57,11 +57,15 @@ export function Navbar() {
         : "bg-slate-500";
 
   const roleLabel =
-    user?.role === "admin" ? "Quản trị viên" : user?.role === "author" ? "Tác giả" : "Người dùng";
+    user?.role === "admin"
+      ? "Quản trị viên"
+      : user?.role === "author"
+        ? "Tác giả"
+        : "Người dùng";
 
   return (
     <nav
-      className={`${outfit.className} sticky top-0 z-40 border-b border-slate-200/80 bg-slate-50/95 backdrop-blur`}
+      className={`${montserrat.className} sticky top-0 z-40 border-b border-slate-200/80 bg-slate-50/95 backdrop-blur`}
     >
       <div className="mx-auto max-w-7xl px-4 md:px-6 lg:px-10">
         <div className="flex h-16 items-center justify-between gap-4">
