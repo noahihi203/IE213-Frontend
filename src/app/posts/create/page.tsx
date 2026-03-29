@@ -2,17 +2,22 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Outfit } from "next/font/google";
+import { Montserrat } from "next/font/google";
 import { useAuthStore } from "@/store/authStore";
 import { postService } from "@/lib/api/post.service";
 import { categoryService } from "@/lib/api/category.service";
 import { tagService } from "@/lib/api/tag.services";
 import { uploadService } from "@/lib/api/upload.service"; // Added upload service
 import { Category, Tag } from "@/lib/types";
-import { Eye, FloppyDisk, UploadSimple, CircleNotch } from "@phosphor-icons/react"; // Added upload icons
+import {
+  Eye,
+  FloppyDisk,
+  UploadSimple,
+  CircleNotch,
+} from "@phosphor-icons/react"; // Added upload icons
 
-const outfit = Outfit({
-  subsets: ["latin"],
+const montserrat = Montserrat({
+  subsets: ["latin", "vietnamese"],
   weight: ["400", "500", "600", "700"],
 });
 
@@ -85,7 +90,10 @@ export default function CreatePostPage() {
     setError("");
     try {
       const response = await uploadService.uploadImage(file);
-      setFormData((prev) => ({ ...prev, coverImage: response.metadata.imageUrl }));
+      setFormData((prev) => ({
+        ...prev,
+        coverImage: response.metadata.imageUrl,
+      }));
     } catch (err: any) {
       setError(err.message || "Failed to upload image");
     } finally {
@@ -149,7 +157,7 @@ export default function CreatePostPage() {
   }
 
   return (
-    <div className={`${outfit.className} min-h-[100dvh] bg-slate-50 py-8`}>
+    <div className={`${montserrat.className} min-h-[100dvh] bg-slate-50 py-8`}>
       <div className="mx-auto max-w-5xl px-4 md:px-6">
         <div className="mb-8">
           <h1 className="text-4xl font-semibold tracking-tighter text-slate-950">
@@ -270,9 +278,16 @@ export default function CreatePostPage() {
                 <span className="text-sm font-medium text-slate-500">hoặc</span>
                 <label className="cursor-pointer inline-flex items-center gap-2 rounded-xl bg-slate-100 px-4 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-200">
                   {isUploadingImage ? (
-                    <CircleNotch size={18} className="animate-spin text-emerald-600" />
+                    <CircleNotch
+                      size={18}
+                      className="animate-spin text-emerald-600"
+                    />
                   ) : (
-                    <UploadSimple size={18} weight="duotone" className="text-emerald-600" />
+                    <UploadSimple
+                      size={18}
+                      weight="duotone"
+                      className="text-emerald-600"
+                    />
                   )}
                   <span>Tải ảnh lên</span>
                   <input
@@ -284,11 +299,15 @@ export default function CreatePostPage() {
                   />
                 </label>
               </div>
-              
+
               {/* Optional: Show a preview if an image is selected */}
               {formData.coverImage && (
                 <div className="mt-3 h-48 w-full overflow-hidden rounded-xl border border-slate-200 bg-slate-100 sm:max-w-md">
-                  <img src={formData.coverImage} alt="Cover Preview" className="h-full w-full object-cover" />
+                  <img
+                    src={formData.coverImage}
+                    alt="Cover Preview"
+                    className="h-full w-full object-cover"
+                  />
                 </div>
               )}
             </div>

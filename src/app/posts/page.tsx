@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { Outfit } from "next/font/google";
+import { Montserrat } from "next/font/google";
 import { format } from "date-fns";
 import { postService } from "@/lib/api/post.service";
 import { categoryService } from "@/lib/api/category.service";
@@ -16,8 +16,8 @@ import {
   MagnifyingGlass,
 } from "@phosphor-icons/react";
 
-const outfit = Outfit({
-  subsets: ["latin"],
+const montserrat = Montserrat({
+  subsets: ["latin", "vietnamese"],
   weight: ["400", "500", "600", "700"],
 });
 
@@ -143,7 +143,7 @@ export default function PostsPage() {
   const compactPosts = useMemo(() => posts, [posts]);
 
   return (
-    <div className={`${outfit.className} min-h-[100dvh] bg-slate-50`}>
+    <div className={`${montserrat.className} min-h-[100dvh] bg-slate-50`}>
       <div className="mx-auto max-w-7xl px-4 py-10 md:px-6 lg:px-10">
         <div className="mb-8 max-w-3xl">
           <h1 className="text-4xl font-semibold tracking-tighter text-slate-950 md:text-5xl">

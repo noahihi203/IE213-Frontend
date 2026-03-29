@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
-import { Outfit } from "next/font/google";
+import { Montserrat } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { AuthProvider } from "@/components/providers/AuthProvider";
 import { Toaster } from "sonner";
 
-const outfit = Outfit({
-  subsets: ["latin"],
+const montserrat = Montserrat({
+  subsets: ["latin", "vietnamese"],
   weight: ["400", "500", "600", "700"],
 });
 
@@ -23,7 +23,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={outfit.className}>
+      <body className={montserrat.className}>
         <AuthProvider>
           <div className="flex min-h-[100dvh] flex-col bg-slate-50 text-slate-900">
             <Navbar />

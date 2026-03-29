@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Outfit } from "next/font/google";
+import { Montserrat } from "next/font/google";
 import {
   FacebookLogo,
   InstagramLogo,
@@ -8,8 +8,8 @@ import {
   TwitterLogo,
 } from "@phosphor-icons/react/dist/ssr";
 
-const outfit = Outfit({
-  subsets: ["latin"],
+const montserrat = Montserrat({
+  subsets: ["latin", "vietnamese"],
   weight: ["400", "500", "600", "700"],
 });
 
@@ -38,7 +38,7 @@ export function Footer() {
 
   return (
     <footer
-      className={`${outfit.className} border-t border-slate-200 bg-slate-50 text-slate-700`}
+      className={`${montserrat.className} border-t border-slate-200 bg-slate-50 text-slate-700`}
     >
       <div className="mx-auto max-w-7xl px-4 py-14 md:px-6 lg:px-10">
         <div className="rounded-[2rem] border border-slate-200/80 bg-white p-8 shadow-[0_20px_40px_-15px_rgba(15,23,42,0.08)] md:p-10">

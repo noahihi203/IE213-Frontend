@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { format } from "date-fns";
-import { Outfit } from "next/font/google";
+import { Montserrat } from "next/font/google";
 import { categoryService } from "@/lib/api/category.service";
 import { Category, Post } from "@/lib/types";
 import {
@@ -17,8 +17,8 @@ import {
   Heart,
 } from "@phosphor-icons/react";
 
-const outfit = Outfit({
-  subsets: ["latin"],
+const montserrat = Montserrat({
+  subsets: ["latin", "vietnamese"],
   weight: ["400", "500", "600", "700"],
 });
 
@@ -66,7 +66,7 @@ export default function CategoryDetailPage() {
   };
 
   return (
-    <div className={`${outfit.className} min-h-[100dvh] bg-slate-50`}>
+    <div className={`${montserrat.className} min-h-[100dvh] bg-slate-50`}>
       <div className="border-b border-slate-200 bg-white/80 backdrop-blur">
         <div className="mx-auto max-w-7xl px-4 py-6 md:px-6 lg:px-10">
           <div className="flex items-center justify-between gap-3">
