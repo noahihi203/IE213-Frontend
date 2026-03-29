@@ -94,4 +94,20 @@ export const postService = {
 
     return await axiosClient.get(`/posts/my-posts?${params.toString()}`);
   },
+
+  // Get user's liked posts
+  getMyLikedPosts: async (
+    filters?: PostFilters,
+  ): Promise<ApiResponse<PaginatedResponse<Post>>> => {
+    const params = new URLSearchParams();
+
+    if (filters?.page) params.append("page", filters.page.toString());
+    if (filters?.limit) params.append("limit", filters.limit.toString());
+    if (filters?.search) params.append("search", filters.search);
+    if (filters?.status) params.append("status", filters.status);
+    if (filters?.category) params.append("category", filters.category);
+    if (filters?.sort) params.append("sort", filters.sort);
+
+    return await axiosClient.get(`/posts/my-liked-posts?${params.toString()}`);
+  },
 };

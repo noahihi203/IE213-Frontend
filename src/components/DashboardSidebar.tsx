@@ -35,7 +35,7 @@ const navItems: {
   {
     tab: "posts",
     icon: <Note size={18} weight="duotone" />,
-    label: "Bài viết của tôi",
+    label: "Bài viết",
   },
   {
     tab: "users",

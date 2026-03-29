@@ -31,7 +31,7 @@ export default function DashboardPage() {
   const { user, isAuthenticated, authInitialized, logout } = useAuthStore();
   const [activeTab, setActiveTab] = useState<ActiveTab>("posts");
 
-  const { posts, isLoadingPosts, loadMyPosts } = usePosts();
+  const { myPosts, likedPosts, isLoadingPosts, loadPostsForRole } = usePosts();
   const {
     users,
     isLoadingUsers,
@@ -82,8 +82,8 @@ export default function DashboardPage() {
       router.push("/login");
       return;
     }
-    loadMyPosts();
-  }, [authInitialized, isAuthenticated, router]);
+    void loadPostsForRole(user?.role);
+  }, [authInitialized, isAuthenticated, router, user?.role]);
 
   // ─── Lazy-load tab data ───────────────────────────────────────────────────
   useEffect(() => {
@@ -125,9 +125,10 @@ export default function DashboardPage() {
             {activeTab === "posts" && (
               <PostsTab
                 user={user}
-                posts={posts}
+                myPosts={myPosts}
+                likedPosts={likedPosts}
                 isLoading={isLoadingPosts}
-                onPostsRefresh={loadMyPosts}
+                onPostsRefresh={() => loadPostsForRole(user.role)}
               />
             )}
 

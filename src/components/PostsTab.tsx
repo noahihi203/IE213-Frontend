@@ -14,22 +14,30 @@ import CommentsModal from "../components/CommentsModal";
 
 interface PostsTabProps {
   user: User;
-  posts: Post[];
+  myPosts: Post[];
+  likedPosts: Post[];
   isLoading: boolean;
   onPostsRefresh?: () => Promise<void> | void;
 }
 
 export default function PostsTab({
   user,
-  posts,
+  myPosts,
+  likedPosts,
   isLoading,
   onPostsRefresh,
 }: PostsTabProps) {
   const isAuthorOrAdmin = user.role === "author" || user.role === "admin";
+  const [listMode, setListMode] = useState<"written" | "liked">(
+    isAuthorOrAdmin ? "written" : "liked",
+  );
   const [search, setSearch] = useState("");
 
   const postForm = usePostForm(onPostsRefresh);
   const comments = useComments(user, onPostsRefresh);
+
+  const posts = listMode === "written" ? myPosts : likedPosts;
+  const canManagePosts = isAuthorOrAdmin && listMode === "written";
 
   const filteredPosts = useMemo(() => {
     const kw = search.trim().toLowerCase();
@@ -44,18 +52,49 @@ export default function PostsTab({
   return (
     <>
       {/* ── Header ─────────────────────────────────────────────────────── */}
-      {isAuthorOrAdmin ? (
-        <div className="mb-6 flex flex-col justify-between space-y-4 md:flex-row md:items-center md:space-y-0">
+      <div className="mb-6 space-y-4">
+        <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
           <div>
             <h1 className="mb-2 text-3xl font-semibold tracking-tight text-slate-900">
-              Bài viết của tôi
+              {listMode === "written"
+                ? "Bài viết của tôi"
+                : "Bài viết đã thích"}
             </h1>
             <p className="text-slate-600">
-              Quản lý bài viết đã đăng và bản nháp
+              {listMode === "written"
+                ? "Quản lý bài viết đã đăng và bản nháp"
+                : "Danh sách các bài viết bạn đã thích"}
             </p>
           </div>
 
-          <div className="flex space-x-3 w-full md:w-auto">
+          <div className="flex w-full flex-col gap-3 sm:flex-row md:w-auto">
+            {isAuthorOrAdmin && (
+              <div className="inline-flex rounded-lg border border-slate-200 bg-slate-50 p-1">
+                <button
+                  type="button"
+                  onClick={() => setListMode("written")}
+                  className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+                    listMode === "written"
+                      ? "bg-white text-emerald-700 shadow-sm"
+                      : "text-slate-600 hover:text-slate-800"
+                  }`}
+                >
+                  Đã viết
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setListMode("liked")}
+                  className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+                    listMode === "liked"
+                      ? "bg-white text-emerald-700 shadow-sm"
+                      : "text-slate-600 hover:text-slate-800"
+                  }`}
+                >
+                  Đã thích
+                </button>
+              </div>
+            )}
+
             <div className="relative flex-1 md:w-64">
               <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                 <MagnifyingGlass size={18} className="text-slate-400" />
@@ -68,24 +107,20 @@ export default function PostsTab({
                 className="block w-full rounded-lg border border-slate-300 bg-white py-2 pl-10 pr-3 leading-5 placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 sm:text-sm"
               />
             </div>
-            <button
-              type="button"
-              onClick={postForm.openCreateModal}
-              className="flex flex-shrink-0 items-center justify-center space-x-2 rounded-lg border border-transparent bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-emerald-700"
-            >
-              <Plus size={18} weight="bold" />
-              <span>Viết bài</span>
-            </button>
+
+            {canManagePosts && (
+              <button
+                type="button"
+                onClick={postForm.openCreateModal}
+                className="flex flex-shrink-0 items-center justify-center space-x-2 rounded-lg border border-transparent bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-emerald-700"
+              >
+                <Plus size={18} weight="bold" />
+                <span>Viết bài</span>
+              </button>
+            )}
           </div>
         </div>
-      ) : (
-        <div className="mb-6">
-          <h1 className="mb-2 text-3xl font-semibold tracking-tight text-slate-900">
-            Bài viết đã thích
-          </h1>
-          <p className="text-slate-600">Quản lý bài viết đã thích</p>
-        </div>
-      )}
+      </div>
 
       {/* ── Content ────────────────────────────────────────────────────── */}
       {isLoading ? (
@@ -113,7 +148,7 @@ export default function PostsTab({
             <PostCard
               key={post._id}
               post={post}
-              isAuthorOrAdmin={isAuthorOrAdmin}
+              isAuthorOrAdmin={canManagePosts}
               onEdit={postForm.openEditModal}
               onStatusChange={postForm.handleStatusChange}
             />
