@@ -14,30 +14,30 @@ const montserrat = Montserrat({
 
 const highlights = [
   {
-    title: "Editorial Workflow",
+    title: "Quy trình biên tập",
     description:
-      "Plan, draft, and publish with clear states so every article moves forward without guesswork.",
+      "Lập kế hoạch, soạn thảo và xuất bản với các trạng thái rõ ràng để mỗi bài viết luôn tiến triển đúng hướng.",
     icon: BookOpenText,
     tone: "bg-emerald-50 text-emerald-700",
   },
   {
-    title: "Live Momentum",
+    title: "Nhịp tăng trưởng trực tiếp",
     description:
-      "Track what readers respond to and keep your next post aligned with real audience interest.",
+      "Theo dõi nội dung độc giả phản hồi tốt để định hướng bài viết tiếp theo sát với mối quan tâm thực tế.",
     icon: TrendUp,
     tone: "bg-emerald-100/70 text-emerald-700",
   },
   {
-    title: "Focused Community",
+    title: "Cộng đồng tập trung",
     description:
-      "Comments, likes, and shares are designed for meaningful feedback instead of noisy activity.",
+      "Bình luận, lượt thích và chia sẻ được thiết kế để tạo phản hồi có giá trị thay vì tương tác nhiễu.",
     icon: UsersThree,
     tone: "bg-emerald-50 text-emerald-700",
   },
   {
-    title: "Fast Publishing Stack",
+    title: "Nền tảng xuất bản nhanh",
     description:
-      "Built on Next.js 14 with a clean, responsive interface that stays smooth across devices.",
+      "Xây dựng trên Next.js 14 với giao diện gọn gàng, tương thích tốt và mượt mà trên nhiều thiết bị.",
     icon: Lightning,
     tone: "bg-emerald-100/70 text-emerald-700",
   },
@@ -53,27 +53,27 @@ export default function HomePage() {
         <div className="mx-auto grid max-w-7xl grid-cols-1 gap-10 px-4 py-16 md:grid-cols-12 md:gap-8 md:px-6 md:py-20 lg:px-10">
           <div className="md:col-span-7 md:pr-6">
             <p className="mb-5 inline-flex items-center rounded-full border border-emerald-200 bg-white px-4 py-1.5 text-sm font-medium text-emerald-700">
-              Publishing space for IE213 community
+              Không gian xuất bản cho cộng đồng IE213
             </p>
             <h1 className="text-4xl font-semibold leading-none tracking-tighter text-slate-950 md:text-6xl">
-              Welcome to IE213 Blog
+              Chào mừng đến với IE213 Blog
             </h1>
             <p className="mt-6 max-w-[62ch] text-base leading-relaxed text-slate-600 md:text-lg">
-              Build thoughtful posts, surface useful ideas, and keep
-              conversations around every article crisp and practical.
+              Viết những bài đăng chất lượng, làm nổi bật ý tưởng hữu ích và giữ
+              thảo luận quanh mỗi bài viết rõ ràng, thực tế.
             </p>
             <div className="mt-9 flex flex-wrap gap-3">
               <Link
                 href="/posts"
                 className="rounded-xl bg-emerald-600 px-6 py-3 text-sm font-semibold text-white transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-emerald-700 active:scale-[0.98]"
               >
-                Explore Posts
+                Khám phá bài viết
               </Link>
               <Link
                 href="/register"
                 className="rounded-xl border border-slate-300 bg-white px-6 py-3 text-sm font-semibold text-slate-800 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:border-slate-400 hover:bg-slate-100 active:scale-[0.98]"
               >
-                Create Account
+                Tạo tài khoản
               </Link>
             </div>
           </div>
@@ -82,45 +82,45 @@ export default function HomePage() {
             <div className="rounded-[2rem] border border-slate-200/80 bg-white p-8 shadow-[0_20px_40px_-15px_rgba(15,23,42,0.08)]">
               <div className="flex items-center justify-between border-b border-slate-200 pb-4">
                 <p className="text-sm font-semibold text-slate-800">
-                  Editorial Pulse
+                  Nhịp biên tập
                 </p>
                 <span className="inline-flex items-center gap-2 text-xs text-emerald-700">
                   <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                  Sync healthy
+                  Đồng bộ ổn định
                 </span>
               </div>
 
               <div className="space-y-4 py-5">
                 <div className="space-y-2 rounded-2xl border border-slate-200 p-4">
                   <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                    Loading queue
+                    Hàng đợi tải
                   </p>
                   <div className="h-2.5 w-3/4 animate-pulse rounded bg-slate-200" />
                   <div className="h-2.5 w-5/6 animate-pulse rounded bg-slate-200" />
                 </div>
                 <div className="rounded-2xl border border-emerald-200 bg-emerald-50/60 p-4">
                   <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">
-                    Empty drafts
+                    Bản nháp trống
                   </p>
                   <p className="mt-2 text-sm text-slate-700">
-                    You have no draft in progress. Start your first article from
-                    the writing studio.
+                    Bạn chưa có bản nháp nào đang thực hiện. Hãy bắt đầu bài
+                    viết đầu tiên từ khu vực soạn thảo.
                   </p>
                 </div>
                 <div className="rounded-2xl border border-amber-200 bg-amber-50/70 p-4">
                   <p className="text-xs font-semibold uppercase tracking-wide text-amber-700">
-                    Error state sample
+                    Ví dụ trạng thái lỗi
                   </p>
                   <p className="mt-2 text-sm text-slate-700">
-                    Media upload failed on one asset. Retry from the post editor
-                    to continue publishing.
+                    Tải lên media thất bại ở một tệp. Hãy thử lại từ trình biên
+                    tập bài viết để tiếp tục xuất bản.
                   </p>
                 </div>
               </div>
 
               <div className="border-t border-slate-200 pt-4 text-xs text-slate-500">
-                Designed for desktop depth and mobile clarity with a
-                single-column fallback.
+                Thiết kế tối ưu cho chiều sâu trên desktop và rõ ràng trên di
+                động với bố cục một cột dự phòng.
               </div>
             </div>
           </aside>
@@ -130,11 +130,11 @@ export default function HomePage() {
       <section className="mx-auto max-w-7xl px-4 py-16 md:px-6 md:py-20 lg:px-10">
         <div className="mb-10 max-w-2xl">
           <h2 className="text-3xl font-semibold tracking-tight text-slate-950 md:text-4xl">
-            Why teams write here
+            Vì sao đội nhóm viết ở đây
           </h2>
           <p className="mt-4 text-base leading-relaxed text-slate-600">
-            A bright workspace built for long-form writing, clean review cycles,
-            and measurable reader response.
+            Không gian sáng sủa dành cho viết nội dung dài, quy trình duyệt rõ
+            ràng và phản hồi độc giả có thể đo lường.
           </p>
         </div>
 
@@ -193,11 +193,11 @@ export default function HomePage() {
         <div className="mx-auto grid max-w-7xl grid-cols-1 gap-8 px-4 py-16 md:grid-cols-12 md:items-end md:px-6 md:py-20 lg:px-10">
           <div className="md:col-span-8">
             <h2 className="text-3xl font-semibold tracking-tight text-slate-950 md:text-4xl">
-              Ready to publish your first piece?
+              Sẵn sàng xuất bản bài viết đầu tiên?
             </h2>
             <p className="mt-4 max-w-[60ch] text-base leading-relaxed text-slate-600">
-              Join the IE213 writing room, open a draft, and share practical
-              ideas with peers who value technical depth.
+              Tham gia không gian viết IE213, mở bản nháp và chia sẻ ý tưởng
+              thực tiễn với những người coi trọng chiều sâu kỹ thuật.
             </p>
           </div>
           <div className="md:col-span-4 md:justify-self-end">
@@ -205,7 +205,7 @@ export default function HomePage() {
               href="/register"
               className="inline-flex items-center rounded-xl bg-emerald-600 px-7 py-3 text-sm font-semibold text-white transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-emerald-700 active:-translate-y-[1px]"
             >
-              Create Your Account
+              Tạo tài khoản của bạn
             </Link>
           </div>
         </div>

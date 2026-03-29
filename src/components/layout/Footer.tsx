@@ -14,22 +14,22 @@ const montserrat = Montserrat({
 });
 
 const categoryLinks = [
-  { href: "/about/faq", label: "Khoi DHQG" },
-  { href: "/categories", label: "Truong khac" },
-  { href: "/categories", label: "Doi song sinh vien" },
-  { href: "/categories", label: "Tuyen sinh" },
+  { href: "/about/faq", label: "Khối ĐHQG" },
+  { href: "/categories", label: "Trường khác" },
+  { href: "/categories", label: "Đời sống sinh viên" },
+  { href: "/categories", label: "Tuyển sinh" },
 ];
 
 const supportLinks = [
-  { href: "#", label: "Lien he" },
-  { href: "#", label: "Dieu khoan su dung" },
-  { href: "#", label: "Chinh sach bao mat" },
-  { href: "#", label: "Huong dan" },
+  { href: "#", label: "Liên hệ" },
+  { href: "#", label: "Điều khoản sử dụng" },
+  { href: "#", label: "Chính sách bảo mật" },
+  { href: "#", label: "Hướng dẫn" },
 ];
 
 const socialLinks = [
   { href: "https://facebook.com", label: "Facebook", icon: FacebookLogo },
-  { href: "https://twitter.com", label: "Twitter", icon: TwitterLogo },
+  { href: "https://twitter.com", label: "X", icon: TwitterLogo },
   { href: "https://instagram.com", label: "Instagram", icon: InstagramLogo },
 ];
 
@@ -53,31 +53,31 @@ export function Footer() {
                 </span>
               </div>
               <p className="mb-3 max-w-[36ch] text-sm leading-relaxed text-slate-600">
-                Kham pha dai hoc va ket noi sinh vien trong mot khong gian trao
-                doi ro rang, de theo doi.
+                Khám phá các trường đại học và kết nối sinh viên trong một không
+                gian trao đổi rõ ràng, dễ theo dõi.
               </p>
               <p className="max-w-[36ch] text-sm leading-relaxed text-slate-600">
-                Dien dan chia se thong tin cua sinh vien cac truong dai hoc tai
-                TP. Ho Chi Minh.
+                Diễn đàn chia sẻ thông tin của sinh viên các trường đại học tại
+                TP. Hồ Chí Minh.
               </p>
 
               <div className="mt-6 flex flex-wrap items-center gap-3 text-sm text-slate-600">
                 <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5">
                   <MapPinLine size={14} weight="duotone" />
-                  Ho Chi Minh City
+                  Thành phố Hồ Chí Minh
                 </span>
                 <Link
                   href="/register"
                   className="inline-flex items-center rounded-full bg-emerald-600 px-4 py-1.5 font-semibold text-white transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-emerald-700 active:-translate-y-[1px]"
                 >
-                  Join community
+                  Tham gia cộng đồng
                 </Link>
               </div>
             </div>
             <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:col-span-7 lg:grid-cols-3 lg:pl-6">
               <div>
                 <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-slate-900">
-                  Danh muc
+                  Danh mục
                 </h3>
                 <ul className="space-y-3">
                   {categoryLinks.map((link) => (
@@ -95,7 +95,7 @@ export function Footer() {
 
               <div>
                 <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-slate-900">
-                  Ho tro
+                  Hỗ trợ
                 </h3>
                 <ul className="space-y-3">
                   {supportLinks.map((link) => (
@@ -113,7 +113,7 @@ export function Footer() {
 
               <div>
                 <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-slate-900">
-                  Ket noi
+                  Kết nối
                 </h3>
                 <div className="flex gap-3">
                   {socialLinks.map((social) => {
@@ -138,7 +138,7 @@ export function Footer() {
 
           <div className="mt-10 border-t border-slate-200 pt-6 text-center">
             <p className="text-sm text-slate-500">
-              © {currentYear} UniScopeHCM. All rights reserved.
+              © {currentYear} UniScopeHCM. Mọi quyền được bảo lưu.
             </p>
           </div>
         </div>

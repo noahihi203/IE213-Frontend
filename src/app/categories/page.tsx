@@ -25,7 +25,7 @@ export default function CategoriesPage() {
       const response = await categoryService.getAllCategories();
       setCategories(Array.isArray(response.metadata) ? response.metadata : []);
     } catch (error) {
-      console.error("Failed to load categories:", error);
+      console.error("Không thể tải danh mục:", error);
       setCategories([]);
     } finally {
       setIsLoading(false);
@@ -37,11 +37,11 @@ export default function CategoriesPage() {
       <div className="mx-auto max-w-7xl px-4 py-10 md:px-6 lg:px-10">
         <div className="mb-8 max-w-2xl">
           <h1 className="text-4xl font-semibold tracking-tighter text-slate-950 md:text-5xl">
-            Categories
+            Danh mục
           </h1>
           <p className="mt-3 text-base leading-relaxed text-slate-600">
-            Explore writing by topic and quickly jump to the category that fits
-            your interest.
+            Khám phá bài viết theo từng chủ đề và nhanh chóng tìm đến danh mục
+            phù hợp với mối quan tâm của bạn.
           </p>
         </div>
 
@@ -66,7 +66,7 @@ export default function CategoriesPage() {
               weight="duotone"
             />
             <p className="text-lg font-medium text-slate-800">
-              No categories found
+              Không tìm thấy danh mục nào
             </p>
           </div>
         ) : (
