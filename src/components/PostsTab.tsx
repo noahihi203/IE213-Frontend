@@ -132,6 +132,7 @@ export default function PostsTab({
         formOptionsError={postForm.formOptionsError}
         error={postForm.createError}
         isSubmitting={postForm.isCreatingPost}
+        postId={postForm.editingPostId ?? undefined}
         onClose={() => postForm.closeCreateModal()}
         onInputChange={postForm.handleCreateInputChange}
         onTagToggle={postForm.handleCreateTagToggle}
@@ -152,6 +153,7 @@ export default function PostsTab({
         formOptionsError={postForm.formOptionsError}
         error={postForm.editError}
         isSubmitting={postForm.isUpdatingPost}
+        postId={postForm.editingPostId ?? undefined}
         onClose={() => postForm.closeEditModal()}
         onInputChange={postForm.handleEditInputChange}
         onTagToggle={postForm.handleEditTagToggle}
