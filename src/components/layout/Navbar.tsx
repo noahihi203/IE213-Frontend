@@ -76,7 +76,7 @@ export function Navbar() {
             <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
               <Student size={20} weight="duotone" />
             </span>
-            <span className="hidden sm:inline">UniScope HCM</span>
+            <span className="hidden sm:inline">UniSync HCM</span>
           </Link>
 
           <div className="hidden lg:flex lg:items-center lg:gap-2">
