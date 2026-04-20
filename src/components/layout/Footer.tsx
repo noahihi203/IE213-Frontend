@@ -14,17 +14,30 @@ const montserrat = Montserrat({
 });
 
 const categoryLinks = [
-  { href: "/about/faq", label: "Khối ĐHQG" },
-  { href: "/categories", label: "Trường khác" },
-  { href: "/categories", label: "Đời sống sinh viên" },
-  { href: "/categories", label: "Tuyển sinh" },
-];
-
-const supportLinks = [
-  { href: "#", label: "Liên hệ" },
-  { href: "#", label: "Điều khoản sử dụng" },
-  { href: "#", label: "Chính sách bảo mật" },
-  { href: "#", label: "Hướng dẫn" },
+  {
+    title: "NỀN TẢNG",
+    links: [
+      { href: "/posts", label: "Bài viết" },
+      { href: "/categories", label: "Danh mục" },
+      { href: "/about", label: "Về chúng tôi" },
+      { href: "/about/faq", label: "FAQ" },
+    ],
+  },
+  {
+    title: "TÀI KHOẢN",
+    links: [
+      { href: "/login", label: "Đăng nhập" },
+      { href: "/register", label: "Đăng ký" },
+    ],
+  },
+  {
+    title: "PHÁP LÝ",
+    links: [
+      { href: "/", label: "Điều khoản dịch vụ" },
+      { href: "/", label: "Chính sách bảo mật" },
+      { href: "/", label: "Cookie Policy" },
+    ],
+  },
 ];
 
 const socialLinks = [
@@ -37,111 +50,65 @@ export function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer
-      className={`${montserrat.className} border-t border-slate-200 bg-slate-50 text-slate-700`}
-    >
-      <div className="mx-auto max-w-7xl px-4 py-14 md:px-6 lg:px-10">
-        <div className="rounded-[2rem] border border-slate-200/80 bg-white p-8 shadow-[0_20px_40px_-15px_rgba(15,23,42,0.08)] md:p-10">
-          <div className="grid grid-cols-1 gap-10 lg:grid-cols-12">
-            <div className="lg:col-span-5">
-              <div className="mb-4 flex items-center gap-2">
-                <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
-                  <Student size={22} weight="duotone" />
-                </span>
-                <span className="text-lg font-semibold tracking-tight text-slate-900">
-                  UniScope HCM
-                </span>
-              </div>
-              <p className="mb-3 max-w-[36ch] text-sm leading-relaxed text-slate-600">
-                Khám phá các trường đại học và kết nối sinh viên trong một không
-                gian trao đổi rõ ràng, dễ theo dõi.
-              </p>
-              <p className="max-w-[36ch] text-sm leading-relaxed text-slate-600">
-                Diễn đàn chia sẻ thông tin của sinh viên các trường đại học tại
-                TP. Hồ Chí Minh.
-              </p>
-
-              <div className="mt-6 flex flex-wrap items-center gap-3 text-sm text-slate-600">
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5">
-                  <MapPinLine size={14} weight="duotone" />
-                  Thành phố Hồ Chí Minh
-                </span>
-                <Link
-                  href="/register"
-                  className="inline-flex items-center rounded-full bg-emerald-600 px-4 py-1.5 font-semibold text-white transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-emerald-700 active:-translate-y-[1px]"
-                >
-                  Tham gia cộng đồng
-                </Link>
-              </div>
+    <footer className="relative z-10 bg-white border-t border-[#F0F0F0] pb-28 md:pb-8">
+      <div className="max-w-6xl mx-auto px-5 pt-10 grid grid-cols-1 md:grid-cols-4 gap-8">
+        {/* Brand */}
+        <div className="col-span-1">
+          <div className="flex items-center gap-2.5 mb-3">
+            <div className="w-8 h-8 rounded-xl bg-black flex items-center justify-center">
+              <span className="text-white text-[14px] font-bold">U</span>
             </div>
-            <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:col-span-7 lg:grid-cols-3 lg:pl-6">
-              <div>
-                <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-slate-900">
-                  Danh mục
-                </h3>
-                <ul className="space-y-3">
-                  {categoryLinks.map((link) => (
-                    <li key={`${link.href}-${link.label}`}>
-                      <Link
-                        href={link.href}
-                        className="text-sm text-slate-600 transition-colors hover:text-emerald-700"
-                      >
-                        {link.label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div>
-                <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-slate-900">
-                  Hỗ trợ
-                </h3>
-                <ul className="space-y-3">
-                  {supportLinks.map((link) => (
-                    <li key={`${link.href}-${link.label}`}>
-                      <a
-                        href={link.href}
-                        className="text-sm text-slate-600 transition-colors hover:text-emerald-700"
-                      >
-                        {link.label}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div>
-                <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-slate-900">
-                  Kết nối
-                </h3>
-                <div className="flex gap-3">
-                  {socialLinks.map((social) => {
-                    const Icon = social.icon;
-                    return (
-                      <a
-                        key={social.label}
-                        href={social.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        aria-label={social.label}
-                        className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:border-emerald-300 hover:text-emerald-700 active:scale-[0.98]"
-                      >
-                        <Icon size={18} weight="duotone" />
-                      </a>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
+            <span className="text-[#000] text-[16px] font-bold">UniSync</span>
           </div>
-
-          <div className="mt-10 border-t border-slate-200 pt-6 text-center">
-            <p className="text-sm text-slate-500">
-              © {currentYear} UniScopeHCM. Mọi quyền được bảo lưu.
-            </p>
+          <p className="text-[#888] text-[13px] leading-relaxed">
+            Nền tảng xuất bản nội dung thế hệ mới dành cho người Việt. Viết. Kết
+            nối. Phát triển.
+          </p>
+          <div className="flex gap-2.5 mt-4">
+            {socialLinks.map((social) => {
+              const Icon = social.icon;
+              return (
+                <a
+                  key={social.label}
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={social.label}
+                  className="w-8 h-8 rounded-full bg-[#F8F8F8] flex items-center justify-center text-[#888] text-[11px] font-semibold hover:bg-[#F0F0F0] transition-colors"
+                >
+                  <Icon size={18} weight="duotone" />
+                </a>
+              );
+            })}
           </div>
         </div>
+
+        {categoryLinks.map((col) => (
+          <div key={col.title}>
+            <p className="text-[11px] font-bold text-[#888] tracking-widest mb-3">
+              {col.title}
+            </p>
+            <div className="flex flex-col gap-2">
+              {col.links.map((link) => (
+                <Link
+                  href={link.href}
+                  className="text-[13px] text-[#555] hover:text-[#000] cursor-pointer transition-colors"
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="max-w-6xl mx-auto px-5 pt-8 mt-8 border-t border-[#F0F0F0] flex flex-col md:flex-row items-center justify-between gap-2">
+        <span className="text-[#888] text-[12px]">
+          © {currentYear} UniSync. Bảo lưu mọi quyền.
+        </span>
+        <span className="text-[#888] text-[12px]">
+          Được xây dựng với ♥ cho cộng đồng người Việt
+        </span>
       </div>
     </footer>
   );

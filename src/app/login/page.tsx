@@ -7,6 +7,8 @@ import { motion } from "framer-motion";
 import { SignIn, Eye, EyeSlash, CircleNotch } from "@phosphor-icons/react";
 import { useAuthStore } from "@/store/authStore";
 
+const ACCENT_GOLD = "#ED9F00";
+
 export default function LoginPage() {
   const router = useRouter();
   const { login, isLoading, error, clearError } = useAuthStore();
@@ -38,13 +40,13 @@ export default function LoginPage() {
   };
 
   const inputClassName =
-    "w-full rounded-xl border border-slate-200 bg-slate-50/60 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 transition-all duration-200 focus:border-emerald-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-emerald-500/10";
+    "w-full rounded-xl border border-slate-200 bg-slate-50/60 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 transition-all duration-200 focus:border-accent-orange-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-accent-orange-500/10";
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 via-white to-emerald-50 px-4">
+    <div className="relative flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 via-white to-accent-orange-50 px-4">
       {/* background glow */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -top-24 left-1/2 h-[300px] w-[300px] -translate-x-1/2 rounded-full bg-emerald-200/30 blur-3xl" />
+        <div className="absolute -top-24 left-1/2 h-[300px] w-[300px] -translate-x-1/2 rounded-full bg-accent-orange-200/30 blur-3xl" />
       </div>
 
       <motion.div
@@ -59,7 +61,7 @@ export default function LoginPage() {
           transition={{ delay: 0.1 }}
           className="mb-8 text-center"
         >
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-600">
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-accent-orange-100 text-accent-orange-500">
             <SignIn size={24} weight="duotone" />
           </div>
 
@@ -86,7 +88,7 @@ export default function LoginPage() {
           <input
             name="email"
             type="email"
-            placeholder="Email address"
+            placeholder="Địa chỉ email"
             required
             value={formData.email}
             onChange={handleChange}
@@ -97,7 +99,7 @@ export default function LoginPage() {
             <input
               name="password"
               type={showPassword ? "text" : "password"}
-              placeholder="Password"
+              placeholder="Mật khẩu"
               required
               value={formData.password}
               onChange={handleChange}
@@ -109,11 +111,7 @@ export default function LoginPage() {
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400"
             >
-              {showPassword ? (
-                <EyeSlash size={18} />
-              ) : (
-                <Eye size={18} />
-              )}
+              {showPassword ? <EyeSlash size={18} /> : <Eye size={18} />}
             </button>
           </div>
 
@@ -121,14 +119,14 @@ export default function LoginPage() {
             <label className="flex items-center gap-2 text-slate-600">
               <input
                 type="checkbox"
-                className="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                className="h-4 w-4 rounded border-slate-300 text-accent-orange-600 focus:ring-accent-orange-500"
               />
-              Remember me
+              Ghi nhớ cho lần sau
             </label>
 
             <Link
               href="/forgot-password"
-              className="font-medium text-emerald-600 hover:text-emerald-700"
+              className="font-medium text-accent-orange-400 hover:text-accent-orange-500"
             >
               Quên mật khẩu?
             </Link>
@@ -139,14 +137,11 @@ export default function LoginPage() {
             whileHover={{ scale: 1.01 }}
             type="submit"
             disabled={isLoading}
-            className="flex w-full items-center justify-center rounded-xl bg-emerald-600 px-4 py-3 font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-emerald-400"
+            className="w-full py-3.5 rounded-xl font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-60 mt-1 bg-accent-orange-500 hover:accent-accent-orange-600"
           >
             {isLoading ? (
               <>
-                <CircleNotch
-                  size={20}
-                  className="mr-2 animate-spin"
-                />
+                <CircleNotch size={20} className="mr-2 animate-spin" />
                 Đang đăng nhập...
               </>
             ) : (
@@ -155,10 +150,10 @@ export default function LoginPage() {
           </motion.button>
 
           <p className="text-center text-sm text-slate-500">
-            Chưa có tài khoản?{' '}
+            Chưa có tài khoản?{" "}
             <Link
               href="/register"
-              className="font-semibold text-emerald-600 hover:text-emerald-700"
+              className="font-semibold text-accent-orange-400 hover:text-accent-orange-500"
             >
               Đăng ký
             </Link>

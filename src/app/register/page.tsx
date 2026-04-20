@@ -65,13 +65,13 @@ export default function RegisterPage() {
   const displayError = error || validationError;
 
   const inputClassName =
-    "w-full rounded-xl border border-slate-200 bg-slate-50/60 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 transition-all duration-200 focus:border-emerald-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-emerald-500/10";
+    "w-full rounded-xl border border-slate-200 bg-slate-50/60 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 transition-all duration-200 focus:border-accent-orange-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-accent-orange-500/10";
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 via-white to-emerald-50 px-4">
+    <div className="relative flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 via-white to-accent-orange-50 px-4">
       {/* floating background glow */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -top-24 left-1/2 h-[300px] w-[300px] -translate-x-1/2 rounded-full bg-emerald-200/30 blur-3xl" />
+        <div className="absolute -top-24 left-1/2 h-[300px] w-[300px] -translate-x-1/2 rounded-full bg-accent-orange-200/30 blur-3xl" />
       </div>
 
       <motion.div
@@ -86,7 +86,7 @@ export default function RegisterPage() {
             animate={{ opacity: 1, scale: 1 }}
             className="text-center"
           >
-            <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-emerald-50 text-emerald-600 ring-8 ring-emerald-50/50">
+            <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-accent-orange-50 text-accent-orange-600 ring-8 ring-accent-orange-50/50">
               <EnvelopeSimple size={36} weight="duotone" />
             </div>
 
@@ -117,7 +117,7 @@ export default function RegisterPage() {
               transition={{ delay: 0.1 }}
               className="mb-8 text-center"
             >
-              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-600">
+              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-accent-orange-100 text-accent-orange-600">
                 <UserPlus size={24} weight="duotone" />
               </div>
 
@@ -134,7 +134,7 @@ export default function RegisterPage() {
               <div className="grid gap-4 sm:grid-cols-2">
                 <input
                   name="username"
-                  placeholder="Username"
+                  placeholder="Tên đăng nhập"
                   required
                   value={formData.username}
                   onChange={handleChange}
@@ -143,7 +143,7 @@ export default function RegisterPage() {
 
                 <input
                   name="fullName"
-                  placeholder="Full name"
+                  placeholder="Họ và tên"
                   required
                   value={formData.fullName}
                   onChange={handleChange}
@@ -154,7 +154,7 @@ export default function RegisterPage() {
               <input
                 name="email"
                 type="email"
-                placeholder="Email address"
+                placeholder="Địa chỉ Email"
                 required
                 value={formData.email}
                 onChange={handleChange}
@@ -165,7 +165,7 @@ export default function RegisterPage() {
                 <input
                   name="password"
                   type={showPassword ? "text" : "password"}
-                  placeholder="Password"
+                  placeholder="Mật khẩu"
                   required
                   value={formData.password}
                   onChange={handleChange}
@@ -185,7 +185,7 @@ export default function RegisterPage() {
                 <input
                   name="confirmPassword"
                   type={showConfirmPassword ? "text" : "password"}
-                  placeholder="Confirm password"
+                  placeholder="Xác nhận mật khẩu"
                   required
                   value={formData.confirmPassword}
                   onChange={handleChange}
@@ -194,9 +194,7 @@ export default function RegisterPage() {
 
                 <button
                   type="button"
-                  onClick={() =>
-                    setShowConfirmPassword(!showConfirmPassword)
-                  }
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400"
                 >
                   {showConfirmPassword ? (
@@ -222,14 +220,11 @@ export default function RegisterPage() {
                 whileHover={{ scale: 1.01 }}
                 type="submit"
                 disabled={isLoading}
-                className="flex w-full items-center justify-center rounded-xl bg-emerald-600 px-4 py-3 font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-emerald-400"
+                className="flex w-full items-center justify-center rounded-xl bg-accent-orange-500 px-4 py-3 font-semibold text-white transition hover:bg-accent-orange-400 disabled:cursor-not-allowed disabled:bg-accent-orange-200"
               >
                 {isLoading ? (
                   <>
-                    <CircleNotch
-                      size={20}
-                      className="mr-2 animate-spin"
-                    />
+                    <CircleNotch size={20} className="mr-2 animate-spin" />
                     Đang tạo tài khoản...
                   </>
                 ) : (
@@ -238,10 +233,10 @@ export default function RegisterPage() {
               </motion.button>
 
               <p className="text-center text-sm text-slate-500">
-                Đã có tài khoản?{' '}
+                Đã có tài khoản?{" "}
                 <Link
                   href="/login"
-                  className="font-semibold text-emerald-600 hover:text-emerald-700"
+                  className="font-semibold text-accent-orange-600 hover:text-accent-orange-700"
                 >
                   Đăng nhập
                 </Link>
