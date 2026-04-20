@@ -18,6 +18,7 @@ export interface User {
   tokenVersion?: number;
   createdOn: Date;
   modifiedOn: Date;
+  postCount?: number;
 }
 
 export interface AuthTokens {
@@ -84,6 +85,19 @@ export interface Category {
   icon?: string | null;
   createdOn: Date;
   modifiedOn: Date;
+  postCount?: number;
+  color?: string;
+  view?: number;
+  rank?: number;
+  rankBg?: string;
+  accentColor?: string;
+  gradientColor?: string;
+  image?: string;
+  topPost?: {
+    coverImage: string;
+    tittle: string;
+    viewCount: number;
+  };
 }
 
 export interface CreateCategoryData {
@@ -172,7 +186,6 @@ export interface UserFilters extends PaginationParams {
   role?: "user" | "poster" | "admin";
   status?: "active" | "inactive";
 }
-
 
 // ── Thêm vào src/lib/types/index.ts ──────────────────────────────────────────
 

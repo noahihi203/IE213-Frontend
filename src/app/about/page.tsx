@@ -895,8 +895,7 @@ export default function CategoryDetailPage() {
       {/* ══════════════════════ CTA ══════════════════════ */}
       <section className="max-w-6xl mx-auto px-5 pb-8">
         <div
-          className="relative rounded-3xl overflow-hidden px-8 py-16 flex flex-col items-center text-center"
-          style={{ backgroundColor: "#000" }}
+          className="relative rounded-3xl overflow-hidden px-8 py-16 flex flex-col items-center text-center bg-accent-orange-100"
         >
           {/* blobs */}
           <div

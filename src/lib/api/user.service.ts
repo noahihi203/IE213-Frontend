@@ -77,6 +77,11 @@ export const userService = {
     return await axiosClient.get(`/user/all?${params.toString()}`);
   },
 
+  // Get all users (Admin only)
+  getTopAuthors: async (): Promise<ApiResponse<User[]>> => {
+    return await axiosClient.get(`/user/top-authors`);
+  },
+
   // Delete user (Admin only)
   deleteUser: async (userId: string): Promise<ApiResponse> => {
     return await axiosClient.delete(`/user/${userId}`);

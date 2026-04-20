@@ -19,6 +19,11 @@ export const categoryService = {
     return await axiosClient.get("/categories");
   },
 
+  // Get all categories
+  getFeaturedCategories: async (): Promise<ApiResponse<Category[]>> => {
+    return await axiosClient.get("/categories/featured-categories");
+  },
+
   // Get single category by ID
   getCategoryById: async (
     categoryId: string,
