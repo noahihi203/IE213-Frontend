@@ -1,4 +1,3 @@
-// src/components/notifications/NotificationItem.tsx
 import { useRouter } from "next/navigation";
 import {
   NotificationItem as NotiItemType,
@@ -80,17 +79,19 @@ export default function NotificationItem({
 
   return (
     <div
-      className={`flex items-start gap-3 px-4 py-3 hover:bg-slate-50 cursor-pointer transition-colors group ${
-        !item.isRead ? "bg-emerald-50" : ""
+      className={`flex items-start gap-3 px-4 py-3 hover:bg-[#F8F8F8] cursor-pointer transition-colors group ${
+        !item.isRead ? "bg-[#F8F8F8]" : ""
       }`}
       onClick={() => {
         void handleClick();
       }}
     >
-      {/* Avatar / Icon */}
       <div className="shrink-0 mt-0.5">
         {actor ? (
-          <div className="w-9 h-9 overflow-hidden rounded-full bg-emerald-600">
+          <div
+            className="w-9 h-9 overflow-hidden rounded-full"
+            style={{ backgroundColor: "#000" }}
+          >
             {actor.avatar ? (
               <img
                 src={actor.avatar}
@@ -104,13 +105,15 @@ export default function NotificationItem({
             )}
           </div>
         ) : (
-          <div className="w-9 h-9 rounded-full bg-slate-200 flex items-center justify-center text-lg">
+          <div
+            className="w-9 h-9 rounded-full flex items-center justify-center text-lg"
+            style={{ backgroundColor: "#F0F0F0" }}
+          >
             {typeIcon[item.type] ?? "🔔"}
           </div>
         )}
       </div>
 
-      {/* Content */}
       <div className="flex-1 min-w-0">
         <p
           className={`text-sm leading-snug ${!item.isRead ? "font-medium text-slate-900" : "text-slate-700"}`}
@@ -125,10 +128,12 @@ export default function NotificationItem({
         <p className="text-xs text-slate-400 mt-0.5">{timeAgo}</p>
       </div>
 
-      {/* Unread dot + delete */}
       <div className="shrink-0 flex flex-col items-center gap-1">
         {!item.isRead && (
-          <span className="w-2 h-2 rounded-full bg-emerald-500" />
+          <span
+            className="w-2 h-2 rounded-full"
+            style={{ backgroundColor: "#DC0055" }}
+          />
         )}
         <button
           type="button"
@@ -136,7 +141,10 @@ export default function NotificationItem({
             e.stopPropagation();
             onDelete(item._id);
           }}
-          className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-500 transition-opacity p-0.5"
+          className="opacity-0 group-hover:opacity-100 text-[#888] transition-colors p-0.5"
+          style={{ color: "#888" }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = "#DC0055")}
+          onMouseLeave={(e) => (e.currentTarget.style.color = "#888")}
           title="Xóa"
         >
           <Trash className="w-3.5 h-3.5" />

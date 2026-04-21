@@ -11,6 +11,8 @@ export function useCategories() {
   );
   const [categoryFormData, setCategoryFormData] = useState({
     name: "",
+    abbreviation: "",
+    slug: "",
     description: "",
     icon: "",
   });
@@ -75,6 +77,8 @@ export function useCategories() {
     setEditingCategoryId(cat._id);
     setCategoryFormData({
       name: cat.name,
+      abbreviation: cat.abbreviation || "",
+      slug: cat.slug || "",
       description: cat.description || "",
       icon: cat.icon || "",
     });
@@ -83,20 +87,36 @@ export function useCategories() {
 
   const openCreateCategory = () => {
     setEditingCategoryId(null);
-    setCategoryFormData({ name: "", description: "", icon: "" });
+    setCategoryFormData({
+      name: "",
+      abbreviation: "",
+      slug: "",
+      description: "",
+      icon: "",
+    });
     setIsCategoryModalOpen(true);
   };
 
   const closeCategoryModal = () => {
     setIsCategoryModalOpen(false);
     setEditingCategoryId(null);
-    setCategoryFormData({ name: "", description: "", icon: "" });
+    setCategoryFormData({
+      name: "",
+      abbreviation: "",
+      slug: "",
+      description: "",
+      icon: "",
+    });
   };
 
   const handleSubmitCategory = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!categoryFormData.name.trim()) {
       alert("Vui lòng nhập tên danh mục!");
+      return;
+    }
+    if (!categoryFormData.abbreviation.trim()) {
+      alert("Vui lòng nhập tên viết tắt!");
       return;
     }
     setIsSubmittingCategory(true);

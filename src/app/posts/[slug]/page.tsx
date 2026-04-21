@@ -166,7 +166,7 @@ export default function PostDetailPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600" />
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: "#000" }} />
       </div>
     );
   }
@@ -175,11 +175,11 @@ export default function PostDetailPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold mb-2">Post Not Found</h2>
-          <p className="text-slate-600 mb-4">{error}</p>
+          <h2 className="text-2xl font-bold mb-2 text-[#000]">Post Not Found</h2>
+          <p className="text-[#888] mb-4">{error}</p>
           <Link
             href="/posts"
-            className="inline-flex rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-700"
+            className="inline-flex rounded-full bg-[#000] px-6 py-3 text-sm font-semibold text-white transition-all hover:scale-95"
           >
             Back to Posts
           </Link>
@@ -201,14 +201,14 @@ export default function PostDetailPage() {
     user && ((author && user._id === author._id) || user.role === "admin");
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-[#FFFFFF]">
       {/* Header */}
-      <div className="bg-white border-b border-slate-200">
+      <div className="bg-white" style={{ borderBottom: "1px solid #F0F0F0" }}>
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <button
               onClick={() => router.back()}
-              className="flex items-center space-x-2 text-slate-600 hover:text-slate-900"
+              className="flex items-center space-x-2 text-[#888] hover:text-[#000] transition-colors"
             >
               <ArrowLeft className="w-5 h-5" />
               <span>Back</span>
@@ -218,7 +218,7 @@ export default function PostDetailPage() {
               <button
                 type="button"
                 onClick={handleOpenEditModal}
-                className="flex items-center space-x-2 text-emerald-600 hover:text-emerald-700"
+                className="flex items-center space-x-2 text-[#000] hover:opacity-70 transition-opacity"
               >
                 <PencilSimple className="w-5 h-5" />
                 <span>Edit Post</span>
@@ -244,16 +244,17 @@ export default function PostDetailPage() {
           {category && (
             <Link
               href={`/categories/${category.slug}`}
-              className="inline-block px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-sm font-medium mb-4"
+              className="inline-block px-4 py-2 text-[#0087CE] font-medium mb-4 border-b-2 transition-colors"
+              style={{ borderColor: "#0087CE" }}
             >
               {category.name}
             </Link>
           )}
 
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">{post.title}</h1>
+          <h1 className="text-4xl md:text-5xl font-bold mb-4 text-[#000]">{post.title}</h1>
 
-          <div className="flex items-center justify-between flex-wrap gap-4 py-4 border-y border-slate-200">
-            <div className="flex items-center space-x-6 text-slate-600">
+          <div className="flex items-center justify-between flex-wrap gap-4 py-4" style={{ borderTop: "1px solid #F0F0F0", borderBottom: "1px solid #F0F0F0" }}>
+            <div className="flex items-center space-x-6 text-[#888]">
               <span className="flex items-center space-x-2">
                 <Eye className="w-5 h-5" />
                 <span>{post.viewCount} views</span>
@@ -278,14 +279,14 @@ export default function PostDetailPage() {
 
             {author && (
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-emerald-600 rounded-full flex items-center justify-center text-white font-bold">
+                <div className="w-10 h-10 bg-[#000] rounded-full flex items-center justify-center text-white font-bold">
                   {author?.username?.charAt(0)?.toUpperCase() || "U"}
                 </div>
                 <div>
-                  <p className="font-semibold">
+                  <p className="font-semibold text-[#000]">
                     {author?.fullName || "Unknown"}
                   </p>
-                  <p className="text-sm text-slate-600">
+                  <p className="text-sm text-[#888]">
                     @{author?.username || "user"}
                   </p>
                 </div>
@@ -310,7 +311,8 @@ export default function PostDetailPage() {
             {post.tags.map((tag, index) => (
               <span
                 key={index}
-                className="px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-sm"
+                className="px-3 py-1 text-[#888] rounded-full text-sm border"
+                style={{ borderColor: "#F0F0F0" }}
               >
                 #{tag.name}
               </span>
@@ -318,14 +320,16 @@ export default function PostDetailPage() {
           </div>
         )}
 
-        <div className="flex items-center space-x-4 py-6 border-t border-slate-200">
+        <div className="flex items-center space-x-4 py-6" style={{ borderTop: "1px solid #F0F0F0" }}>
           <button
             onClick={handleLike}
-            className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-medium transition-colors ${
-              isLiked
-                ? "bg-red-100 text-red-700"
-                : "bg-slate-100 text-slate-700"
-            }`}
+            className="flex items-center space-x-2 px-6 py-3 rounded-full font-medium transition-all"
+            style={{
+              backgroundColor: isLiked ? "#DC0055" : "#F8F8F8",
+              color: isLiked ? "#FFFFFF" : "#000"
+            }}
+            onMouseDown={(e) => (e.currentTarget.style.transform = "scale(0.97)")}
+            onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
           >
             <Heart className={`w-5 h-5 ${isLiked ? "fill-current" : ""}`} />
             <span>{isLiked ? "Liked" : "Like"}</span>
@@ -341,16 +345,16 @@ export default function PostDetailPage() {
         </div>
 
         {/* ── Comments section ────────────────────────────────────────────── */}
-        <section className="py-6 border-t border-slate-200">
+        <section className="py-6" style={{ borderTop: "1px solid #F0F0F0" }}>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold text-slate-900">Bình luận</h2>
-            <span className="text-sm text-slate-500">
+            <h2 className="text-2xl font-bold text-[#000]">Bình luận</h2>
+            <span className="text-sm text-[#888]">
               {post.commentsCount} bình luận
             </span>
           </div>
 
           {comments.commentsError && (
-            <div className="mb-4 rounded-md border border-red-200 bg-red-50 text-red-700 px-3 py-2 text-sm">
+            <div className="mb-4 rounded-lg px-3 py-2 text-sm" style={{ backgroundColor: "#F8F8F8", color: "#DC0055", border: "1px solid #F0F0F0" }}>
               {comments.commentsError}
             </div>
           )}
@@ -358,14 +362,14 @@ export default function PostDetailPage() {
           <div className="space-y-4">
             {/* Comment composer */}
             {!authInitialized ? (
-              <div className="rounded-lg border border-dashed border-slate-300 py-5 text-center text-slate-500">
+              <div className="rounded-lg py-5 text-center text-[#888] border border-dashed" style={{ borderColor: "#F0F0F0" }}>
                 Đang tải trạng thái đăng nhập...
               </div>
             ) : isAuthenticated ? (
-              <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+              <div className="rounded-lg p-4" style={{ backgroundColor: "#F8F8F8", border: "1px solid #F0F0F0" }}>
                 <label
                   htmlFor="new-comment"
-                  className="block text-sm font-medium text-slate-700 mb-2"
+                  className="block text-sm font-medium text-[#000] mb-2"
                 >
                   Thêm bình luận mới
                 </label>
@@ -376,7 +380,10 @@ export default function PostDetailPage() {
                   onChange={(e) =>
                     comments.setNewCommentContent(e.target.value)
                   }
-                  className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                  className="w-full px-3 py-2 border rounded-lg focus:outline-none text-[#000]"
+                  style={{ borderColor: "#F0F0F0" }}
+                  onFocus={(e) => (e.target.style.boxShadow = "0 0 0 2px rgba(0,0,0,0.1)")}
+                  onBlur={(e) => (e.target.style.boxShadow = "none")}
                   placeholder="Nhập nội dung bình luận..."
                 />
                 <div className="mt-3 flex justify-end">
@@ -384,7 +391,9 @@ export default function PostDetailPage() {
                     type="button"
                     onClick={comments.handleCreateComment}
                     disabled={comments.isSubmittingComment}
-                    className="inline-flex items-center space-x-2 px-4 py-2 bg-emerald-600 text-white rounded-md font-medium hover:bg-emerald-700 disabled:opacity-60"
+                    className="inline-flex items-center space-x-2 px-6 py-2 bg-[#000] text-white rounded-full font-medium transition-all disabled:opacity-60"
+                    onMouseDown={(e) => !comments.isSubmittingComment && (e.currentTarget.style.transform = "scale(0.97)")}
+                    onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
                   >
                     <PaperPlaneTilt className="w-4 h-4" />
                     <span>
@@ -394,14 +403,16 @@ export default function PostDetailPage() {
                 </div>
               </div>
             ) : (
-              <div className="rounded-lg border border-slate-200 bg-slate-50 p-5 text-center">
-                <p className="text-slate-700 mb-3">
+              <div className="rounded-lg p-5 text-center" style={{ backgroundColor: "#F8F8F8", border: "1px solid #F0F0F0" }}>
+                <p className="text-[#000] mb-3">
                   Đăng nhập để bình luận bài viết này.
                 </p>
                 <button
                   type="button"
                   onClick={() => router.push("/login")}
-                  className="inline-flex items-center rounded-md bg-emerald-600 px-4 py-2 text-white hover:bg-emerald-700"
+                  className="inline-flex items-center rounded-full bg-[#000] px-6 py-2 text-white transition-all"
+                  onMouseDown={(e) => (e.currentTarget.style.transform = "scale(0.97)")}
+                  onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
                 >
                   Đăng nhập
                 </button>
@@ -410,11 +421,11 @@ export default function PostDetailPage() {
 
             {/* Comment list */}
             {comments.isLoadingComments ? (
-              <div className="py-10 text-center text-slate-500">
+              <div className="py-10 text-center text-[#888]">
                 Đang tải bình luận...
               </div>
             ) : comments.commentsWithDepth.length === 0 ? (
-              <div className="rounded-lg border border-dashed border-slate-300 py-10 text-center text-slate-500">
+              <div className="rounded-lg py-10 text-center text-[#888] border border-dashed" style={{ borderColor: "#F0F0F0" }}>
                 Chưa có bình luận nào cho bài viết này.
               </div>
             ) : (
@@ -459,15 +470,16 @@ export default function PostDetailPage() {
                   return (
                     <div
                       key={comment._id}
-                      className="rounded-lg border border-slate-200 bg-white p-3"
-                      style={{ marginLeft: leftIndent }}
+                      className="rounded-lg bg-white p-4"
+                      style={{ marginLeft: leftIndent, border: "1px solid #F0F0F0" }}
                     >
                       <div className="flex items-center justify-between mb-2 gap-4">
-                        <div className="flex min-w-0 items-center gap-3 text-sm text-slate-700">
+                        <div className="flex min-w-0 items-center gap-3 text-sm text-[#000]">
                           {author.profileHref ? (
                             <Link
                               href={author.profileHref}
-                              className="h-9 w-9 overflow-hidden rounded-full bg-slate-200"
+                              className="h-9 w-9 overflow-hidden rounded-full"
+                              style={{ backgroundColor: "#F0F0F0" }}
                             >
                               {author.avatar ? (
                                 <img
@@ -476,13 +488,13 @@ export default function PostDetailPage() {
                                   className="h-full w-full object-cover"
                                 />
                               ) : (
-                                <span className="flex h-full w-full items-center justify-center text-xs font-semibold text-slate-700">
+                                <span className="flex h-full w-full items-center justify-center text-xs font-semibold text-[#888]">
                                   {avatarLetter}
                                 </span>
                               )}
                             </Link>
                           ) : (
-                            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-200 text-xs font-semibold text-slate-700">
+                            <div className="flex h-9 w-9 items-center justify-center rounded-full text-xs font-semibold" style={{ backgroundColor: "#F0F0F0", color: "#888" }}>
                               {avatarLetter}
                             </div>
                           )}
@@ -491,39 +503,38 @@ export default function PostDetailPage() {
                             {author.profileHref ? (
                               <Link
                                 href={author.profileHref}
-                                className="font-medium text-slate-800 hover:text-blue-700 hover:underline"
+                                className="font-medium text-[#000] hover:text-[#0087CE] hover:underline"
                               >
                                 {author.displayName}
                               </Link>
                             ) : (
-                              <span className="font-medium text-slate-800">
+                              <span className="font-medium text-[#000]">
                                 {author.displayName}
                               </span>
                             )}
-                            <span className="text-slate-400 ml-2">
+                            <span className="text-[#888] ml-2">
                               {formatCommentDate(comment.createdOn)}
                             </span>
                             {comment.isEdited && (
-                              <span className="ml-2 text-xs text-slate-500">
+                              <span className="ml-2 text-xs text-[#888]">
                                 (đã chỉnh sửa)
                               </span>
                             )}
                           </div>
                         </div>
 
-                        <div className="flex items-center space-x-2">
-                          {/* Like button — đổi màu đỏ khi đã like */}
+                        <div className="flex items-center space-x-3">
+                          {/* Like button */}
                           <button
                             type="button"
                             onClick={() =>
                               comments.handleToggleLikeComment(comment._id)
                             }
                             disabled={comments.likingCommentId === comment._id}
-                            className={`inline-flex items-center space-x-1 transition-colors disabled:opacity-60 ${
-                              isLikedComment
-                                ? "text-red-500"
-                                : "text-slate-400 hover:text-rose-400"
-                            }`}
+                            className="inline-flex items-center space-x-1 transition-colors disabled:opacity-60"
+                            style={{ color: isLikedComment ? "#DC0055" : "#888" }}
+                            onMouseEnter={(e) => !isLikedComment && (e.currentTarget.style.color = "#000")}
+                            onMouseLeave={(e) => (e.currentTarget.style.color = isLikedComment ? "#DC0055" : "#888")}
                           >
                             <Heart
                               className="w-4 h-4"
@@ -539,7 +550,10 @@ export default function PostDetailPage() {
                             onClick={() =>
                               comments.toggleReplyComposerForComment(comment)
                             }
-                            className="text-xs text-blue-600 hover:text-blue-700"
+                            className="text-xs font-medium transition-opacity"
+                            style={{ color: "#0087CE" }}
+                            onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.7")}
+                            onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
                           >
                             Reply
                           </button>
@@ -550,7 +564,10 @@ export default function PostDetailPage() {
                               onClick={() =>
                                 comments.handleReportComment(comment._id)
                               }
-                              className="text-xs text-orange-600 hover:text-orange-700"
+                              className="text-xs font-medium transition-opacity"
+                              style={{ color: "#ED9F00" }}
+                              onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.7")}
+                              onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
                             >
                               Report
                             </button>
@@ -560,7 +577,10 @@ export default function PostDetailPage() {
                             <button
                               type="button"
                               onClick={() => comments.startEditComment(comment)}
-                              className="text-xs text-indigo-600 hover:text-indigo-700"
+                              className="text-xs font-medium transition-opacity"
+                              style={{ color: "#0087CE" }}
+                              onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.7")}
+                              onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
                             >
                               Sửa
                             </button>
@@ -575,7 +595,8 @@ export default function PostDetailPage() {
                               disabled={
                                 comments.deletingCommentId === comment._id
                               }
-                              className="inline-flex items-center space-x-1 text-xs text-red-600 hover:text-red-700 disabled:opacity-60"
+                              className="inline-flex items-center space-x-1 text-xs font-medium transition-opacity disabled:opacity-60"
+                              style={{ color: "#DC0055" }}
                             >
                               <Trash className="w-3.5 h-3.5" />
                               <span>
@@ -597,14 +618,20 @@ export default function PostDetailPage() {
                             onChange={(e) =>
                               comments.setEditCommentContent(e.target.value)
                             }
-                            className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                            className="w-full px-3 py-2 border rounded-lg focus:outline-none text-[#000]"
+                            style={{ borderColor: "#F0F0F0" }}
+                            onFocus={(e) => (e.target.style.boxShadow = "0 0 0 2px rgba(0,0,0,0.1)")}
+                            onBlur={(e) => (e.target.style.boxShadow = "none")}
                           />
                           <div className="flex justify-end gap-2">
                             <button
                               type="button"
                               onClick={comments.cancelEditComment}
                               disabled={comments.isUpdatingComment}
-                              className="px-3 py-1.5 border border-slate-300 rounded-md text-slate-700 hover:bg-slate-50 text-sm disabled:opacity-60"
+                              className="px-4 py-2 border rounded-full text-[#000] text-sm font-medium disabled:opacity-60"
+                              style={{ borderColor: "#F0F0F0" }}
+                              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#F8F8F8")}
+                              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
                             >
                               Hủy
                             </button>
@@ -612,7 +639,9 @@ export default function PostDetailPage() {
                               type="button"
                               onClick={comments.handleSaveCommentEdit}
                               disabled={comments.isUpdatingComment}
-                              className="px-3 py-1.5 bg-emerald-600 text-white rounded-md text-sm hover:bg-emerald-700 disabled:opacity-60"
+                              className="px-4 py-2 bg-[#000] text-white rounded-full text-sm font-medium disabled:opacity-60 transition-all"
+                              onMouseDown={(e) => !comments.isUpdatingComment && (e.currentTarget.style.transform = "scale(0.97)")}
+                              onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
                             >
                               {comments.isUpdatingComment
                                 ? "Đang lưu..."
@@ -626,7 +655,7 @@ export default function PostDetailPage() {
                             content={comment.content}
                             mentionLabel={parentAuthor?.mentionLabel}
                             mentionHref={parentAuthor?.profileHref}
-                            className="text-sm text-slate-700 whitespace-pre-wrap break-words"
+                            className="text-sm text-[#000] whitespace-pre-wrap break-words"
                           />
                           {canViewReplies && (
                             <button
@@ -635,7 +664,9 @@ export default function PostDetailPage() {
                                 comments.toggleRepliesForComment(comment._id)
                               }
                               disabled={isLoadingReplies}
-                              className="mt-2 text-xs font-medium text-slate-500 hover:text-slate-700 disabled:opacity-60"
+                              className="mt-2 text-xs font-medium text-[#0087CE] disabled:opacity-60 transition-opacity"
+                              onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.7")}
+                              onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
                             >
                               {isLoadingReplies
                                 ? "Đang tải phản hồi..."
@@ -649,7 +680,7 @@ export default function PostDetailPage() {
 
                       {/* Reply box */}
                       {isReplying && !isEditing && (
-                        <div className="mt-3 pt-3 border-t border-slate-100 space-y-2">
+                        <div className="mt-3 pt-3 space-y-2" style={{ borderTop: "1px solid #F0F0F0" }}>
                           <textarea
                             rows={2}
                             value={replyValue}
@@ -659,7 +690,10 @@ export default function PostDetailPage() {
                                 [comment._id]: e.target.value,
                               }))
                             }
-                            className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                            className="w-full px-3 py-2 border rounded-lg focus:outline-none text-[#000]"
+                            style={{ borderColor: "#F0F0F0" }}
+                            onFocus={(e) => (e.target.style.boxShadow = "0 0 0 2px rgba(0,0,0,0.1)")}
+                            onBlur={(e) => (e.target.style.boxShadow = "none")}
                             placeholder="Viết phản hồi..."
                           />
                           <div className="flex justify-end gap-2">
@@ -671,7 +705,10 @@ export default function PostDetailPage() {
                               disabled={
                                 comments.replySubmittingFor === comment._id
                               }
-                              className="px-3 py-1.5 border border-slate-300 rounded-md text-slate-700 hover:bg-slate-50 text-sm disabled:opacity-60"
+                              className="px-4 py-2 border rounded-full text-[#000] text-sm font-medium disabled:opacity-60"
+                              style={{ borderColor: "#F0F0F0" }}
+                              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#F8F8F8")}
+                              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
                             >
                               Hủy
                             </button>
@@ -683,7 +720,9 @@ export default function PostDetailPage() {
                               disabled={
                                 comments.replySubmittingFor === comment._id
                               }
-                              className="px-3 py-1.5 bg-emerald-600 text-white rounded-md text-sm hover:bg-emerald-700 disabled:opacity-60"
+                              className="px-4 py-2 bg-[#000] text-white rounded-full text-sm font-medium disabled:opacity-60 transition-all"
+                              onMouseDown={(e) => !comments.replySubmittingFor && (e.currentTarget.style.transform = "scale(0.97)")}
+                              onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
                             >
                               {comments.replySubmittingFor === comment._id
                                 ? "Đang gửi..."
@@ -699,7 +738,7 @@ export default function PostDetailPage() {
                 {comments.hasMoreTopLevelComments && (
                   <div
                     ref={loadMoreTriggerRef}
-                    className="py-4 text-center text-sm text-slate-500"
+                    className="py-4 text-center text-sm text-[#888]"
                   >
                     {comments.isLoadingMoreTopLevelComments
                       ? "Đang tải thêm bình luận..."
@@ -709,7 +748,7 @@ export default function PostDetailPage() {
 
                 {!comments.hasMoreTopLevelComments &&
                   comments.topLevelComments.length > 0 && (
-                    <div className="py-4 text-center text-xs text-slate-400">
+                    <div className="py-4 text-center text-xs text-[#888]">
                       Đã hiển thị tất cả bình luận gốc.
                     </div>
                   )}

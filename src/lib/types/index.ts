@@ -80,6 +80,7 @@ export interface UpdatePostData extends Partial<CreatePostData> {}
 export interface Category {
   _id: string;
   name: string;
+  abbreviation: string;
   slug: string;
   description?: string;
   icon?: string | null;
@@ -102,6 +103,7 @@ export interface Category {
 
 export interface CreateCategoryData {
   name: string;
+  abbreviation: string;
   description?: string;
   icon?: string;
 }

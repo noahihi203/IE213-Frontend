@@ -29,7 +29,6 @@ export default function CategoriesTab({
   const [expandedDescIds, setExpandedDescIds] = useState<
     Record<string, boolean>
   >({});
-
   const toggleDescription = (id: string) => {
     setExpandedDescIds((prev) => ({ ...prev, [id]: !prev[id] }));
   };
@@ -73,7 +72,6 @@ export default function CategoriesTab({
           </button>
         </div>
       </div>
-
       {isLoading ? (
         <div className="text-center py-8">
           <div className="mx-auto h-8 w-8 animate-spin rounded-full border-b-2 border-emerald-600" />

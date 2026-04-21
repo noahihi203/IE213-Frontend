@@ -1,9 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/authStore";
 import { Montserrat } from "next/font/google";
+import { postService } from "@/lib/api/post.service";
+import { Post } from "@/lib/types";
+import NotificationBell from "../NotificationBell";
 
 const montserrat = Montserrat({
   subsets: ["latin", "vietnamese"],
@@ -27,23 +30,6 @@ function SearchIcon() {
     >
       <circle cx="11" cy="11" r="8" />
       <path d="M21 21l-4.35-4.35" />
-    </svg>
-  );
-}
-function BellIcon() {
-  return (
-    <svg
-      width="20"
-      height="20"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="#000"
-      strokeWidth="1.75"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" />
-      <path d="M13.73 21a2 2 0 01-3.46 0" />
     </svg>
   );
 }
@@ -83,7 +69,71 @@ export function Navbar() {
   const router = useRouter();
   const { user, isAuthenticated, logout } = useAuthStore();
   const [searchValue, setSearchValue] = useState("");
+  const [suggestions, setSuggestions] = useState<Post[]>([]);
+  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const searchContainerRef = useRef<HTMLFormElement | null>(null);
+
+  // Close suggestions when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        searchContainerRef.current &&
+        !searchContainerRef.current.contains(e.target as Node)
+      ) {
+        setShowSuggestions(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Handle search suggestions
+  useEffect(() => {
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+
+    if (!searchValue.trim()) {
+      setSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+
+    setIsLoadingSuggestions(true);
+    searchTimeoutRef.current = setTimeout(async () => {
+      try {
+        const response = await postService.getAllPosts({
+          search: searchValue,
+          limit: 5,
+          status: "published",
+        });
+
+        const posts = Array.isArray(response.metadata)
+          ? response.metadata
+          : Array.isArray(response.metadata?.data)
+            ? response.metadata.data
+            : [];
+
+        setSuggestions(posts as Post[]);
+        setShowSuggestions(true);
+      } catch (error) {
+        console.error("Failed to fetch suggestions:", error);
+        setSuggestions([]);
+      } finally {
+        setIsLoadingSuggestions(false);
+      }
+    }, 300);
+
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, [searchValue]);
 
   const roleBg = user
     ? ({ admin: ACCENT_PINK, author: ACCENT_GOLD, user: "#10B981" }[
@@ -148,16 +198,69 @@ export function Navbar() {
           })}
         </div>
 
-        <div className="flex-1 max-w-xs hidden md:flex items-center gap-2.5 bg-[#F8F8F8] rounded-full px-4 py-2.5">
+        <form
+          ref={searchContainerRef}
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (searchValue.trim()) {
+              router.push(`/posts?search=${encodeURIComponent(searchValue)}`);
+              setShowSuggestions(false);
+            }
+          }}
+          className="relative flex-1 max-w-xs hidden md:flex items-center gap-2.5 bg-[#F8F8F8] rounded-full px-4 py-2.5"
+        >
           <SearchIcon />
           <input
             type="text"
             placeholder="Tìm kiếm bài viết..."
             value={searchValue}
             onChange={(event) => setSearchValue(event.target.value)}
+            onFocus={() => searchValue.trim() && setShowSuggestions(true)}
             className="bg-transparent text-[13px] text-[#000] placeholder-[#888] outline-none flex-1 min-w-0"
           />
-        </div>
+
+          {/* Search suggestions dropdown */}
+          {showSuggestions && searchValue.trim() && (
+            <div
+              className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-lg border border-[#F0F0F0] z-50 overflow-hidden"
+              style={{ boxShadow: "0 8px 30px rgba(0,0,0,0.12)" }}
+            >
+              {isLoadingSuggestions ? (
+                <div className="px-4 py-3 text-center text-[13px] text-[#888]">
+                  Đang tìm kiếm...
+                </div>
+              ) : suggestions.length > 0 ? (
+                <div className="max-h-96 overflow-y-auto">
+                  {suggestions.map((post) => (
+                    <button
+                      key={post._id}
+                      type="button"
+                      onClick={() => {
+                        router.push(`/posts/${post.slug}`);
+                        setSearchValue("");
+                        setShowSuggestions(false);
+                      }}
+                      className="w-full text-left px-4 py-3 hover:bg-[#F8F8F8] transition-colors border-b border-[#F0F0F0] last:border-b-0 flex items-start gap-3"
+                    >
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[13px] font-medium text-[#000] truncate">
+                          {post.title}
+                        </p>
+                        <p className="text-[11px] text-[#888] truncate mt-0.5">
+                          {post.excerpt}
+                        </p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <div className="px-4 py-3 text-center text-[13px] text-[#888]">
+                  Không tìm thấy bài viết
+                </div>
+              )}
+            </div>
+          )}
+        </form>
 
         <div className="flex items-center gap-2">
           <button className="w-9 h-9 rounded-full bg-[#F8F8F8] flex items-center justify-center md:hidden">
@@ -166,13 +269,7 @@ export function Navbar() {
 
           {isAuthenticated && user ? (
             <>
-              <button className="relative w-9 h-9 rounded-full bg-[#F8F8F8] flex items-center justify-center">
-                <BellIcon />
-                <span
-                  className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full"
-                  style={{ backgroundColor: ACCENT_PINK }}
-                />
-              </button>
+              <NotificationBell />
 
               <div className="relative">
                 <button
