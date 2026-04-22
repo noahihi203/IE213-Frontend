@@ -6,9 +6,14 @@ import {
   UpdatePostData,
   PostFilters,
   PaginatedResponse,
+  TrendingPosts,
 } from "../types";
 
 export const postService = {
+  // Lấy top 3 post
+  getTrendingPosts: async (): Promise<ApiResponse<TrendingPosts[]>> => {
+    return await axiosClient.get(`/posts/trending`);
+  },
   // Get all posts with filters
   getAllPosts: async (
     filters?: PostFilters,

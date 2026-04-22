@@ -51,8 +51,8 @@ export interface Post {
   content: string;
   excerpt: string;
   coverImage?: string | null;
-  authorId: string | User;
-  category: string | Category;
+  authorId: User;
+  category: Category;
   status: "draft" | "published" | "archived";
   tags: Tag[];
   viewCount: number;
@@ -62,6 +62,22 @@ export interface Post {
   publishedAt?: Date | null;
   createdOn: Date;
   modifiedOn: Date;
+  readTime: number;
+}
+
+export interface TrendingPosts {
+  postId: string;
+  title: string;
+  excerpt: string;
+  coverImage: string;
+  slug: string;
+  viewCount: number;
+  publishedAt: Date;
+  readingTime: number;
+  authorName: string;
+  authorAvatar: string;
+  categoryAbbreviation: string;
+  tags: string[];
 }
 
 export interface CreatePostData {

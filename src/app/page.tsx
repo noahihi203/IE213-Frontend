@@ -5,7 +5,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Montserrat } from "next/font/google";
 import { categoryService } from "@/lib/api/category.service";
-import { Category } from "@/lib/types";
+import { Category, Post, TrendingPosts } from "@/lib/types";
+import { postService } from "@/lib/api/post.service";
 
 const montserrat = Montserrat({
   subsets: ["latin", "vietnamese"],
@@ -215,25 +216,41 @@ function ArrowRight({
 
 export default function HomePage() {
   const router = useRouter();
+  const [trendingPosts, setTrendingPosts] = useState<TrendingPosts[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoadingCategories, setIsLoadingCategories] = useState(true);
+  const [isLoadingTrendingPosts, setIsLoadingTrendingPosts] = useState(true);
 
   useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const response = await categoryService.getAllCategories();
-        if (response.metadata) {
-          setCategories(response.metadata);
-        }
-      } catch (error) {
-        console.error("Failed to fetch categories:", error);
-      } finally {
-        setIsLoadingCategories(false);
-      }
-    };
-
     fetchCategories();
+    fetchTrendingPosts();
   }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const response = await categoryService.getAllCategories();
+      if (response.metadata) {
+        setCategories(response.metadata);
+      }
+    } catch (error) {
+      console.error("Failed to fetch categories:", error);
+    } finally {
+      setIsLoadingCategories(false);
+    }
+  };
+
+  const fetchTrendingPosts = async () => {
+    try {
+      const response = await postService.getTrendingPosts();
+      if (response.metadata) {
+        setTrendingPosts(response.metadata);
+      }
+    } catch (error) {
+      console.error("Failed to fetch trending posts:", error);
+    } finally {
+      setIsLoadingTrendingPosts(false);
+    }
+  };
 
   return (
     <div className={`${montserrat.className} overflow-hidden`}>
@@ -631,131 +648,97 @@ export default function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {[
-              {
-                title: "Tương Lai Của AI Trong Lĩnh Vực Viết Lách Sáng Tạo",
-                category: "Công Nghệ",
-                catColor: ACCENT_BLUE,
-                excerpt:
-                  "Trí tuệ nhân tạo đang thay đổi cách chúng ta sáng tác. Liệu đây là mối đe dọa hay cơ hội?",
-                author: "Nguyễn Văn Minh",
-                initials: "NM",
-                authorColor: ACCENT_GOLD,
-                date: "15/03/2026",
-                readTime: "8 phút",
-                views: "3.421",
-                tags: ["AI", "Viết lách"],
-                tagColor: ACCENT_BLUE,
-              },
-              {
-                title:
-                  "Bí Quyết Viết Truyện Ngắn Hay Từ Những Nhà Văn Nổi Tiếng",
-                category: "Văn Học",
-                catColor: ACCENT_PINK,
-                excerpt:
-                  "Những kỹ thuật viết truyện ngắn đã được kiểm chứng qua thời gian từ các bậc thầy văn học thế giới.",
-                author: "Trần Minh Châu",
-                initials: "TC",
-                authorColor: ACCENT_PINK,
-                date: "12/03/2026",
-                readTime: "12 phút",
-                views: "2.891",
-                tags: ["Văn học", "Truyện ngắn"],
-                tagColor: ACCENT_PINK,
-              },
-              {
-                title: "Vũ Trụ Học Và Câu Hỏi Về Sự Sống Ngoài Trái Đất",
-                category: "Khoa Học",
-                catColor: "#06B6D4",
-                excerpt:
-                  "Những khám phá thiên văn học gần đây đang làm thay đổi nhận thức của chúng ta về vũ trụ.",
-                author: "Lê Hoàng Nam",
-                initials: "LN",
-                authorColor: "#06B6D4",
-                date: "10/03/2026",
-                readTime: "11 phút",
-                views: "5.102",
-                tags: ["Vũ trụ", "Khoa học"],
-                tagColor: "#06B6D4",
-              },
-            ].map((a, i) => (
-              <div
-                key={i}
-                className="bg-white flex flex-col overflow-hidden cursor-pointer group"
-                style={{
-                  borderRadius: "18px",
-                  boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
-                }}
-              >
-                <div
-                  className="relative overflow-hidden bg-gradient-to-br from-[#F0F0F0] to-[#E0E0E0]"
-                  style={{ aspectRatio: "16/10" }}
+            {trendingPosts.map((a, i) => {
+              const colors = ["#DC0055", "#0087CE", "#ED9F00"];
+
+              const tagColor =
+                colors[Math.floor(Math.random() * colors.length)];
+              return (
+                <Link
+                  href={`/posts/${a.slug}`}
+                  key={i}
+                  className="bg-white flex flex-col overflow-hidden cursor-pointer group"
+                  style={{
+                    borderRadius: "18px",
+                    boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
+                  }}
                 >
-                  <div className="w-full h-full flex items-center justify-center text-[#888]">
-                    <span className="text-[12px]">Article Image {i + 1}</span>
-                  </div>
                   <div
-                    className="absolute top-3 left-3 px-3 py-1 rounded-full"
-                    style={{ backgroundColor: a.catColor }}
+                    className="relative overflow-hidden bg-gradient-to-br from-[#F0F0F0] to-[#E0E0E0]"
+                    style={{ aspectRatio: "16/10" }}
                   >
-                    <span className="text-white text-[11px] font-semibold">
-                      {a.category}
-                    </span>
-                  </div>
-                  <div
-                    className="absolute bottom-3 right-3 px-2.5 py-1 rounded-md"
-                    style={{ backgroundColor: "rgba(0,0,0,0.55)" }}
-                  >
-                    <span className="text-white text-[11px]">
-                      {a.readTime} đọc
-                    </span>
-                  </div>
-                </div>
-                <div className="flex flex-col gap-2.5 p-4 flex-1">
-                  <h3 className="text-[#000] text-[15px] font-semibold leading-snug line-clamp-2">
-                    {a.title}
-                  </h3>
-                  <p className="text-[#888] text-[13px] leading-relaxed line-clamp-2 flex-1">
-                    {a.excerpt}
-                  </p>
-                  <div className="flex items-center gap-2 pt-1">
+                    <div className="w-full h-full flex items-center justify-center">
+                      <img src={`${a.coverImage}`} alt={`${a.slug}`} />
+                    </div>
                     <div
-                      className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0"
-                      style={{ backgroundColor: a.authorColor }}
+                      className="absolute top-3 left-3 px-3 py-1 rounded-full"
+                      style={{
+                        backgroundColor:
+                          colors[Math.floor(Math.random() * colors.length)],
+                      }}
                     >
-                      <span className="text-white text-[9px] font-bold">
-                        {a.initials}
+                      <span className="text-white text-[11px] font-semibold">
+                        {a.categoryAbbreviation}
                       </span>
                     </div>
-                    <span className="text-[#888] text-[12px] font-medium flex-1 truncate">
-                      {a.author}
-                    </span>
-                    <span className="text-[#bbb] text-[11px]">{a.date}</span>
-                  </div>
-                  <div className="border-t border-[#F0F0F0]" />
-                  <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-1 text-[#888] text-[11px]">
-                      <EyeIcon />
-                      <span>{a.views}</span>
-                    </div>
-                    <div className="ml-auto flex gap-1.5">
-                      {a.tags.map((tag) => (
-                        <span
-                          key={tag}
-                          className="text-[11px] font-medium px-2 py-0.5 rounded-md"
-                          style={{
-                            color: a.tagColor,
-                            backgroundColor: `${a.tagColor}15`,
-                          }}
-                        >
-                          {tag}
-                        </span>
-                      ))}
+                    <div
+                      className="absolute bottom-3 right-3 px-2.5 py-1 rounded-md"
+                      style={{ backgroundColor: "rgba(0,0,0,0.55)" }}
+                    >
+                      <span className="text-white text-[11px]">
+                        {a.readingTime} phút đọc
+                      </span>
                     </div>
                   </div>
-                </div>
-              </div>
-            ))}
+                  <div className="flex flex-col gap-2.5 p-4 flex-1">
+                    <h3 className="text-[#000] text-[15px] font-semibold leading-snug line-clamp-2">
+                      {a.title}
+                    </h3>
+                    <p className="text-[#888] text-[13px] leading-relaxed line-clamp-2 flex-1">
+                      {a.excerpt}
+                    </p>
+                    <div className="flex items-center gap-2 pt-1">
+                      <img
+                        src={`${a.authorAvatar ? a.authorAvatar : "https://a.storyblok.com/f/178900/960x540/8f1554c4f8/chiikawa-movie-hero.png"}`}
+                        alt={`${a.authorName}`}
+                        className="w-6 h-6 rounded-full object-cover flex-shrink-0"
+                      />
+                      <span className="text-[#888] text-[12px] font-medium flex-1 truncate">
+                        {a.authorName}
+                      </span>
+                      <span className="text-[#bbb] text-[11px]">
+                        {a.publishedAt
+                          ? new Intl.DateTimeFormat("vi-VN").format(
+                              a.publishedAt,
+                            )
+                          : ""}
+                      </span>
+                    </div>
+                    <div className="border-t border-[#F0F0F0]" />
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-1 text-[#888] text-[11px]">
+                        <EyeIcon />
+                        <span>{a.viewCount}</span>
+                      </div>
+                      <div className="ml-auto flex gap-1.5">
+                        {a.tags.map((tag) => (
+                          <span
+                            key={tag}
+                            className="text-[11px] font-medium px-2 py-0.5 rounded-md"
+                            style={{
+                              color: tagColor,
+                              backgroundColor: `${tagColor}15`,
+                            }}
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         </div>
       </section>
