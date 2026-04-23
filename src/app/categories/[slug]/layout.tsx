@@ -31,20 +31,28 @@ export async function generateMetadata({
         default: "Blog sinh viên & định hướng đại học | UniSync",
       },
       description:
-        "UniScopeHCM là nền tảng chia sẻ thông tin về trường đại học, ngành học, định hướng nghề nghiệp và đời sống sinh viên tại TP.HCM.",
-      keywords:
-        "uniscopehcm, review đại học, ngành học, UIT, Bách Khoa, IU, định hướng nghề nghiệp, sinh viên TP.HCM",
+        "UniSync là nền tảng chia sẻ thông tin về trường đại học, ngành học, định hướng nghề nghiệp và đời sống sinh viên tại TP.HCM.",
+      keywords: [
+        "unisync",
+        "VNU-HCM",
+        "Làng đại học",
+        "Thông tin",
+        "Tra cứu thông tin",
+        "Đời sống sinh viên",
+        "Học phí",
+        "Blog sinh viên",
+      ],
       openGraph: {
-        title: "UniScopeHCM - Blog sinh viên & định hướng đại học",
+        title: "UniSync - Blog sinh viên & định hướng đại học",
         description:
-          "Khám phá ngành học, review trường đại học và đời sống sinh viên tại TP.HCM cùng UniScopeHCM.",
+          "Khám phá ngành học, review trường đại học và đời sống sinh viên tại TP.HCM cùng UniSync.",
         url: `${baseUrl}`,
-        siteName: "UniScopeHCM",
+        siteName: "UniSync",
         images: {
           url: "./chikawa.webp",
           width: 1200,
           height: 630,
-          alt: "UniScopeHCM - Blog sinh viên và giáo dục",
+          alt: "UniSync - Blog sinh viên và giáo dục",
         },
         locale: "vi_VN",
         phoneNumbers: "0363636363",
@@ -78,7 +86,7 @@ export async function generateMetadata({
       title: `${cat.name}`,
       description: `${cat.description}`,
       url: `${baseUrl}/${params.slug}`,
-      siteName: "UniScopeHCM",
+      siteName: "UniSync",
       images: {
         url: cat.icon ? `${toAbsoluteUrl(cat.icon)}` : "./chikawa.webp",
         width: 1200,

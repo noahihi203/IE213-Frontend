@@ -126,7 +126,7 @@ export default function RegisterPage() {
               </h1>
 
               <p className="mt-1 text-sm text-slate-500">
-                Điền thông tin để bắt đầu sử dụng UniSyncHCM
+                Điền thông tin để bắt đầu sử dụng UniSync
               </p>
             </motion.div>
 
