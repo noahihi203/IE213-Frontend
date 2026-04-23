@@ -77,7 +77,7 @@ export interface TrendingPosts {
   authorName: string;
   authorAvatar: string;
   categoryAbbreviation: string;
-  tags: string[];
+  tags: Tag[];
 }
 
 export interface CreatePostData {

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Montserrat } from "next/font/google";
 import { categoryService } from "@/lib/api/category.service";
-import { Category, Post, TrendingPosts } from "@/lib/types";
+import { Category, Post, Tag, TrendingPosts } from "@/lib/types";
 import { postService } from "@/lib/api/post.service";
 
 const montserrat = Montserrat({
@@ -650,7 +650,14 @@ export default function HomePage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {trendingPosts.map((a, i) => {
               const colors = ["#DC0055", "#0087CE", "#ED9F00"];
+              const rawDate = a.publishedAt
+                ? new Date(a.publishedAt)
+                : new Date();
 
+              // Kiểm tra xem object Date vừa tạo có hợp lệ không (tránh trường hợp string rác)
+              const date = isNaN(rawDate.getTime())
+                ? new Intl.DateTimeFormat("vi-VN").format(new Date()) // Nếu lỗi thì lấy ngày hiện tại
+                : new Intl.DateTimeFormat("vi-VN").format(rawDate); // Nếu đúng thì định dạng
               const tagColor =
                 colors[Math.floor(Math.random() * colors.length)];
               return (
@@ -706,13 +713,7 @@ export default function HomePage() {
                       <span className="text-[#888] text-[12px] font-medium flex-1 truncate">
                         {a.authorName}
                       </span>
-                      <span className="text-[#bbb] text-[11px]">
-                        {a.publishedAt
-                          ? new Intl.DateTimeFormat("vi-VN").format(
-                              a.publishedAt,
-                            )
-                          : ""}
-                      </span>
+                      <span className="text-[#bbb] text-[11px]">{date}</span>
                     </div>
                     <div className="border-t border-[#F0F0F0]" />
                     <div className="flex items-center gap-3">
@@ -721,16 +722,16 @@ export default function HomePage() {
                         <span>{a.viewCount}</span>
                       </div>
                       <div className="ml-auto flex gap-1.5">
-                        {a.tags.map((tag) => (
+                        {a.tags.map((tag: Tag) => (
                           <span
-                            key={tag}
+                            key={tag._id}
                             className="text-[11px] font-medium px-2 py-0.5 rounded-md"
                             style={{
                               color: tagColor,
                               backgroundColor: `${tagColor}15`,
                             }}
                           >
-                            {tag}
+                            {tag.name}
                           </span>
                         ))}
                       </div>

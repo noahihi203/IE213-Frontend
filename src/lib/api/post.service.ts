@@ -8,6 +8,7 @@ import {
   PaginatedResponse,
   TrendingPosts,
 } from "../types";
+import { cache } from "react";
 
 export const postService = {
   // Lấy top 3 post
@@ -32,14 +33,14 @@ export const postService = {
   },
 
   // Get single post by ID
-  getPostById: async (postId: string): Promise<ApiResponse<Post>> => {
+  getPostById: cache(async (postId: string): Promise<ApiResponse<Post>> => {
     return await axiosClient.get(`/posts/${postId}`);
-  },
+  }),
 
   // Get post by slug
-  getPostBySlug: async (slug: string): Promise<ApiResponse<Post>> => {
+  getPostBySlug: cache(async (slug: string): Promise<ApiResponse<Post>> => {
     return await axiosClient.get(`/posts/slug/${slug}`);
-  },
+  }),
 
   // Create new post
   createPost: async (data: CreatePostData): Promise<ApiResponse<Post>> => {
