@@ -50,6 +50,7 @@ export interface Post {
   slug: string;
   content: string;
   excerpt: string;
+  keyword: string | "";
   coverImage?: string | null;
   authorId: User;
   category: Category;
@@ -84,6 +85,7 @@ export interface CreatePostData {
   title: string;
   content: string;
   excerpt: string;
+  keyword: string | "";
   coverImage?: string;
   category: string;
   tags?: string[];

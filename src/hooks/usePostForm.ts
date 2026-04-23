@@ -8,6 +8,7 @@ import { tagService } from "@/lib/api/tag.services";
 export interface PostFormData {
   title: string;
   excerpt: string;
+  keyword: string;
   content: string;
   category: string;
   coverImage: string;
@@ -17,6 +18,7 @@ export interface PostFormData {
 const createEmptyPostForm = (): PostFormData => ({
   title: "",
   excerpt: "",
+  keyword: "",
   content: "",
   category: "",
   coverImage: "",
@@ -143,6 +145,7 @@ export function usePostForm(onPostsRefresh?: () => Promise<void> | void) {
   const handleCreatePost = async (status: "draft" | "published") => {
     const title = createFormData.title.trim();
     const content = createFormData.content.trim();
+    const keyword = createFormData.keyword.trim();
     const category = createFormData.category;
 
     if (!title || !content || !category) {
@@ -155,6 +158,7 @@ export function usePostForm(onPostsRefresh?: () => Promise<void> | void) {
     const postData: Parameters<typeof postService.createPost>[0] = {
       title,
       content,
+      keyword,
       excerpt,
       category,
       tags: createFormData.tags,
@@ -184,6 +188,7 @@ export function usePostForm(onPostsRefresh?: () => Promise<void> | void) {
     setEditFormData({
       title: post.title || "",
       excerpt: post.excerpt || "",
+      keyword: post.keyword || "",
       content: post.content || "",
       category: resolveCategoryId(post.category),
       coverImage: post.coverImage || "",
@@ -222,6 +227,7 @@ export function usePostForm(onPostsRefresh?: () => Promise<void> | void) {
 
     const title = editFormData.title.trim();
     const content = editFormData.content.trim();
+    const keyword = editFormData.keyword.trim();
     const category = editFormData.category;
 
     if (!title || !content || !category) {
@@ -235,6 +241,7 @@ export function usePostForm(onPostsRefresh?: () => Promise<void> | void) {
       title,
       content,
       excerpt,
+      keyword,
       category,
       tags: editFormData.tags,
     };
