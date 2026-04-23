@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { postService } from "@/lib/api/post.service";
+import { categoryService } from "@/lib/api/category.service";
 
 const SITE_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -22,9 +22,9 @@ const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 export async function generateMetadata({
   params,
 }: MetadataProps): Promise<Metadata> {
-  const res = await postService.getPostBySlug(params.slug);
-  const post = res.metadata;
-  if (!post) {
+  const res = await categoryService.getCategoryBySlug(params.slug);
+  const cat = res.metadata;
+  if (!cat) {
     return {
       title: {
         template: "%s | UniSync",
@@ -62,30 +62,28 @@ export async function generateMetadata({
   return {
     title: {
       template: "%s | UniSync",
-      default: `${post.title}`,
+      default: `[${cat.abbreviation}] ${cat.name}`,
     },
-    description: `${post.excerpt}`,
+    description: `${cat.description}`,
     keywords: [
-      `${post.keyword}`,
-      `${post.category.name}`,
-      `${post.category.abbreviation}`,
+      `${cat.abbreviation}`,
+      `${cat.name}`,
+      `${cat.slug}`,
       "Sinh viên",
       "UniSync",
       "Đại học quốc gia",
       "VNU HCM",
     ],
     openGraph: {
-      title: `${post.title}`,
-      description: `${post.excerpt}`,
+      title: `${cat.name}`,
+      description: `${cat.description}`,
       url: `${baseUrl}/${params.slug}`,
       siteName: "UniScopeHCM",
       images: {
-        url: post.coverImage
-          ? `${toAbsoluteUrl(post.coverImage)}`
-          : "./chikawa.webp",
+        url: cat.icon ? `${toAbsoluteUrl(cat.icon)}` : "./chikawa.webp",
         width: 1200,
         height: 630,
-        alt: `${post.title}`,
+        alt: `[${cat.abbreviation}] ${cat.name}`,
       },
       locale: "vi_VN",
       phoneNumbers: "0363636363",
@@ -94,13 +92,13 @@ export async function generateMetadata({
       countryName: "Việt Nam",
     },
     alternates: {
-      canonical: `${baseUrl}/${params.slug}`,
+      canonical: `${baseUrl}/categories/${params.slug}`,
     },
     metadataBase: new URL(`${baseUrl}`),
   };
 }
 
-export default function PostSlugLayout({
+export default function CatSlugLayout({
   children,
 }: {
   children: React.ReactNode;
