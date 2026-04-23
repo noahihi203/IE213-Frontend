@@ -49,18 +49,21 @@ export default function PostsTab({
     );
   }, [posts, search]);
 
+  const totalPosts = posts.length;
+  const visiblePosts = filteredPosts.length;
+
   return (
     <>
       {/* ── Header ─────────────────────────────────────────────────────── */}
       <div className="mb-6 space-y-4">
         <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
           <div>
-            <h1 className="mb-2 text-3xl font-semibold tracking-tight text-slate-900">
+            <h1 className="mb-2 text-2xl font-medium text-slate-900 md:text-[28px]">
               {listMode === "written"
                 ? "Bài viết của tôi"
                 : "Bài viết đã thích"}
             </h1>
-            <p className="text-slate-600">
+            <p className="text-sm text-slate-600 md:text-base">
               {listMode === "written"
                 ? "Quản lý bài viết đã đăng và bản nháp"
                 : "Danh sách các bài viết bạn đã thích"}
@@ -69,14 +72,14 @@ export default function PostsTab({
 
           <div className="flex w-full flex-col gap-3 sm:flex-row md:w-auto">
             {isAuthorOrAdmin && (
-              <div className="inline-flex rounded-lg border border-slate-200 bg-slate-50 p-1">
+              <div className="inline-flex rounded-lg border-[0.5px] border-slate-300 bg-white p-1">
                 <button
                   type="button"
                   onClick={() => setListMode("written")}
                   className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
                     listMode === "written"
-                      ? "bg-white text-emerald-700 shadow-sm"
-                      : "text-slate-600 hover:text-slate-800"
+                      ? "bg-slate-100 text-slate-900"
+                      : "text-slate-600 hover:bg-slate-50 hover:text-slate-800"
                   }`}
                 >
                   Đã viết
@@ -86,8 +89,8 @@ export default function PostsTab({
                   onClick={() => setListMode("liked")}
                   className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
                     listMode === "liked"
-                      ? "bg-white text-emerald-700 shadow-sm"
-                      : "text-slate-600 hover:text-slate-800"
+                      ? "bg-slate-100 text-slate-900"
+                      : "text-slate-600 hover:bg-slate-50 hover:text-slate-800"
                   }`}
                 >
                   Đã thích
@@ -104,7 +107,7 @@ export default function PostsTab({
                 placeholder="Tìm kiếm bài viết..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="block w-full rounded-lg border border-slate-300 bg-white py-2 pl-10 pr-3 leading-5 placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 sm:text-sm"
+                className="block w-full rounded-lg border-[0.5px] border-slate-300 bg-white py-2 pl-10 pr-3 leading-5 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-200 sm:text-sm"
               />
             </div>
 
@@ -112,7 +115,7 @@ export default function PostsTab({
               <button
                 type="button"
                 onClick={postForm.openCreateModal}
-                className="flex flex-shrink-0 items-center justify-center space-x-2 rounded-lg border border-transparent bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-emerald-700"
+                className="flex flex-shrink-0 items-center justify-center space-x-2 rounded-lg border-[0.5px] border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-900 transition-colors hover:bg-slate-100"
               >
                 <Plus size={18} weight="bold" />
                 <span>Viết bài</span>
@@ -120,12 +123,27 @@ export default function PostsTab({
             )}
           </div>
         </div>
+
+        <div className="grid gap-3 sm:grid-cols-2 lg:max-w-md">
+          <div className="rounded-lg bg-slate-100 px-4 py-3">
+            <p className="text-xs text-slate-600">Tổng bài viết</p>
+            <p className="mt-1 text-2xl font-medium text-slate-900">
+              {totalPosts}
+            </p>
+          </div>
+          <div className="rounded-lg bg-slate-100 px-4 py-3">
+            <p className="text-xs text-slate-600">Hiển thị sau lọc</p>
+            <p className="mt-1 text-2xl font-medium text-slate-900">
+              {visiblePosts}
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* ── Content ────────────────────────────────────────────────────── */}
       {isLoading ? (
-        <div className="text-center py-12">
-          <div className="mx-auto h-12 w-12 animate-spin rounded-full border-b-2 border-emerald-600" />
+        <div className="rounded-2xl border-[0.5px] border-slate-300 bg-white p-12 text-center">
+          <div className="mx-auto h-12 w-12 animate-spin rounded-full border-b-2 border-slate-700" />
         </div>
       ) : posts.length === 0 ? (
         <EmptyState
@@ -133,9 +151,9 @@ export default function PostsTab({
           onOpenCreate={postForm.openCreateModal}
         />
       ) : filteredPosts.length === 0 ? (
-        <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center shadow-sm">
+        <div className="rounded-2xl border-[0.5px] border-slate-300 bg-white p-12 text-center">
           <FileText size={56} className="mx-auto mb-4 text-slate-300" />
-          <h3 className="mb-2 text-xl font-semibold tracking-tight text-slate-900">
+          <h3 className="mb-2 text-xl font-medium text-slate-900">
             Không tìm thấy bài viết
           </h3>
           <p className="text-slate-600">
@@ -247,11 +265,11 @@ function EmptyState({
   onOpenCreate: () => void;
 }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center shadow-sm">
+    <div className="rounded-2xl border-[0.5px] border-slate-300 bg-white p-12 text-center">
       <FileText size={64} className="mx-auto mb-4 text-slate-300" />
       {isAuthorOrAdmin ? (
         <>
-          <h3 className="mb-2 text-xl font-semibold tracking-tight text-slate-900">
+          <h3 className="mb-2 text-xl font-medium text-slate-900">
             Bạn chưa có bài viết nào
           </h3>
           <p className="mb-6 text-slate-600">
@@ -260,7 +278,7 @@ function EmptyState({
           <button
             type="button"
             onClick={onOpenCreate}
-            className="inline-flex items-center justify-center space-x-2 rounded-lg border border-transparent bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-emerald-700"
+            className="inline-flex items-center justify-center space-x-2 rounded-lg border-[0.5px] border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-900 transition-colors hover:bg-slate-100"
           >
             <Plus size={18} weight="bold" />
             <span>Viết bài đầu tiên</span>
@@ -276,7 +294,7 @@ function EmptyState({
           </p>
           <Link
             href="/posts"
-            className="inline-block rounded-md bg-emerald-600 px-4 py-2 font-medium text-white hover:bg-emerald-700"
+            className="inline-block rounded-md border-[0.5px] border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-900 transition-colors hover:bg-slate-100"
           >
             Bài viết
           </Link>

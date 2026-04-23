@@ -21,6 +21,14 @@ import CategoryModal from "../../components/CategoryModal";
 
 type ActiveTab = "posts" | "users" | "tags" | "categories" | "settings";
 
+const tabDescriptions: Record<ActiveTab, string> = {
+  posts: "Manage your published content and liked posts.",
+  users: "Review user accounts, roles, and moderation actions.",
+  tags: "Create, update, and control tag visibility.",
+  categories: "Organize content groups for better discovery.",
+  settings: "Adjust account and platform preferences.",
+};
+
 const montserrat = Montserrat({
   subsets: ["latin", "vietnamese"],
   weight: ["400", "500", "600", "700"],
@@ -100,15 +108,41 @@ export default function DashboardPage() {
 
   if (!authInitialized || !user) {
     return (
-      <div className="mx-auto max-w-7xl px-4 py-8 text-slate-600">
-        Loading...
+      <div className="mx-auto max-w-7xl px-4 py-8">
+        <div className="rounded-2xl border-[0.5px] border-slate-300 bg-white p-5 text-sm text-slate-600">
+          Loading dashboard...
+        </div>
       </div>
     );
   }
 
+  const dashboardTitle =
+    activeTab.charAt(0).toUpperCase() + activeTab.slice(1) + " overview";
+  const totalPosts = myPosts.length;
+  const totalLikedPosts = likedPosts.length;
+  const totalUsers = users.length;
+  const totalTags = tags.length;
+  const totalCategories = categories.length;
+
   return (
     <div className={`${montserrat.className} min-h-[100dvh] bg-slate-50`}>
       <div className="mx-auto max-w-7xl px-4 py-8 md:px-6 lg:px-10">
+        <div className="mb-6 rounded-3xl border-[0.5px] border-slate-300 bg-white p-5 md:p-6">
+          <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+            <div>
+              <p className="text-xs uppercase tracking-[0.14em] text-slate-500">
+                Dashboard
+              </p>
+              <h1 className="mt-1 text-2xl font-semibold text-slate-900 md:text-3xl">
+                {dashboardTitle}
+              </h1>
+              <p className="mt-2 max-w-2xl text-sm text-slate-600 md:text-base">
+                {tabDescriptions[activeTab]}
+              </p>
+            </div>
+          </div>
+        </div>
+
         <div className="grid gap-6 lg:grid-cols-4 lg:gap-8">
           {/* ── Sidebar ── */}
           <div className="lg:col-span-1">
@@ -121,7 +155,7 @@ export default function DashboardPage() {
           </div>
 
           {/* ── Main content ── */}
-          <div className="lg:col-span-3 rounded-[1.5rem] border border-slate-200/80 bg-white p-4 shadow-[0_20px_40px_-15px_rgba(15,23,42,0.08)] md:p-5">
+          <div className="lg:col-span-3 rounded-3xl border-[0.5px] border-slate-300 bg-white p-4 md:p-5">
             {activeTab === "posts" && (
               <PostsTab
                 user={user}

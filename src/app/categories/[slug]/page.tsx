@@ -17,6 +17,57 @@ import {
   Heart,
 } from "@phosphor-icons/react";
 
+export async function generateMetadata() {
+  const baseUrl = "https://your-domain.com";
+
+  return {
+    title: {
+      template: "%s | UniSync",
+      default: "Về chúng tôi | UniSync",
+    },
+
+    description:
+      "Tìm hiểu về UniSync – nền tảng blog dành cho sinh viên Việt Nam, nơi chia sẻ câu chuyện, kiến thức và định hướng nghề nghiệp trong môi trường đại học.",
+
+    keywords: [
+      "about unisync",
+      "về chúng tôi",
+      "blog sinh viên",
+      "nền tảng viết lách",
+      "định hướng đại học",
+      "câu chuyện startup việt",
+    ],
+
+    openGraph: {
+      title: "Về UniSync - Nền tảng viết lách cho sinh viên Việt Nam",
+      description:
+        "Khám phá hành trình xây dựng UniSync, sứ mệnh và giá trị cốt lõi trong việc phát triển cộng đồng viết lách và chia sẻ tri thức cho sinh viên.",
+
+      url: `${baseUrl}/about`,
+      siteName: "UniSync",
+
+      images: [
+        {
+          url: `./chikawa.webp`,
+          width: 1200,
+          height: 630,
+          alt: "UniSync - Câu chuyện và sứ mệnh",
+        },
+      ],
+
+      locale: "vi_VN",
+      type: "website",
+      countryName: "Việt Nam",
+    },
+
+    alternates: {
+      canonical: `${baseUrl}/about`,
+    },
+
+    metadataBase: new URL(`${baseUrl}/about`),
+  };
+}
+
 const montserrat = Montserrat({
   subsets: ["latin", "vietnamese"],
   weight: ["400", "500", "600", "700"],
@@ -67,30 +118,30 @@ export default function CategoryDetailPage() {
 
   return (
     <div className={`${montserrat.className} min-h-[100dvh] bg-slate-50`}>
-      <div className="border-b border-slate-200 bg-white/80 backdrop-blur">
+      <div className="border-b border-slate-200 bg-white">
         <div className="mx-auto max-w-7xl px-4 py-6 md:px-6 lg:px-10">
           <div className="flex items-center justify-between gap-3">
             <button
               type="button"
               onClick={() => router.back()}
-              className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100"
+              className="inline-flex items-center gap-2 rounded-xl border-[0.5px] border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100"
             >
               <ArrowLeft size={18} weight="duotone" />
-              <span>Back</span>
+              <span>Quay lại</span>
             </button>
 
             <button
               type="button"
               disabled
-              className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-slate-100 px-3 py-2 text-sm text-slate-500 opacity-80"
+              className="inline-flex items-center gap-2 rounded-xl border-[0.5px] border-slate-300 bg-slate-100 px-3 py-2 text-sm text-slate-500 opacity-80"
             >
               <Funnel size={16} weight="duotone" />
-              <span>Filter</span>
+              <span>Lọc</span>
             </button>
           </div>
 
           <div className="mt-5">
-            <h1 className="text-3xl font-semibold tracking-tight text-slate-900 md:text-4xl">
+            <h1 className="text-3xl font-medium text-slate-900 md:text-4xl">
               {category?.name || "Category"}
             </h1>
             <p className="mt-1 text-sm text-slate-600">
@@ -103,11 +154,11 @@ export default function CategoryDetailPage() {
 
       <div className="mx-auto max-w-7xl px-4 py-8 md:px-6 lg:px-10">
         {isLoading ? (
-          <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+          <div className="flex flex-wrap gap-5">
             {[1, 2, 3, 4].map((slot) => (
               <div
                 key={slot}
-                className="rounded-[1.25rem] border border-slate-200 bg-white p-6"
+                className="w-full flex-none rounded-[1.25rem] border-[0.5px] border-slate-300 bg-white p-6 sm:w-[calc(50%-10px)] lg:w-[calc(25%-15px)]"
               >
                 <div className="mb-4 h-36 animate-pulse rounded-xl bg-slate-200" />
                 <div className="mb-2 h-4 w-2/3 animate-pulse rounded bg-slate-200" />
@@ -116,31 +167,31 @@ export default function CategoryDetailPage() {
             ))}
           </div>
         ) : error ? (
-          <div className="rounded-[1.5rem] border border-slate-200 bg-white p-10 text-center shadow-[0_20px_40px_-15px_rgba(15,23,42,0.08)]">
+          <div className="rounded-[1.5rem] border-[0.5px] border-slate-300 bg-white p-10 text-center">
             <FileText
               size={54}
               className="mx-auto mb-4 text-slate-300"
               weight="duotone"
             />
-            <h2 className="mb-2 text-xl font-semibold text-slate-900">
+            <h2 className="mb-2 text-xl font-medium text-slate-900">
               Không thể tải danh mục
             </h2>
             <p className="mb-6 text-slate-600">{error}</p>
             <Link
               href="/categories"
-              className="inline-flex items-center rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-700"
+              className="inline-flex items-center rounded-xl border-[0.5px] border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-900 transition-colors hover:bg-slate-100"
             >
               Quay lại danh mục
             </Link>
           </div>
         ) : posts.length === 0 ? (
-          <div className="rounded-[1.5rem] border border-slate-200 bg-white p-10 text-center shadow-[0_20px_40px_-15px_rgba(15,23,42,0.08)]">
+          <div className="rounded-[1.5rem] border-[0.5px] border-slate-300 bg-white p-10 text-center">
             <FileText
               size={54}
               className="mx-auto mb-4 text-slate-300"
               weight="duotone"
             />
-            <h2 className="mb-2 text-xl font-semibold text-slate-900">
+            <h2 className="mb-2 text-xl font-medium text-slate-900">
               Chưa có bài viết nào
             </h2>
             <p className="text-slate-600">
@@ -153,9 +204,14 @@ export default function CategoryDetailPage() {
               {posts.length} bài viết
             </p>
 
-            <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+            <div className="flex flex-wrap gap-5">
               {posts.map((post) => (
-                <PostCard key={post._id} post={post} />
+                <div
+                  key={post._id}
+                  className="w-full flex-none sm:w-[calc(50%-10px)] lg:w-[calc(25%-15px)]"
+                >
+                  <PostCard post={post} />
+                </div>
               ))}
             </div>
           </>
@@ -170,61 +226,36 @@ function PostCard({ post }: { post: Post }) {
   const category = typeof post.category === "object" ? post.category : null;
 
   return (
-    <article className="overflow-hidden rounded-[1.25rem] border border-slate-200/80 bg-white shadow-[0_20px_40px_-18px_rgba(15,23,42,0.12)] transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-[1px] hover:shadow-[0_24px_44px_-18px_rgba(15,23,42,0.14)]">
-      {post.coverImage && (
-        <div className="h-48 bg-slate-200">
-          <img
-            src={post.coverImage}
-            alt={post.title}
-            className="h-full w-full object-cover"
-          />
-        </div>
-      )}
+    <Link
+      href={`/posts/${post.slug}`}
+      className="group flex flex-col overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm transition-shadow hover:shadow-md"
+    >
+      {/* Cover image */}
+      <div className="relative h-44 shrink-0 overflow-hidden bg-slate-100">
+        <img
+          src={
+            post.coverImage ||
+            "https://images5.alphacoders.com/134/thumb-1920-1347069.png"
+          }
+          alt={post.title}
+          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+        />
+      </div>
 
-      <div className="p-6">
-        {category && (
-          <span className="mb-3 inline-block rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
-            {category.name}
-          </span>
-        )}
+      {/* Body */}
+      <div className="flex flex-1 flex-col gap-3 p-4">
+        {/* Title */}
+        <h2 className="line-clamp-2 text-[15px] font-semibold leading-snug text-slate-900">
+          {post.title}
+        </h2>
 
-        <Link href={`/posts/${post.slug}`}>
-          <h2 className="mb-2 line-clamp-2 text-xl font-semibold tracking-tight text-slate-900 transition-colors hover:text-emerald-700">
-            {post.title}
-          </h2>
-        </Link>
+        {/* Spacer */}
+        <div className="flex-1" />
 
-        <p className="mb-4 line-clamp-3 text-sm leading-relaxed text-slate-600">
-          {post.excerpt}
-        </p>
-
-        <div className="flex items-center justify-between border-t border-slate-200 pt-4 text-sm text-slate-500">
-          <div className="flex items-center gap-3">
-            <span className="inline-flex items-center gap-1">
-              <Eye size={15} weight="duotone" />
-              <span>{post.viewCount}</span>
-            </span>
-            <span className="inline-flex items-center gap-1">
-              <Heart size={15} weight="duotone" />
-              <span>{post.likesCount}</span>
-            </span>
-            <span className="inline-flex items-center gap-1">
-              <ChatCircleDots size={15} weight="duotone" />
-              <span>{post.commentsCount}</span>
-            </span>
-          </div>
-
-          {post.publishedAt && (
-            <span className="inline-flex items-center gap-1">
-              <CalendarDots size={15} weight="duotone" />
-              <span>{format(new Date(post.publishedAt), "MMM d")}</span>
-            </span>
-          )}
-        </div>
-
+        {/* Footer row 1 — author */}
         {author && (
-          <div className="mt-4 flex items-center gap-2 border-t border-slate-200 pt-4">
-            <div className="h-8 w-8 overflow-hidden rounded-full bg-emerald-600">
+          <div className="flex items-center gap-2">
+            <div className="h-6 w-6 shrink-0 overflow-hidden rounded-full bg-slate-200">
               {author.avatar ? (
                 <img
                   src={author.avatar}
@@ -232,15 +263,44 @@ function PostCard({ post }: { post: Post }) {
                   className="h-full w-full object-cover"
                 />
               ) : (
-                <div className="flex h-full w-full items-center justify-center text-sm font-semibold text-white">
+                <span className="flex h-full w-full items-center justify-center text-[10px] font-semibold text-slate-600">
                   {author.username.charAt(0).toUpperCase()}
-                </div>
+                </span>
               )}
             </div>
-            <span className="text-sm text-slate-700">{author.fullName}</span>
+            <span className="truncate text-[12px] font-medium text-slate-600">
+              {author.fullName || author.username}
+            </span>
           </div>
         )}
+
+        {/* Footer row 2 — stats + date */}
+        <div className="flex items-center justify-between border-t border-slate-100 pt-3">
+          {/* Stats */}
+          <div className="flex items-center gap-3 text-slate-400">
+            <span className="inline-flex items-center gap-1 text-[12px]">
+              <Eye size={13} weight="duotone" />
+              {post.viewCount}
+            </span>
+            <span className="inline-flex items-center gap-1 text-[12px]">
+              <Heart size={13} weight="duotone" />
+              {post.likesCount}
+            </span>
+            <span className="inline-flex items-center gap-1 text-[12px]">
+              <ChatCircleDots size={13} weight="duotone" />
+              {post.commentsCount}
+            </span>
+          </div>
+
+          {/* Date */}
+          {post.publishedAt && (
+            <span className="inline-flex items-center gap-1 text-[12px] text-slate-400">
+              <CalendarDots size={13} weight="duotone" />
+              {format(new Date(post.publishedAt), "MMM d")}
+            </span>
+          )}
+        </div>
       </div>
-    </article>
+    </Link>
   );
 }

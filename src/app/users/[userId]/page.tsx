@@ -149,8 +149,10 @@ export default function UserProfilePage() {
 
   if (!authInitialized || isLoading) {
     return (
-      <div className="mx-auto max-w-3xl px-4 py-10 text-slate-600">
-        Đang tải hồ sơ...
+      <div className="mx-auto max-w-3xl px-4 py-10">
+        <div className="rounded-2xl border-[0.5px] border-slate-300 bg-white px-4 py-3 text-sm text-slate-600">
+          Đang tải hồ sơ...
+        </div>
       </div>
     );
   }
@@ -158,7 +160,7 @@ export default function UserProfilePage() {
   if (error) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-10">
-        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        <div className="rounded-2xl border-[0.5px] border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           {error}
         </div>
       </div>
@@ -167,8 +169,10 @@ export default function UserProfilePage() {
 
   if (!profile) {
     return (
-      <div className="mx-auto max-w-3xl px-4 py-10 text-slate-600">
-        Không có dữ liệu hồ sơ người dùng.
+      <div className="mx-auto max-w-3xl px-4 py-10">
+        <div className="rounded-2xl border-[0.5px] border-slate-300 bg-white px-4 py-3 text-sm text-slate-600">
+          Không có dữ liệu hồ sơ người dùng.
+        </div>
       </div>
     );
   }
@@ -179,7 +183,18 @@ export default function UserProfilePage() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
-      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div className="mb-4">
+        <button
+          type="button"
+          onClick={() => router.back()}
+          className="inline-flex items-center gap-2 rounded-lg border-[0.5px] border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100"
+        >
+          <ArrowLeft size={16} />
+          Quay lại
+        </button>
+      </div>
+
+      <section className="rounded-2xl border-[0.5px] border-slate-300 bg-white p-6">
         <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
           <div className="h-20 w-20 overflow-hidden rounded-full bg-slate-200">
             {profile.avatar ? (
@@ -189,22 +204,22 @@ export default function UserProfilePage() {
                 className="h-full w-full object-cover"
               />
             ) : (
-              <span className="flex h-full w-full items-center justify-center text-2xl font-semibold text-slate-700">
+              <span className="flex h-full w-full items-center justify-center text-2xl font-medium text-slate-700">
                 {avatarLetter}
               </span>
             )}
           </div>
 
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
+            <h1 className="text-2xl font-medium text-slate-900">
               {profile.fullName || profile.username}
             </h1>
             <p className="text-sm text-slate-500">@{profile.username}</p>
-            <p className="mt-1 text-xs font-medium uppercase tracking-wide text-slate-400">
+            <p className="mt-1 text-xs text-slate-500">
               Vai trò: {profile.role}
             </p>
             {currentUser?._id === profile._id && (
-              <p className="mt-2 inline-flex rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700">
+              <p className="mt-2 inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700">
                 Đây là hồ sơ của bạn
               </p>
             )}
@@ -213,7 +228,7 @@ export default function UserProfilePage() {
               <button
                 onClick={handleFollowToggle}
                 disabled={isSubmittingFollow}
-                className="mt-3 inline-flex items-center rounded-lg bg-emerald-600 px-3.5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
+                className="mt-3 inline-flex items-center rounded-lg border-[0.5px] border-slate-300 bg-white px-3.5 py-1.5 text-sm font-medium text-slate-900 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {isSubmittingFollow
                   ? "Đang xử lý..."
@@ -226,21 +241,19 @@ export default function UserProfilePage() {
             <div className="mt-4 grid max-w-xs grid-cols-2 gap-2">
               <button
                 onClick={() => openFollowModal("followers")}
-                className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-center transition-colors hover:bg-slate-100"
+                className="rounded-xl bg-slate-100 px-3 py-2 text-center transition-colors hover:bg-slate-200"
               >
-                <p className="text-xs font-medium text-slate-500">Follower</p>
-                <p className="text-base font-semibold text-slate-900">
+                <p className="text-xs text-slate-600">Follower</p>
+                <p className="text-2xl font-medium text-slate-900">
                   {followersCount}
                 </p>
               </button>
               <button
                 onClick={() => openFollowModal("following")}
-                className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-center transition-colors hover:bg-slate-100"
+                className="rounded-xl bg-slate-100 px-3 py-2 text-center transition-colors hover:bg-slate-200"
               >
-                <p className="text-xs font-medium text-slate-500">
-                  Đang follow
-                </p>
-                <p className="text-base font-semibold text-slate-900">
+                <p className="text-xs text-slate-600">Đang follow</p>
+                <p className="text-2xl font-medium text-slate-900">
                   {followingCount}
                 </p>
               </button>
@@ -248,8 +261,8 @@ export default function UserProfilePage() {
           </div>
         </div>
 
-        <div className="mt-6 border-t border-slate-100 pt-4">
-          <h2 className="mb-2 text-sm font-semibold text-slate-700">
+        <div className="mt-6 border-t border-slate-200 pt-4">
+          <h2 className="mb-2 text-sm font-medium text-slate-700">
             Giới thiệu
           </h2>
           <p className="text-sm leading-relaxed text-slate-600 whitespace-pre-wrap">
@@ -265,10 +278,10 @@ export default function UserProfilePage() {
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-lg rounded-2xl border border-slate-200 bg-white shadow-xl"
+            className="w-full max-w-lg rounded-2xl border-[0.5px] border-slate-300 bg-white"
           >
             <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
-              <h3 className="text-lg font-semibold text-slate-900">
+              <h3 className="text-lg font-medium text-slate-900">
                 {modalType === "followers" ? "Người theo dõi" : "Đang theo dõi"}
               </h3>
               <button
@@ -295,9 +308,9 @@ export default function UserProfilePage() {
                     <Link
                       key={item._id}
                       href={`/users/${item._id}`}
-                      className="flex items-center gap-3 rounded-xl border border-slate-200 px-3 py-2 transition-colors hover:bg-slate-50"
+                      className="flex items-center gap-3 rounded-xl border-[0.5px] border-slate-300 px-3 py-2 transition-colors hover:bg-slate-50"
                     >
-                      <div className="h-10 w-10 overflow-hidden rounded-full bg-emerald-100">
+                      <div className="h-10 w-10 overflow-hidden rounded-full bg-slate-200">
                         {item.avatar ? (
                           <img
                             src={item.avatar}
@@ -305,14 +318,14 @@ export default function UserProfilePage() {
                             className="h-full w-full object-cover"
                           />
                         ) : (
-                          <div className="flex h-full w-full items-center justify-center font-bold text-emerald-700">
+                          <div className="flex h-full w-full items-center justify-center font-medium text-slate-700">
                             {item.username.charAt(0).toUpperCase()}
                           </div>
                         )}
                       </div>
 
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-semibold text-slate-900">
+                        <p className="truncate text-sm font-medium text-slate-900">
                           {item.fullName || "Chưa cập nhật tên"}
                         </p>
                         <p className="truncate text-sm text-slate-500">

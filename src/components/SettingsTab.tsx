@@ -106,16 +106,16 @@ export default function SettingsTab({ user }: SettingsTabProps) {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-semibold tracking-tight text-slate-900">
-          Settings
+        <h1 className="text-3xl font-medium text-slate-900">
+          Cài đặt tài khoản
         </h1>
         <p className="mt-1 text-slate-600">
           Cập nhật thông tin tài khoản của bạn
         </p>
       </div>
 
-      <section className="rounded-xl border border-slate-200 p-4 md:p-5">
-        <h2 className="mb-4 text-lg font-semibold text-slate-900">
+      <section className="rounded-2xl border-[0.5px] border-slate-300 bg-white p-4 md:p-5">
+        <h2 className="mb-4 text-lg font-medium text-slate-900">
           Thông tin cơ bản
         </h2>
         <div className="grid gap-4 md:grid-cols-2">
@@ -132,7 +132,7 @@ export default function SettingsTab({ user }: SettingsTabProps) {
                   fullName: e.target.value,
                 }))
               }
-              className="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              className="w-full rounded-md border-[0.5px] border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-slate-200"
             />
           </div>
 
@@ -146,7 +146,7 @@ export default function SettingsTab({ user }: SettingsTabProps) {
               onChange={(e) =>
                 setProfileForm((prev) => ({ ...prev, avatar: e.target.value }))
               }
-              className="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              className="w-full rounded-md border-[0.5px] border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-slate-200"
             />
           </div>
 
@@ -160,13 +160,15 @@ export default function SettingsTab({ user }: SettingsTabProps) {
               onChange={(e) =>
                 setProfileForm((prev) => ({ ...prev, bio: e.target.value }))
               }
-              className="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              className="w-full rounded-md border-[0.5px] border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-slate-200"
             />
           </div>
         </div>
 
         {profileMessage && (
-          <p className="mt-3 text-sm text-slate-600">{profileMessage}</p>
+          <p className="mt-3 rounded-md bg-slate-100 px-3 py-2 text-sm text-slate-700">
+            {profileMessage}
+          </p>
         )}
 
         <div className="mt-4 flex justify-end">
@@ -174,15 +176,15 @@ export default function SettingsTab({ user }: SettingsTabProps) {
             type="button"
             onClick={() => void handleProfileSubmit()}
             disabled={isUpdatingProfile}
-            className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-60"
+            className="rounded-md border-[0.5px] border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-900 transition-colors hover:bg-slate-100 disabled:opacity-60"
           >
             {isUpdatingProfile ? "Đang cập nhật..." : "Lưu thông tin"}
           </button>
         </div>
       </section>
 
-      <section className="rounded-xl border border-slate-200 p-4 md:p-5">
-        <h2 className="mb-4 text-lg font-semibold text-slate-900">Đổi email</h2>
+      <section className="rounded-2xl border-[0.5px] border-slate-300 bg-white p-4 md:p-5">
+        <h2 className="mb-4 text-lg font-medium text-slate-900">Đổi email</h2>
         <div className="grid gap-4 md:grid-cols-2">
           <div className="md:col-span-2">
             <label className="mb-1 block text-sm font-medium text-slate-700">
@@ -194,7 +196,7 @@ export default function SettingsTab({ user }: SettingsTabProps) {
               onChange={(e) =>
                 setEmailForm((prev) => ({ ...prev, newEmail: e.target.value }))
               }
-              className="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              className="w-full rounded-md border-[0.5px] border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-slate-200"
             />
           </div>
 
@@ -211,13 +213,15 @@ export default function SettingsTab({ user }: SettingsTabProps) {
                   currentPassword: e.target.value,
                 }))
               }
-              className="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              className="w-full rounded-md border-[0.5px] border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-slate-200"
             />
           </div>
         </div>
 
         {emailMessage && (
-          <p className="mt-3 text-sm text-slate-600">{emailMessage}</p>
+          <p className="mt-3 rounded-md bg-slate-100 px-3 py-2 text-sm text-slate-700">
+            {emailMessage}
+          </p>
         )}
 
         <div className="mt-4 flex justify-end">
@@ -225,15 +229,15 @@ export default function SettingsTab({ user }: SettingsTabProps) {
             type="button"
             onClick={() => void handleEmailSubmit()}
             disabled={isUpdatingEmail}
-            className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-60"
+            className="rounded-md border-[0.5px] border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-900 transition-colors hover:bg-slate-100 disabled:opacity-60"
           >
             {isUpdatingEmail ? "Đang cập nhật..." : "Cập nhật email"}
           </button>
         </div>
       </section>
 
-      <section className="rounded-xl border border-slate-200 p-4 md:p-5">
-        <h2 className="mb-4 text-lg font-semibold text-slate-900">
+      <section className="rounded-2xl border-[0.5px] border-slate-300 bg-white p-4 md:p-5">
+        <h2 className="mb-4 text-lg font-medium text-slate-900">
           Đổi username
         </h2>
         <div>
@@ -249,12 +253,14 @@ export default function SettingsTab({ user }: SettingsTabProps) {
                 newUsername: e.target.value,
               }))
             }
-            className="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+            className="w-full rounded-md border-[0.5px] border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-slate-200"
           />
         </div>
 
         {usernameMessage && (
-          <p className="mt-3 text-sm text-slate-600">{usernameMessage}</p>
+          <p className="mt-3 rounded-md bg-slate-100 px-3 py-2 text-sm text-slate-700">
+            {usernameMessage}
+          </p>
         )}
 
         <div className="mt-4 flex justify-end">
@@ -262,7 +268,7 @@ export default function SettingsTab({ user }: SettingsTabProps) {
             type="button"
             onClick={() => void handleUsernameSubmit()}
             disabled={isUpdatingUsername}
-            className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-60"
+            className="rounded-md border-[0.5px] border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-900 transition-colors hover:bg-slate-100 disabled:opacity-60"
           >
             {isUpdatingUsername ? "Đang cập nhật..." : "Cập nhật username"}
           </button>

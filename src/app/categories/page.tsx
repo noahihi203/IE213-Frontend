@@ -2,19 +2,11 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { Montserrat } from "next/font/google";
 import { categoryService } from "@/lib/api/category.service";
 import { Category, Tag, User } from "@/lib/types";
-import { FolderOpen } from "@phosphor-icons/react";
 import { tagService } from "@/lib/api/tag.services";
 import { userService } from "@/lib/api/user.service";
 
-const montserrat = Montserrat({
-  subsets: ["latin", "vietnamese"],
-  weight: ["400", "500", "600", "700"],
-});
-
-const ACCENT_PINK = "#DC0055";
 const ACCENT_BLUE = "#0087CE";
 const ACCENT_GOLD = "#ED9F00";
 const DEFAULT_AVATAR_URL =

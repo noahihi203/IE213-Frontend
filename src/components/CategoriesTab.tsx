@@ -38,10 +38,10 @@ export default function CategoriesTab({
   );
 
   return (
-    <div className="rounded-[1.5rem] border border-slate-200/80 bg-white p-6 shadow-[0_20px_40px_-15px_rgba(15,23,42,0.08)]">
+    <div className="rounded-3xl border-[0.5px] border-slate-300 bg-white p-6">
       <div className="mb-6 flex flex-col items-start justify-between space-y-4 md:flex-row md:items-center md:space-y-0">
         <div>
-          <h1 className="mb-2 text-2xl font-semibold tracking-tight text-slate-900">
+          <h1 className="mb-2 text-2xl font-medium text-slate-900">
             Danh sách danh mục
           </h1>
           <p className="text-slate-600">Quản lý các danh mục bài viết.</p>
@@ -60,12 +60,13 @@ export default function CategoriesTab({
               placeholder="Tìm kiếm danh mục..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="block w-full rounded-lg border border-slate-300 bg-white py-2 pl-10 pr-3 text-sm leading-5 placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              className="block w-full rounded-lg border-[0.5px] border-slate-300 bg-white py-2 pl-10 pr-3 text-sm leading-5 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-200"
             />
           </div>
           <button
+            type="button"
             onClick={onOpenCreate}
-            className="flex flex-shrink-0 items-center justify-center space-x-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
+            className="flex flex-shrink-0 items-center justify-center space-x-2 rounded-lg border-[0.5px] border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-900 transition-colors hover:bg-slate-100"
           >
             <Plus size={18} weight="duotone" />
             <span>Thêm Danh Mục</span>
@@ -73,11 +74,11 @@ export default function CategoriesTab({
         </div>
       </div>
       {isLoading ? (
-        <div className="text-center py-8">
-          <div className="mx-auto h-8 w-8 animate-spin rounded-full border-b-2 border-emerald-600" />
+        <div className="rounded-2xl border-[0.5px] border-slate-300 py-8 text-center">
+          <div className="mx-auto h-8 w-8 animate-spin rounded-full border-b-2 border-slate-700" />
         </div>
       ) : filteredCategories.length === 0 ? (
-        <div className="py-8 text-center text-slate-500">
+        <div className="rounded-2xl border-[0.5px] border-slate-300 py-8 text-center text-slate-500">
           <Folder
             size={48}
             weight="duotone"
@@ -86,15 +87,15 @@ export default function CategoriesTab({
           Không có danh mục nào hoặc không thể tải dữ liệu
         </div>
       ) : (
-        <div className="rounded-2xl border border-slate-200">
+        <div className="overflow-x-auto rounded-2xl border-[0.5px] border-slate-300">
           <table className="w-full divide-y divide-slate-200">
             <thead className="bg-slate-50">
               <tr>
-                {["TÊN DANH MỤC", "MÔ TẢ", "HÀNH ĐỘNG"].map((h) => (
+                {["Tên danh mục", "Mô tả", "Hành động"].map((h) => (
                   <th
                     key={h}
-                    className={`px-6 py-3 text-xs font-medium uppercase tracking-wider text-slate-500 ${
-                      h === "HÀNH ĐỘNG" ? "text-center" : "text-left"
+                    className={`px-6 py-3 text-xs font-medium text-slate-600 ${
+                      h === "Hành động" ? "text-center" : "text-left"
                     }`}
                   >
                     {h}
@@ -120,8 +121,9 @@ export default function CategoriesTab({
                         </div>
                         {category.description.length > 80 && (
                           <button
+                            type="button"
                             onClick={() => toggleDescription(category._id)}
-                            className="mt-1 inline-flex items-center text-xs font-medium text-emerald-600 outline-none hover:text-emerald-800"
+                            className="mt-1 inline-flex items-center text-xs font-medium text-slate-600 outline-none hover:text-slate-900"
                           >
                             {expandedDescIds[category._id]
                               ? "Thu gọn"
@@ -136,15 +138,17 @@ export default function CategoriesTab({
                   <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
                     <div className="flex items-center justify-center space-x-3">
                       <button
+                        type="button"
                         onClick={() => onEdit(category)}
-                        className="text-blue-600 hover:text-blue-900 bg-blue-50 p-1.5 rounded-md hover:bg-blue-100 transition-colors"
+                        className="rounded-md border-[0.5px] border-slate-300 bg-white p-1.5 text-slate-700 transition-colors hover:bg-slate-100 hover:text-slate-900"
                         title="Sửa danh mục"
                       >
                         <PencilSimple size={16} weight="duotone" />
                       </button>
                       <button
+                        type="button"
                         onClick={() => onDelete(category._id)}
-                        className="text-red-600 hover:text-red-900 bg-red-50 p-1.5 rounded-md hover:bg-red-100 transition-colors"
+                        className="rounded-md border-[0.5px] border-rose-200 bg-white p-1.5 text-rose-700 transition-colors hover:bg-rose-50 hover:text-rose-900"
                         title="Xóa danh mục"
                       >
                         <Trash size={16} weight="duotone" />
