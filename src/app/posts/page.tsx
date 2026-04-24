@@ -1,12 +1,12 @@
 "use client";
 
-import { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Montserrat } from "next/font/google";
 import { postService } from "@/lib/api/post.service";
 import { categoryService } from "@/lib/api/category.service";
-import { Category, Post } from "@/lib/types";
+import { Category, Post, Posts } from "@/lib/types";
 import { GridFour } from "@phosphor-icons/react";
 
 const montserrat = Montserrat({
@@ -16,6 +16,24 @@ const montserrat = Montserrat({
 
 const DEFAULT_AVATAR_URL =
   "https://i.pinimg.com/736x/a5/78/d9/a578d9499607489c0124cc5fba613c23.jpg";
+
+const CATEGORY_COLORS = ["#DC0055", "#0087CE", "#ED9F00"];
+
+function getCategoryColor(id: string) {
+  // Dùng id để màu luôn nhất quán, không random mỗi render
+  let hash = 0;
+  for (let i = 0; i < id.length; i++)
+    hash = id.charCodeAt(i) + ((hash << 5) - hash);
+  return CATEGORY_COLORS[Math.abs(hash) % CATEGORY_COLORS.length];
+}
+
+export function getReadingTime(text: string) {
+  if (!text) return 0;
+  const wordCount = text.trim().split(/\s+/).filter(Boolean).length;
+  return Math.ceil(wordCount / 200);
+}
+
+// ─── Icon Components ───────────────────────────────────────────────────────
 
 function EyeIcon() {
   return (
@@ -67,60 +85,84 @@ function CommentIcon() {
   );
 }
 
-function getReadingStats(text: string) {
-  if (!text) return 0;
+// ─── Skeleton ──────────────────────────────────────────────────────────────
 
-  const charCount = text.length;
-
-  const words = text.trim().split(/\s+/);
-  const wordCount = words.filter(Boolean).length;
-
-  const WORDS_PER_MINUTE = 200;
-
-  const readingTime = Math.ceil(wordCount / WORDS_PER_MINUTE);
-
-  return readingTime;
+function PostGridSkeleton({ count = 12 }: { count?: number }) {
+  return (
+    <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
+      {Array.from({ length: count }).map((_, i) => (
+        <div
+          key={i}
+          className="overflow-hidden rounded-xl border border-slate-200 bg-white p-3 md:p-4"
+        >
+          <div className="mb-2 h-28 animate-pulse rounded-lg bg-slate-200 md:h-32" />
+          <div className="mb-2 h-3 w-2/3 animate-pulse rounded bg-slate-200" />
+          <div className="mb-1 h-3 w-full animate-pulse rounded bg-slate-200" />
+          <div className="h-3 w-4/5 animate-pulse rounded bg-slate-200" />
+        </div>
+      ))}
+    </div>
+  );
 }
+
+// ─── Main Page ─────────────────────────────────────────────────────────────
+
+const PAGE_SIZE = 12;
+type SortOption = "createdOn" | "viewCount" | "commentsCount";
+
+const EMPTY_POSTS: Posts = {
+  data: [],
+  pagination: {
+    hasNextPage: false,
+    hasPrevPage: false,
+    limit: PAGE_SIZE,
+    page: 1,
+    total: 0,
+    totalPages: 1,
+  },
+};
 
 function PostsPageContent() {
   const searchParams = useSearchParams();
   const searchTerm = searchParams.get("search") || "";
 
-  const [posts, setPosts] = useState<Post[]>([]);
+  const [posts, setPosts] = useState<Posts>(EMPTY_POSTS);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
+  const [sortBy, setSortBy] = useState<SortOption>("createdOn");
+
+  // Trạng thái loading tách biệt: lần đầu vs load thêm
+  const [isLoading, setIsLoading] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [hasMorePosts, setHasMorePosts] = useState(true);
+
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
 
-  const PAGE_SIZE = 12;
-
+  // Load categories 1 lần khi mount
   useEffect(() => {
-    loadCategories();
+    categoryService
+      .getAllCategories()
+      .then((res) =>
+        setCategories(Array.isArray(res.metadata) ? res.metadata : []),
+      )
+      .catch(() => setCategories([]));
   }, []);
 
+  // Reset và load lại từ trang 1 khi filter thay đổi
   useEffect(() => {
-    setCurrentPage(1);
-    setPosts([]);
-    setHasMorePosts(true);
-    void loadPosts(1, false);
-  }, [selectedCategory, searchTerm]);
+    setPosts(EMPTY_POSTS);
+    void fetchPosts({ page: 1, append: false });
+  }, [selectedCategory, searchTerm, sortBy]);
 
+  // Infinite scroll: khi phần tử cuối xuất hiện → load trang tiếp
   useEffect(() => {
     const node = loadMoreRef.current;
-    if (!node || !hasMorePosts || isLoading || isLoadingMore) return;
+    if (!node || !posts.pagination.hasNextPage || isLoading || isLoadingMore)
+      return;
 
     const observer = new IntersectionObserver(
-      (entries) => {
-        const [entry] = entries;
+      ([entry]) => {
         if (entry.isIntersecting) {
-          const nextPage = currentPage + 1;
-          if (nextPage <= totalPages) {
-            void loadPosts(nextPage, true);
-          }
+          void fetchPosts({ page: posts.pagination.page + 1, append: true });
         }
       },
       { threshold: 0.25 },
@@ -128,222 +170,157 @@ function PostsPageContent() {
 
     observer.observe(node);
     return () => observer.disconnect();
-  }, [currentPage, hasMorePosts, isLoading, isLoadingMore, totalPages]);
+  }, [posts.pagination, isLoading, isLoadingMore]);
 
-  const loadCategories = async () => {
-    try {
-      const response = await categoryService.getAllCategories();
-      setCategories(Array.isArray(response.metadata) ? response.metadata : []);
-    } catch (error) {
-      console.error("Failed to load categories:", error);
-      setCategories([]);
-    }
-  };
+  // ─── Fetch Posts ─────────────────────────────────────────────────────────
 
-  const loadPosts = async (pageToLoad: number, append: boolean) => {
-    if (append) {
-      setIsLoadingMore(true);
-    } else {
-      setIsLoading(true);
-    }
+  async function fetchPosts({
+    page,
+    append,
+  }: {
+    page: number;
+    append: boolean;
+  }) {
+    append ? setIsLoadingMore(true) : setIsLoading(true);
 
     try {
-      const response = await postService.getAllPosts({
-        page: pageToLoad,
+      const res = await postService.getAllPosts({
+        page,
         limit: PAGE_SIZE,
         search: searchTerm || undefined,
         category: selectedCategory || undefined,
+        sort: sortBy,
         status: "published",
       });
 
-      const metadata = response.metadata as any;
-      const nextPosts: Post[] = Array.isArray(metadata)
-        ? metadata
-        : Array.isArray(metadata?.data)
-          ? metadata.data
-          : [];
+      const fetched = res.metadata as Posts;
 
-      const nextTotalPages = Number(metadata?.pagination?.total || 1);
-      if (Array.isArray(response.metadata)) {
-        setPosts((prev) => (append ? [...prev, ...nextPosts] : nextPosts));
-        setTotalPages(1);
-        setCurrentPage(pageToLoad);
-        setHasMorePosts(false);
-      } else if (response.metadata?.data) {
-        setPosts((prev) => (append ? [...prev, ...nextPosts] : nextPosts));
-        setTotalPages(nextTotalPages);
-        setCurrentPage(pageToLoad);
-        setHasMorePosts(pageToLoad < nextTotalPages);
-      } else {
-        if (!append) setPosts([]);
-        setTotalPages(1);
-        setCurrentPage(pageToLoad);
-        setHasMorePosts(false);
-      }
+      setPosts((prev) =>
+        append
+          ? { ...fetched, data: [...prev.data, ...fetched.data] }
+          : fetched,
+      );
     } catch (error) {
       console.error("Failed to load posts:", error);
-      if (!append) setPosts([]);
-      setTotalPages(1);
-      setHasMorePosts(false);
+      if (!append) setPosts(EMPTY_POSTS);
     } finally {
-      if (append) {
-        setIsLoadingMore(false);
-      } else {
-        setIsLoading(false);
-      }
+      append ? setIsLoadingMore(false) : setIsLoading(false);
     }
-  };
+  }
 
-  const compactPosts = useMemo(() => posts, [posts]);
+  // ─── Handlers ────────────────────────────────────────────────────────────
+
+  function handleSelectCategory(categoryId: string) {
+    setSelectedCategory(categoryId);
+  }
+
+  // ─── Render ──────────────────────────────────────────────────────────────
 
   return (
     <div className={`${montserrat.className} min-h-[100dvh] bg-slate-50`}>
       <div className="mx-auto max-w-7xl px-4 py-10 md:px-6 lg:px-10">
+        {/* Header */}
         <div className="mb-8 max-w-3xl">
           <h1 className="text-4xl leading-tight tracking-tight">
             <span className="font-bold text-[#000]">Bài</span>
             <span className="font-normal text-[#888]"> viết</span>
           </h1>
-          <p className="text-[#888] text-[14px] mt-1.5">
-            Khám phá {totalPages} bài viết từ các tác giả hàng đầu
+          <p className="mt-1.5 text-[14px] text-[#888]">
+            Khám phá các bài viết từ sinh viên các trường đại học tại TP.HCM
           </p>
         </div>
 
-        <div className="mb-8 rounded-[1.5rem] border border-slate-200/80 bg-white p-5 shadow-[0_20px_40px_-15px_rgba(15,23,42,0.08)] md:p-6">
-          <div>
-            <label className="mb-3 block text-xs font-semibold uppercase tracking-wide text-slate-500">
-              Trường đại học
-            </label>
-
-            <div className="overflow-x-auto pb-3 -mx-5 px-5 mb-7 no-scrollbar">
-              <div className="flex items-center gap-5 w-max">
-                {/* Nút "Tất cả" */}
-                <button
-                  onClick={() => {
-                    setSelectedCategory("");
-                    setCurrentPage(1);
-                  }}
-                  className="flex flex-col items-center gap-2 flex-shrink-0 group"
-                >
-                  <div
-                    className="w-16 h-16 rounded-full flex items-center justify-center transition-all duration-200 overflow-hidden border-2"
-                    style={{
-                      backgroundColor:
-                        selectedCategory === "" ? "#F0F0F0" : "#F8F8F8",
-                      borderColor: selectedCategory === "" ? "#000" : "#E5E7EB",
-                      boxShadow:
-                        selectedCategory === ""
-                          ? "0 4px 12px rgba(0,0,0,0.08)"
-                          : "0 2px 8px rgba(0,0,0,0.04)",
-                    }}
-                  >
-                    <GridFour
-                      size={32}
-                      weight={selectedCategory === "" ? "bold" : "regular"}
-                      className="group-hover:scale-110 transition-transform duration-200"
-                      style={{
-                        color: selectedCategory === "" ? "#000" : "#888",
-                      }}
+        {/* Category Filter */}
+        <div className="no-scrollbar -mx-5 mb-7 overflow-x-auto px-5 pb-3">
+          <div className="flex w-max items-center gap-5">
+            <CategoryButton
+              label="Tất cả"
+              isActive={selectedCategory === ""}
+              onClick={() => handleSelectCategory("")}
+              icon={
+                <GridFour
+                  size={32}
+                  weight={selectedCategory === "" ? "bold" : "regular"}
+                  style={{ color: selectedCategory === "" ? "#000" : "#888" }}
+                  className="transition-transform duration-200 group-hover:scale-110"
+                />
+              }
+            />
+            {categories.map((category) => (
+              <CategoryButton
+                key={category._id}
+                label={category.abbreviation}
+                isActive={selectedCategory === category._id}
+                onClick={() => handleSelectCategory(category._id)}
+                icon={
+                  category.icon ? (
+                    <img
+                      src={category.icon}
+                      alt={category.name}
+                      className="h-9 w-9 object-contain transition-transform duration-200 group-hover:scale-110"
                     />
-                  </div>
-                  <div className="flex flex-col items-center gap-1">
-                    <span
-                      className="text-[12px] font-semibold whitespace-nowrap transition-colors"
-                      style={{
-                        color: selectedCategory === "" ? "#000" : "#888",
-                      }}
-                    >
-                      Tất cả
+                  ) : (
+                    <span className="text-[24px] transition-transform duration-200 group-hover:scale-110">
+                      {category.name.charAt(0)}
                     </span>
-                    {selectedCategory === "" && (
-                      <span className="w-5 h-1 rounded-full bg-black transition-all" />
-                    )}
-                  </div>
-                </button>
-
-                {/* Danh sách các trường đại học */}
-                {categories.map((category) => {
-                  const isActive = selectedCategory === category._id;
-                  return (
-                    <button
-                      key={category._id}
-                      onClick={() => {
-                        setSelectedCategory(category._id);
-                        setCurrentPage(1);
-                      }}
-                      className="flex flex-col items-center gap-2 flex-shrink-0 group"
-                    >
-                      <div
-                        className="w-16 h-16 rounded-full flex items-center justify-center transition-all duration-200 overflow-hidden border-2"
-                        style={{
-                          backgroundColor: isActive ? "#F0F0F0" : "#F8F8F8",
-                          borderColor: isActive ? "#000" : "#E5E7EB",
-                          boxShadow: isActive
-                            ? "0 4px 12px rgba(0,0,0,0.08)"
-                            : "0 2px 8px rgba(0,0,0,0.04)",
-                        }}
-                      >
-                        {category.icon ? (
-                          <img
-                            src={category.icon}
-                            alt={category.name}
-                            className="w-9 h-9 object-contain group-hover:scale-110 transition-transform duration-200"
-                          />
-                        ) : (
-                          <span className="text-[24px] group-hover:scale-110 transition-transform duration-200">
-                            {category.name.charAt(0)}
-                          </span>
-                        )}
-                      </div>
-                      <div className="flex flex-col items-center gap-1">
-                        <span
-                          className="text-[12px] font-semibold whitespace-nowrap transition-colors"
-                          style={{ color: isActive ? "#000" : "#888" }}
-                        >
-                          {category.abbreviation}
-                        </span>
-                        {isActive && (
-                          <span className="w-5 h-1 rounded-full bg-black transition-all" />
-                        )}
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
+                  )
+                }
+              />
+            ))}
           </div>
         </div>
 
-        {isLoading ? (
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
-            {Array.from({ length: PAGE_SIZE }).map((_, index) => (
-              <div
-                key={index}
-                className="overflow-hidden rounded-xl border border-slate-200 bg-white p-3 md:p-4"
-              >
-                <div className="mb-2 h-28 animate-pulse rounded-lg bg-slate-200 md:h-32" />
-                <div className="mb-2 h-3 w-2/3 animate-pulse rounded bg-slate-200" />
-                <div className="mb-1 h-3 w-full animate-pulse rounded bg-slate-200" />
-                <div className="h-3 w-4/5 animate-pulse rounded bg-slate-200" />
-              </div>
-            ))}
+        <div className="mb-8 w-full flex place-content-between items-center">
+          <div>
+            <span className="font-normal text-[#888]">Hiển thị</span>
+            <span className="font-bold text-[#000]">
+              {" "}
+              {posts.pagination.total}{" "}
+            </span>
+            <span className="font-normal text-[#888]">bài viết</span>
           </div>
-        ) : posts.length === 0 ? (
+          <div className="flex items-center gap-2">
+            <label
+              htmlFor="post-sort"
+              className="text-sm font-medium text-[#888]"
+            >
+              Sắp xếp
+            </label>
+            <select
+              id="post-sort"
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as SortOption)}
+              className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 outline-none transition-colors focus:border-slate-500"
+            >
+              <option value="createdOn">Mới nhất</option>
+              <option value="viewCount">Nổi bật</option>
+              <option value="commentsCount">Nhiều thảo luận</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Post Grid */}
+        {isLoading ? (
+          <PostGridSkeleton count={PAGE_SIZE} />
+        ) : posts.data.length === 0 ? (
           <div className="rounded-[1.5rem] border border-slate-200 bg-white px-6 py-14 text-center shadow-[0_20px_40px_-15px_rgba(15,23,42,0.08)]">
-            <p className="text-lg font-medium text-slate-800">No posts found</p>
+            <p className="text-lg font-medium text-slate-800">
+              Không tìm thấy bài viết
+            </p>
             <p className="mt-2 text-sm text-slate-600">
-              Try a different keyword or choose another category.
+              Thử từ khoá khác hoặc chọn danh mục khác.
             </p>
           </div>
         ) : (
           <>
             <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
-              {compactPosts.map((post) => (
+              {posts.data.map((post) => (
                 <PostCard key={post._id} post={post} />
               ))}
             </div>
 
-            {hasMorePosts && (
+            {/* Infinite scroll trigger */}
+            {posts.pagination.hasNextPage && (
               <div
                 ref={loadMoreRef}
                 className="py-6 text-center text-sm text-slate-500"
@@ -354,7 +331,7 @@ function PostsPageContent() {
               </div>
             )}
 
-            {!hasMorePosts && compactPosts.length > 0 && (
+            {!posts.pagination.hasNextPage && (
               <div className="py-6 text-center text-xs text-slate-400">
                 Đã hiển thị tất cả bài viết.
               </div>
@@ -366,88 +343,107 @@ function PostsPageContent() {
   );
 }
 
-export default function PostsPage() {
+// ─── Category Button ───────────────────────────────────────────────────────
+
+function CategoryButton({
+  label,
+  isActive,
+  onClick,
+  icon,
+}: {
+  label: string;
+  isActive: boolean;
+  onClick: () => void;
+  icon: React.ReactNode;
+}) {
   return (
-    <Suspense
-      fallback={
-        <div className={`${montserrat.className} min-h-[100dvh] bg-slate-50`}>
-          <div className="mx-auto max-w-7xl px-4 py-10 md:px-6 lg:px-10">
-            <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
-              {Array.from({ length: 12 }).map((_, index) => (
-                <div
-                  key={index}
-                  className="overflow-hidden rounded-xl border border-slate-200 bg-white p-3 md:p-4"
-                >
-                  <div className="mb-2 h-28 animate-pulse rounded-lg bg-slate-200 md:h-32" />
-                  <div className="mb-2 h-3 w-2/3 animate-pulse rounded bg-slate-200" />
-                  <div className="mb-1 h-3 w-full animate-pulse rounded bg-slate-200" />
-                  <div className="h-3 w-4/5 animate-pulse rounded bg-slate-200" />
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      }
+    <button
+      onClick={onClick}
+      className="group flex flex-shrink-0 flex-col items-center gap-2"
     >
-      <PostsPageContent />
-    </Suspense>
+      <div
+        className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-full border-2 transition-all duration-200"
+        style={{
+          backgroundColor: isActive ? "#F0F0F0" : "#F8F8F8",
+          borderColor: isActive ? "#000" : "#E5E7EB",
+          boxShadow: isActive
+            ? "0 4px 12px rgba(0,0,0,0.08)"
+            : "0 2px 8px rgba(0,0,0,0.04)",
+        }}
+      >
+        {icon}
+      </div>
+      <div className="flex flex-col items-center gap-1">
+        <span
+          className="whitespace-nowrap text-[12px] font-semibold transition-colors"
+          style={{ color: isActive ? "#000" : "#888" }}
+        >
+          {label}
+        </span>
+        {isActive && <span className="h-1 w-5 rounded-full bg-black" />}
+      </div>
+    </button>
   );
 }
+
+// ─── Post Card ─────────────────────────────────────────────────────────────
 
 function PostCard({ post }: { post: Post }) {
   const author = typeof post.authorId === "object" ? post.authorId : null;
   const category = typeof post.category === "object" ? post.category : null;
-  const colors = ["#DC0055", "#0087CE", "#ED9F00"];
-  const color = colors[Math.floor(Math.random() * colors.length)];
+
+  // Màu nhất quán theo category id, không random mỗi render
+  const color = getCategoryColor(category?._id ?? post._id);
+
   return (
     <Link
       href={`/posts/${post.slug}`}
-      className="bg-white flex flex-col overflow-hidden cursor-pointer group"
+      className="group flex cursor-pointer flex-col overflow-hidden bg-white"
       style={{ borderRadius: "18px", boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}
     >
+      {/* Thumbnail */}
       <div
         className="relative overflow-hidden"
         style={{ aspectRatio: "16/10" }}
       >
         <img
           src={
-            post.coverImage
-              ? post.coverImage
-              : "https://chiikawa-merch.com/cdn/shop/articles/Is_Chiikawa_a_kids_show_5d5255c9-1da6-4e1a-b710-39e4368c51b8.jpg"
+            post.coverImage ||
+            "https://chiikawa-merch.com/cdn/shop/articles/Is_Chiikawa_a_kids_show_5d5255c9-1da6-4e1a-b710-39e4368c51b8.jpg"
           }
           alt={post.title}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
         <div
-          className="absolute top-3 left-3 px-3 py-1 rounded-full"
-          style={{
-            backgroundColor: color,
-          }}
+          className="absolute left-3 top-3 rounded-full px-3 py-1"
+          style={{ backgroundColor: color }}
         >
-          <span className="text-white text-[11px] font-semibold tracking-wide">
+          <span className="text-[11px] font-semibold tracking-wide text-white">
             {category?.abbreviation}
           </span>
         </div>
         <div
-          className="absolute bottom-3 right-3 px-2.5 py-1 rounded-md"
+          className="absolute bottom-3 right-3 rounded-md px-2.5 py-1"
           style={{ backgroundColor: "rgba(0,0,0,0.55)" }}
         >
-          <span className="text-white text-[11px]">
-            {getReadingStats(post.content)} phút đọc
+          <span className="text-[11px] text-white">
+            {getReadingTime(post.content)} phút đọc
           </span>
         </div>
       </div>
 
-      <div className="flex flex-col gap-2.5 p-4 flex-1">
-        <h3 className="text-[#000] text-[15px] font-semibold leading-snug line-clamp-2">
+      {/* Content */}
+      <div className="flex flex-1 flex-col gap-2.5 p-4">
+        <h3 className="line-clamp-2 text-[15px] font-semibold leading-snug text-[#000]">
           {post.title}
         </h3>
-        <p className="text-[#888] text-[13px] leading-relaxed line-clamp-2 flex-1">
+        <p className="line-clamp-2 flex-1 text-[13px] leading-relaxed text-[#888]">
           {post.excerpt}
         </p>
 
+        {/* Author row */}
         <div className="flex items-center gap-2 pt-1">
-          <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden">
+          <div className="h-6 w-6 flex-shrink-0 overflow-hidden rounded-full">
             <img
               src={
                 typeof author?.avatar === "string" &&
@@ -456,57 +452,63 @@ function PostCard({ post }: { post: Post }) {
                   : DEFAULT_AVATAR_URL
               }
               alt={author?.fullName || author?.username || "Author"}
-              className="w-full h-full object-cover"
+              className="h-full w-full object-cover"
             />
           </div>
-          <span className="text-[#888] text-[12px] font-medium flex-1 truncate">
+          <span className="flex-1 truncate text-[12px] font-medium text-[#888]">
             {author?.fullName}
           </span>
-          <span className="text-[#bbb] text-[11px]">
+          <span className="text-[11px] text-[#bbb]">
             {new Date(post.createdOn).toLocaleDateString("vi-VN")}
           </span>
         </div>
 
         <div className="border-t border-[#F0F0F0]" />
 
+        {/* Stats row */}
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1 text-[#888] text-[11px]">
+          <div className="flex items-center gap-1 text-[11px] text-[#888]">
             <EyeIcon />
             <span>{post.viewCount}</span>
           </div>
-          <div className="flex items-center gap-1 text-[#888] text-[11px]">
+          <div className="flex items-center gap-1 text-[11px] text-[#888]">
             <HeartIcon />
             <span>{post.likesCount}</span>
           </div>
-          <div className="flex items-center gap-1 text-[#888] text-[11px]">
+          <div className="flex items-center gap-1 text-[11px] text-[#888]">
             <CommentIcon />
             <span>{post.commentsCount}</span>
           </div>
-          <div className="ml-auto flex gap-1.5">
-            {/* {post.tags.map((tag) => (
+          <div className="ml-auto">
+            {post.tags?.[0] && (
               <span
-                key={tag._id}
-                className="text-[11px] font-medium px-2 py-0.5 rounded-md"
-                style={{
-                  color: color,
-                  backgroundColor: `${color}15`,
-                }}
+                className="rounded-md px-2 py-0.5 text-[11px] font-medium"
+                style={{ color, backgroundColor: `${color}15` }}
               >
-                {tag.name}
+                {post.tags[0].name}
               </span>
-            ))} */}
-            <span
-              className="text-[11px] font-medium px-2 py-0.5 rounded-md"
-              style={{
-                color: color,
-                backgroundColor: `${color}15`,
-              }}
-            >
-              {post.tags?.[0]?.name || ""}{" "}
-            </span>
+            )}
           </div>
         </div>
       </div>
     </Link>
+  );
+}
+
+// ─── Page Wrapper ──────────────────────────────────────────────────────────
+
+export default function PostsPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className={`${montserrat.className} min-h-[100dvh] bg-slate-50`}>
+          <div className="mx-auto max-w-7xl px-4 py-10 md:px-6 lg:px-10">
+            <PostGridSkeleton count={12} />
+          </div>
+        </div>
+      }
+    >
+      <PostsPageContent />
+    </Suspense>
   );
 }

@@ -19,13 +19,17 @@ const ACCENT_GOLD = "#ED9F00";
 
 /* ─── TICKER ─── */
 const tickerItems = [
-  "Viết tự do",
-  "12K+ Tác giả",
+  "Cộng đồng Sinh Viên",
+  "Kết nối đa trường",
+  "Không gian thảo luận",
+  "CHIA SẺ & HỌC HỎI",
+  "SINH VIÊN TP.HCM",
+  "DIỄN ĐÀN TRAO ĐỔI",
+  "TRẢI NGHIỆM THỰC TẾ",
+  "ĐÁNG TIN CẬY",
+  "ĐẠI HỌC QUỐC GIA",
   "86K+ Bài viết",
   "2.4M Độc giả",
-  "Miễn phí mãi mãi",
-  "Markdown hỗ trợ đầy đủ",
-  "Cộng đồng Việt Nam",
 ];
 
 /* ─── STEPS ─── */
@@ -48,7 +52,7 @@ const steps = [
       </svg>
     ),
     title: "Tạo tài khoản",
-    desc: "Đăng ký miễn phí trong 30 giây. Không cần thẻ tín dụng, không ràng buộc.",
+    desc: "Đăng ký nhanh chóng để tham gia thảo luận và chia sẻ bài viết.",
     color: ACCENT_GOLD,
   },
   {
@@ -67,8 +71,8 @@ const steps = [
         <path d="M3 7l9-4 9 4M3 7v10l9 4 9-4V7M12 3v18" />
       </svg>
     ),
-    title: "Bắt đầu viết",
-    desc: "Sử dụng trình soạn thảo Markdown mạnh mẽ, thêm ảnh bìa và chọn danh mục phù hợp.",
+    title: "Đăng bài / Thảo luận",
+    desc: "Đặt câu hỏi, chia sẻ kinh nghiệm học tập, đời sống sinh viên.",
     color: ACCENT_BLUE,
   },
   {
@@ -88,8 +92,8 @@ const steps = [
         <path d="M2 12h20M12 2a15 15 0 010 20" />
       </svg>
     ),
-    title: "Tiếp cận độc giả",
-    desc: "Bài viết của bạn tự động hiển thị đến đúng độc giả quan tâm đến chủ đề đó.",
+    title: "Kết nối & tương tác",
+    desc: "Nhận phản hồi, trao đổi và mở rộng network của bạn.",
     color: ACCENT_PINK,
   },
 ];
@@ -112,8 +116,8 @@ const features = [
         <path d="M3.33 10h13.34" />
       </svg>
     ),
-    title: "Quy trình biên tập",
-    desc: "Hệ thống quản lý nội dung chuyên nghiệp với các công cụ biên tập mạnh mẽ, phù hợp cho cá nhân và nhóm.",
+    title: "Chia sẻ kiến thức",
+    desc: "Học tập, tài liệu, tips học hiệu quả từ sinh viên khác.",
     color: ACCENT_GOLD,
   },
   {
@@ -131,8 +135,8 @@ const features = [
         <path d="M18 20V10M12 20V4M6 20v-6" />
       </svg>
     ),
-    title: "Nhịp tăng trưởng",
-    desc: "Theo dõi lượt xem, tương tác và tăng trưởng người theo dõi với bảng phân tích chi tiết theo thời gian thực.",
+    title: "Hỏi đáp nhanh chóng",
+    desc: "Đặt câu hỏi và nhận câu trả lời từ cộng đồng.",
     color: ACCENT_BLUE,
   },
   {
@@ -151,8 +155,8 @@ const features = [
         <path d="M6 10a4 4 0 008 0" />
       </svg>
     ),
-    title: "Cộng đồng tập trung",
-    desc: "Kết nối với độc giả và tác giả Việt Nam có cùng đam mê, xây dựng cộng đồng chất lượng cao.",
+    title: "Cộng đồng đa trường",
+    desc: "Kết nối sinh viên từ nhiều trường đại học tại TP.HCM.",
     color: ACCENT_PINK,
   },
   {
@@ -170,8 +174,8 @@ const features = [
         <path d="M17 1L9 9M9 9L3 7l14-6-6 14-2-6z" />
       </svg>
     ),
-    title: "Xuất bản nhanh",
-    desc: "Từ ý tưởng đến bài viết đến tay độc giả trong vài phút. Nền tảng xuất bản nhanh nhất dành cho người Việt.",
+    title: "Cập nhật xu hướng",
+    desc: "Theo dõi các chủ đề hot trong sinh viên.",
     color: ACCENT_GOLD,
   },
 ];
@@ -293,15 +297,15 @@ export default function HomePage() {
           {/* Headline */}
           <h1 className="text-[36px] md:text-[52px] leading-tight tracking-tight mb-6 max-w-3xl">
             <span className="font-bold text-[#000]">Nền Tảng</span>{" "}
-            <span className="font-normal text-[#888]">Xuất Bản</span>{" "}
+            <span className="font-normal text-[#888]">kết nối</span>{" "}
             <br className="hidden md:block" />
-            <span className="font-bold text-[#000]">Thế Hệ</span>{" "}
-            <span className="font-normal text-[#888]">Mới</span>
+            <span className="font-bold text-[#000]">Sinh viên</span>{" "}
+            <span className="font-normal text-[#888]">TP.HCM</span>
           </h1>
 
           <p className="text-[#888] text-[15px] md:text-[16px] leading-relaxed max-w-lg mb-10">
-            Viết, xuất bản và kết nối với cộng đồng độc giả Việt Nam. Miễn phí
-            mãi mãi.
+            Nơi sinh viên các trường đại học chia sẻ kiến thức, kinh nghiệm và
+            câu chuyện thực tế.
           </p>
 
           {/* CTAs */}
@@ -351,22 +355,22 @@ export default function HomePage() {
         >
           <div className="aspect-video overflow-hidden">
             <img
-              src="https://cdn.aptoide.com/imgs/7/3/4/73453f796c1f3a8c5d05a3589da677fb_fgraphic.png"
-              alt="Hero image 1"
+              src="https://www.uit.edu.vn/_next/image?url=%2Fmedia%2Fimage_c688fa93b3.png&w=1536&q=75"
+              alt="uit"
               className="w-full h-full object-cover"
             />
           </div>
           <div className="aspect-video overflow-hidden">
             <img
-              src="https://cdn.aptoide.com/imgs/7/3/4/73453f796c1f3a8c5d05a3589da677fb_fgraphic.png"
-              alt="Hero image 2"
+              src="https://i2-vnexpress.vnecdn.net/2025/08/19/tnt-7659-1-1755593935-17555939-7697-3234-1755614479.jpg?w=1200&h=0&q=100&dpr=1&fit=crop&s=utH400WGrR8THEyLpRGu5w"
+              alt="uel"
               className="w-full h-full object-cover"
             />
           </div>
           <div className="aspect-video overflow-hidden">
             <img
-              src="https://cdn.aptoide.com/imgs/7/3/4/73453f796c1f3a8c5d05a3589da677fb_fgraphic.png"
-              alt="Hero image 3"
+              src="https://oisp.hcmut.edu.vn/en/wp-content/uploads/2018/12/BachKhoaUniversity.jpg"
+              alt="hcmut"
               className="w-full h-full object-cover"
             />
           </div>
@@ -403,11 +407,11 @@ export default function HomePage() {
             Bắt đầu dễ dàng
           </span>
           <h2 className="text-[28px] md:text-[36px] leading-tight tracking-tight">
-            <span className="font-bold text-[#000]">Chỉ Ba Bước</span>{" "}
-            <span className="font-normal text-[#888]">Để Xuất Bản</span>
+            <span className="font-bold text-[#000]">Chỉ 3 bước</span>{" "}
+            <span className="font-normal text-[#888]">để tham gia</span>
           </h2>
           <p className="text-[#888] text-[14px] mt-3">
-            Không cần kinh nghiệm kỹ thuật. Chỉ cần câu chuyện của bạn.
+            Bắt đầu chia sẻ và kết nối cùng cộng đồng sinh viên.
           </p>
         </div>
 
@@ -488,12 +492,11 @@ export default function HomePage() {
             <h2 className="text-[28px] md:text-[36px] leading-tight tracking-tight">
               <span className="font-bold text-[#000]">Mọi thứ</span>{" "}
               <span className="font-normal text-[#888]">
-                bạn cần để xuất bản
+                bạn cần để kết nối sinh viên
               </span>
             </h2>
             <p className="text-[#888] text-[14px] mt-3 max-w-md">
-              Từ bản nháp đầu tiên đến bài viết lan truyền — IE213 Blog cung cấp
-              toàn bộ công cụ bạn cần.
+              UniSync giúp bạn học hỏi, chia sẻ và phát triển.
             </p>
           </div>
 
@@ -791,28 +794,27 @@ export default function HomePage() {
               Tính năng dành cho tác giả
             </span>
             <h2 className="text-[26px] md:text-[32px] leading-tight tracking-tight mb-4">
-              <span className="font-bold text-[#000]">Viết lách</span>{" "}
+              <span className="font-bold text-[#000]">Viết</span>{" "}
               <span className="font-normal text-[#888]">
-                chưa bao giờ dễ dàng đến thế
+                và chia sẻ dễ dàng
               </span>
             </h2>
             <p className="text-[#888] text-[14px] leading-relaxed mb-6">
-              IE213 Blog cung cấp trình soạn thảo Markdown mạnh mẽ, hỗ trợ công
-              thức toán học, code highlighting và nhúng media linh hoạt. Tập
-              trung vào nội dung, chúng tôi lo phần còn lại.
+              Chia sẻ kinh nghiệm, kiến thức hoặc câu chuyện của bạn với cộng
+              đồng chỉ trong vài bước.
             </p>
             <div className="flex flex-col gap-3 mb-8">
               {[
                 {
-                  text: "Trình soạn thảo Markdown thời gian thực",
+                  text: "Trình soạn thảo đơn giản, dễ sử dụng",
                   color: ACCENT_BLUE,
                 },
                 {
-                  text: "Phân tích hiệu suất bài viết chuyên sâu",
+                  text: "Hỗ trợ Markdown cơ bản",
                   color: ACCENT_PINK,
                 },
                 {
-                  text: "Kết nối trực tiếp với độc giả qua comment",
+                  text: "Nhận phản hồi từ cộng đồng",
                   color: ACCENT_GOLD,
                 },
               ].map((item, i) => (
@@ -840,7 +842,7 @@ export default function HomePage() {
               className="flex items-center gap-3 px-6 py-3.5 rounded-2xl text-white hover:opacity-90 transition-opacity"
               style={{ backgroundColor: "#000" }}
             >
-              <span className="text-[14px] font-bold">Khám phá bài viết</span>
+              <span className="text-[14px] font-bold">Bắt đầu viết</span>
               <span className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center">
                 <ArrowRight />
               </span>
@@ -864,12 +866,13 @@ export default function HomePage() {
                 Newsletter
               </span>
               <h2 className="text-[24px] md:text-[28px] leading-tight tracking-tight mb-3">
-                <span className="font-bold text-[#000]">Tổng kết</span>{" "}
-                <span className="font-normal text-[#888]">tuần này</span>
+                <span className="font-bold text-[#000]">Tổng hợp</span>{" "}
+                <span className="font-normal text-[#888]">
+                  nổi bật tuần này
+                </span>
               </h2>
               <p className="text-[#888] text-[14px] leading-relaxed">
-                Nhận tổng hợp những bài viết hay nhất mỗi tuần, được tuyển chọn
-                bởi đội ngũ biên tập IE213 Blog.
+                Nhận các bài viết và thảo luận đáng chú ý từ UniSync.
               </p>
             </div>
 
@@ -946,23 +949,22 @@ export default function HomePage() {
               className="text-[11px] font-bold tracking-[2px] uppercase mb-4 block"
               style={{ color: ACCENT_GOLD }}
             >
-              Sẵn sàng chưa?
+              Sẵn sàng CHIA SẺ chưa?
             </span>
             <h2 className="text-white text-[28px] md:text-[36px] font-bold leading-tight tracking-tight mb-3">
-              Bắt sáng tác <span style={{ color: ACCENT_GOLD }}>nào nào?</span>
+              Tham gia <span style={{ color: ACCENT_GOLD }}>UniSync</span>
             </h2>
             <p className="text-white/60 text-[14px] leading-relaxed mb-8">
-              Tham gia cùng 12,000+ tác giả đang xuất bản trên IE213 Blog. Miễn
-              phí, dễ dàng, không ràng buộc.
+              Tham gia cộng đồng sinh viên UniSync ngay hôm nay.
             </p>
             <button
               onClick={() => router.push("/posts")}
-              className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl font-bold text-[#000] hover:opacity-90 transition-opacity"
+              className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl font-bold text-[#fff] hover:opacity-90 transition-opacity"
               style={{ backgroundColor: ACCENT_GOLD }}
             >
               <span className="text-[15px]">Bắt đầu ngay hôm nay</span>
-              <span className="w-8 h-8 rounded-xl bg-black/15 flex items-center justify-center">
-                <ArrowRight color="#000" />
+              <span className="w-8 h-8 rounded-xl bg-white/15 flex items-center justify-center">
+                <ArrowRight color="#fff" />
               </span>
             </button>
           </div>

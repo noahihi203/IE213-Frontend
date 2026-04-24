@@ -169,9 +169,20 @@ export function Navbar() {
           <div className="w-8 h-8 rounded-xl bg-black flex items-center justify-center">
             <span className="text-white text-[14px] font-bold">U</span>
           </div>
-          <span className="text-[#000] text-[17px] font-bold tracking-tight">
-            UniSync
-          </span>
+          <div>
+            <span className="text-accent-pink-500 text-[17px] font-bold tracking-tight">
+              U
+            </span>
+            <span className="text-accent-blue-500 text-[17px] font-bold tracking-tight">
+              n
+            </span>
+            <span className="text-accent-orange-500 text-[17px] font-bold tracking-tight">
+              i
+            </span>
+            <span className="text-[#000] text-[17px] font-bold tracking-tight">
+              Sync
+            </span>
+          </div>
         </button>
 
         <div className="hidden md:flex items-center gap-1">

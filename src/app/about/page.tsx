@@ -154,13 +154,13 @@ const principles = [
     icon: "🏆",
     color: ACCENT_GOLD,
     title: "Chất Lượng Trên Số Lượng",
-    desc: "InkFlow không chạy theo thuật toán chỉ ưu tiên nội dung viral. Chúng tôi tin vào giá trị của từng bài viết sâu sắc, có nghiên cứu và ý nghĩa.",
+    desc: "UniSync không chạy theo thuật toán chỉ ưu tiên nội dung viral. Chúng tôi tin vào giá trị của từng bài viết sâu sắc, có nghiên cứu và ý nghĩa.",
   },
   {
     icon: "🌐",
     color: ACCENT_BLUE,
     title: "Cởi Mở & Bao Dung",
-    desc: "Từ học sinh đến nhà nghiên cứu, từ blogger cá nhân đến nhà văn chuyên nghiệp — mọi giọng nói đều có chỗ đứng trên InkFlow.",
+    desc: "Từ học sinh đến nhà nghiên cứu, từ blogger cá nhân đến nhà văn chuyên nghiệp — mọi giọng nói đều có chỗ đứng trên UniSync.",
   },
   {
     icon: "🚀",
@@ -180,7 +180,7 @@ const storyBullets = [
 const milestones = [
   {
     year: "2023",
-    title: "Thành lập InkFlow",
+    title: "Thành lập UniSync",
     desc: "Ra mắt phiên bản beta với 50 tác giả đầu tiên tại Hà Nội và TP. Hồ Chí Minh.",
     side: "left",
   },
@@ -199,13 +199,13 @@ const milestones = [
   {
     year: "2025",
     title: "Mở rộng toàn quốc",
-    desc: "Cộng đồng InkFlow phủ rộng 63 tỉnh thành, trở thành nền tảng xuất bản số 1 Việt Nam.",
+    desc: "Cộng đồng UniSync phủ rộng 63 tỉnh thành, trở thành nền tảng xuất bản số 1 Việt Nam.",
     side: "right",
   },
   {
     year: "2026",
     title: "12K+ Tác giả & Hơn thế nữa",
-    desc: "Hơn 12,000 tác giả, 86,000 bài viết và 2.4 triệu độc giả tin tưởng InkFlow mỗi tháng.",
+    desc: "Hơn 12,000 tác giả, 86,000 bài viết và 2.4 triệu độc giả tin tưởng UniSync mỗi tháng.",
     side: "left",
   },
 ];
@@ -254,7 +254,7 @@ const team = [
   {
     name: "Đinh Thanh Mai",
     role: "Head of Community",
-    bio: "Cựu biên tập viên báo Tuổi Trẻ. Xây dựng và vận hành cộng đồng tác giả InkFlow.",
+    bio: "Cựu biên tập viên báo Tuổi Trẻ. Xây dựng và vận hành cộng đồng tác giả UniSync.",
     followers: "1.890",
     color: "#06B6D4",
     initials: "DM",
@@ -264,7 +264,7 @@ const team = [
 const testimonials = [
   {
     quote:
-      "InkFlow đã thay đổi hoàn toàn cách tôi chia sẻ kiến thức. Từ một blog cá nhân ít ai biết, giờ bài viết của tôi đến tay hàng chục nghìn độc giả mỗi tháng.",
+      "UniSync đã thay đổi hoàn toàn cách tôi chia sẻ kiến thức. Từ một blog cá nhân ít ai biết, giờ bài viết của tôi đến tay hàng chục nghìn độc giả mỗi tháng.",
     name: "Nguyễn Văn Minh",
     role: "Tác giả công nghệ · 1,240 người theo dõi",
     initials: "NM",
@@ -272,7 +272,7 @@ const testimonials = [
   },
   {
     quote:
-      "Giao diện sạch, công cụ mạnh và cộng đồng thực sự quan tâm đến nội dung. InkFlow là nơi tôi tự hào gọi là 'nhà' của những bài viết của mình.",
+      "Giao diện sạch, công cụ mạnh và cộng đồng thực sự quan tâm đến nội dung. UniSync là nơi tôi tự hào gọi là 'nhà' của những bài viết của mình.",
     name: "Trần Thị Lan",
     role: "Tác giả văn học · 892 người theo dõi",
     initials: "TL",
@@ -280,7 +280,7 @@ const testimonials = [
   },
   {
     quote:
-      "Là một developer, tôi đánh giá cao cách InkFlow hỗ trợ Markdown và code syntax highlighting. Viết bài kỹ thuật chưa bao giờ dễ và đẹp đến vậy.",
+      "Là một developer, tôi đánh giá cao cách UniSync hỗ trợ Markdown và code syntax highlighting. Viết bài kỹ thuật chưa bao giờ dễ và đẹp đến vậy.",
     name: "Phạm Đức Hùng",
     role: "Tác giả kỹ thuật · 2,103 người theo dõi",
     initials: "PH",
@@ -349,7 +349,7 @@ export default function CategoryDetailPage() {
               </h1>
 
               <p className="text-[#888] text-[15px] leading-relaxed max-w-md">
-                InkFlow ra đời từ một câu hỏi đơn giản:{" "}
+                UniSync ra đời từ một câu hỏi đơn giản:{" "}
                 <em
                   className="not-italic font-medium"
                   style={{ color: ACCENT_GOLD }}
@@ -431,7 +431,7 @@ export default function CategoryDetailPage() {
             >
               <img
                 src="https://images.alphacoders.com/134/thumb-1920-1345108.png"
-                alt="Câu chuyện InkFlow"
+                alt="Câu chuyện UniSync"
                 className="w-full object-cover aspect-[4/3]"
               />
             </div>
@@ -447,13 +447,13 @@ export default function CategoryDetailPage() {
                 <QuoteIcon color={ACCENT_GOLD} />
               </div>
               <p className="text-[12px] text-[#555] leading-relaxed italic mb-2">
-                "Mỗi tác giả xứng đáng có một sân khấu. InkFlow là sân khấu đó."
+                "Mỗi tác giả xứng đáng có một sân khấu. UniSync là sân khấu đó."
               </p>
               <p
                 className="text-[11px] font-semibold"
                 style={{ color: ACCENT_GOLD }}
               >
-                — Đội ngũ sáng lập InkFlow
+                — Đội ngũ sáng lập UniSync
               </p>
             </div>
           </div>
@@ -473,7 +473,7 @@ export default function CategoryDetailPage() {
 
             <div className="flex flex-col gap-4 text-[14px] text-[#888] leading-relaxed mb-6">
               <p>
-                Năm 2022, những người sáng lập InkFlow — lúc đó là các blogger
+                Năm 2022, những người sáng lập UniSync — lúc đó là các blogger
                 và kỹ sư — nhận ra rằng các nền tảng xuất bản quốc tế không thực
                 sự phù hợp với người dùng Việt Nam. Thuật toán ưu tiên nội dung
                 tiếng Anh, giao diện phức tạp, và không có cộng đồng địa phương
@@ -489,7 +489,7 @@ export default function CategoryDetailPage() {
                 giả của họ.
               </p>
               <p>
-                Hôm nay, InkFlow tự hào là ngôi nhà của những giọng kể chuyện
+                Hôm nay, UniSync tự hào là ngôi nhà của những giọng kể chuyện
                 Việt xuất sắc nhất — từ nhà văn, nhà báo đến các chuyên gia
                 trong từng lĩnh vực.
               </p>
@@ -524,7 +524,7 @@ export default function CategoryDetailPage() {
             </span>
             <h2 className="text-[28px] md:text-[34px] leading-tight tracking-tight">
               <span className="font-bold text-[#000]">Những Giá Trị</span>{" "}
-              <span className="font-normal text-[#888]">Định Hình InkFlow</span>
+              <span className="font-normal text-[#888]">Định Hình UniSync</span>
             </h2>
             <p className="text-[#888] text-[14px] mt-3 max-w-md">
               Không chỉ là code hay thiết kế — đây là những nguyên tắc mà chúng
@@ -574,7 +574,7 @@ export default function CategoryDetailPage() {
           </span>
           <h2 className="text-[28px] md:text-[34px] leading-tight tracking-tight">
             <span className="font-bold text-[#000]">Từng Bước</span>{" "}
-            <span className="font-normal text-[#888]">Xây Dựng InkFlow</span>
+            <span className="font-normal text-[#888]">Xây Dựng UniSync</span>
           </h2>
         </div>
 
@@ -687,7 +687,7 @@ export default function CategoryDetailPage() {
               </span>
               <h2 className="text-[26px] md:text-[32px] leading-tight tracking-tight">
                 <span className="font-bold text-[#000]">Đội Ngũ Đằng Sau</span>{" "}
-                <span className="font-normal text-[#888]">InkFlow</span>
+                <span className="font-normal text-[#888]">UniSync</span>
               </h2>
               <p className="text-[#888] text-[14px] mt-3 leading-relaxed max-w-md">
                 Chúng tôi là những người viết lách, kỹ sư, designer và những
@@ -703,7 +703,7 @@ export default function CategoryDetailPage() {
               >
                 <img
                   src="https://images.alphacoders.com/134/thumb-1920-1345108.png"
-                  alt="Đội ngũ InkFlow"
+                  alt="Đội ngũ UniSync"
                   className="w-full object-cover aspect-video"
                 />
               </div>
@@ -848,7 +848,7 @@ export default function CategoryDetailPage() {
               <span className="font-normal text-[#888]">Trái Tim Việt Nam</span>
             </h2>
             <p className="text-[#888] text-[14px] leading-relaxed mb-8">
-              InkFlow được xây dựng tại Việt Nam, bởi người Việt, dành cho người
+              UniSync được xây dựng tại Việt Nam, bởi người Việt, dành cho người
               Việt. Chúng tôi có văn phòng tại Hà Nội và TP. Hồ Chí Minh — hai
               trung tâm sáng tạo lớn nhất của đất nước.
             </p>
@@ -913,7 +913,7 @@ export default function CategoryDetailPage() {
             >
               <img
                 src="https://images.alphacoders.com/134/thumb-1920-1345108.png"
-                alt="Văn phòng InkFlow"
+                alt="Văn phòng UniSync"
                 className="w-full object-cover aspect-[4/3]"
               />
             </div>

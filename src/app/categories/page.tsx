@@ -495,7 +495,7 @@ export default function CategoriesPage() {
           </h1>
 
           <p className="text-[#888] text-[15px] leading-relaxed max-w-lg mb-8">
-            Từ công nghệ đến văn chương, từ khởi nghiệp đến khoa học — InkFlow
+            Từ công nghệ đến văn chương, từ khởi nghiệp đến khoa học — UniSync
             quy tụ những bài viết chất lượng nhất trong từng lĩnh vực.
           </p>
 
@@ -694,7 +694,7 @@ export default function CategoriesPage() {
               Muốn đóng góp nội dung?
             </h2>
             <p className="text-white/60 text-[13px] leading-relaxed max-w-sm">
-              Bắt đầu viết và chia sẻ bài viết của bạn tới cộng đồng InkFlow.
+              Bắt đầu viết và chia sẻ bài viết của bạn tới cộng đồng UniSync.
               Hoàn toàn miễn phí.
             </p>
           </div>

@@ -66,6 +66,18 @@ export interface Post {
   readTime: number;
 }
 
+export interface Posts {
+  data: Post[];
+  pagination: {
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+    limit: number;
+    page: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
 export interface TrendingPosts {
   postId: string;
   title: string;

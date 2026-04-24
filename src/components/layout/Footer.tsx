@@ -28,6 +28,8 @@ const categoryLinks = [
     links: [
       { href: "/login", label: "Đăng nhập" },
       { href: "/register", label: "Đăng ký" },
+      { href: "/dashboard", label: "Dashboard" },
+      { href: "/posts", label: "Viết bài" },
     ],
   },
   {
@@ -61,8 +63,8 @@ export function Footer() {
             <span className="text-[#000] text-[16px] font-bold">UniSync</span>
           </div>
           <p className="text-[#888] text-[13px] leading-relaxed">
-            Nền tảng xuất bản nội dung thế hệ mới dành cho người Việt. Viết. Kết
-            nối. Phát triển.
+            UniSync là diễn đàn dành cho sinh viên TP.HCM, nơi chia sẻ kiến
+            thức, kinh nghiệm và kết nối cộng đồng giữa các trường đại học.
           </p>
           <div className="flex gap-2.5 mt-4">
             {socialLinks.map((social) => {
@@ -107,7 +109,7 @@ export function Footer() {
           © {currentYear} UniSync. Bảo lưu mọi quyền.
         </span>
         <span className="text-[#888] text-[12px]">
-          Được xây dựng với ♥ cho cộng đồng người Việt
+          Được xây dựng với ♥ dành cho cộng đồng sinh viên Việt Nam.
         </span>
       </div>
     </footer>
