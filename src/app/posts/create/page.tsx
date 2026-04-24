@@ -33,6 +33,7 @@ export default function CreatePostPage() {
   const [formData, setFormData] = useState({
     title: "",
     excerpt: "",
+    keyword: "",
     content: "",
     category: "",
     coverImage: "",
@@ -211,6 +212,24 @@ export default function CreatePostPage() {
                 onChange={handleChange}
                 className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm text-slate-800 outline-none transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
                 placeholder="Brief description of your post"
+              />
+            </div>
+
+            <div className="grid gap-2 md:max-w-sm">
+              <label
+                htmlFor="keyword"
+                className="text-sm font-semibold text-slate-800"
+              >
+                Focus Keyword
+              </label>
+              <input
+                type="text"
+                id="keyword"
+                name="keyword"
+                value={formData.keyword}
+                onChange={handleChange}
+                className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm text-slate-800 outline-none transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+                placeholder="Enter a main keyword"
               />
             </div>
 

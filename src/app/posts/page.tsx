@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Montserrat } from "next/font/google";
@@ -8,7 +8,6 @@ import { postService } from "@/lib/api/post.service";
 import { categoryService } from "@/lib/api/category.service";
 import { Category, Post } from "@/lib/types";
 import { GridFour } from "@phosphor-icons/react";
-
 
 const montserrat = Montserrat({
   subsets: ["latin", "vietnamese"],
@@ -68,7 +67,22 @@ function CommentIcon() {
   );
 }
 
-export default function PostsPage() {
+function getReadingStats(text: string) {
+  if (!text) return 0;
+
+  const charCount = text.length;
+
+  const words = text.trim().split(/\s+/);
+  const wordCount = words.filter(Boolean).length;
+
+  const WORDS_PER_MINUTE = 200;
+
+  const readingTime = Math.ceil(wordCount / WORDS_PER_MINUTE);
+
+  return readingTime;
+}
+
+function PostsPageContent() {
   const searchParams = useSearchParams();
   const searchTerm = searchParams.get("search") || "";
 
@@ -352,6 +366,34 @@ export default function PostsPage() {
   );
 }
 
+export default function PostsPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className={`${montserrat.className} min-h-[100dvh] bg-slate-50`}>
+          <div className="mx-auto max-w-7xl px-4 py-10 md:px-6 lg:px-10">
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
+              {Array.from({ length: 12 }).map((_, index) => (
+                <div
+                  key={index}
+                  className="overflow-hidden rounded-xl border border-slate-200 bg-white p-3 md:p-4"
+                >
+                  <div className="mb-2 h-28 animate-pulse rounded-lg bg-slate-200 md:h-32" />
+                  <div className="mb-2 h-3 w-2/3 animate-pulse rounded bg-slate-200" />
+                  <div className="mb-1 h-3 w-full animate-pulse rounded bg-slate-200" />
+                  <div className="h-3 w-4/5 animate-pulse rounded bg-slate-200" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      }
+    >
+      <PostsPageContent />
+    </Suspense>
+  );
+}
+
 function PostCard({ post }: { post: Post }) {
   const author = typeof post.authorId === "object" ? post.authorId : null;
   const category = typeof post.category === "object" ? post.category : null;
@@ -391,7 +433,7 @@ function PostCard({ post }: { post: Post }) {
           style={{ backgroundColor: "rgba(0,0,0,0.55)" }}
         >
           <span className="text-white text-[11px]">
-            {Math.floor(Math.random() * 1000)}
+            {getReadingStats(post.content)} phút đọc
           </span>
         </div>
       </div>
@@ -441,7 +483,7 @@ function PostCard({ post }: { post: Post }) {
             <span>{post.commentsCount}</span>
           </div>
           <div className="ml-auto flex gap-1.5">
-            {post.tags.map((tag) => (
+            {/* {post.tags.map((tag) => (
               <span
                 key={tag._id}
                 className="text-[11px] font-medium px-2 py-0.5 rounded-md"
@@ -452,7 +494,16 @@ function PostCard({ post }: { post: Post }) {
               >
                 {tag.name}
               </span>
-            ))}
+            ))} */}
+            <span
+              className="text-[11px] font-medium px-2 py-0.5 rounded-md"
+              style={{
+                color: color,
+                backgroundColor: `${color}15`,
+              }}
+            >
+              {post.tags?.[0]?.name || ""}{" "}
+            </span>
           </div>
         </div>
       </div>
