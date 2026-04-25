@@ -12,7 +12,8 @@ const montserrat = Montserrat({
   subsets: ["latin", "vietnamese"],
   weight: ["400", "500", "600", "700"],
 });
-
+const DEFAULT_AVATAR_URL =
+  "https://a.storyblok.com/f/178900/960x540/8f1554c4f8/chiikawa-movie-hero.png";
 const ACCENT_PINK = "#DC0055";
 const ACCENT_GOLD = "#ED9F00";
 
@@ -145,16 +146,9 @@ export function Navbar() {
     ? ({ admin: "Admin", author: "Author", user: "User" }[user.role] ?? "User")
     : "";
 
-  const displayName = user?.fullName || user?.username || "";
-  const compactName = displayName
-    ? displayName.split(" ").slice(-2).join(" ")
-    : "";
-  const initials = getInitials(displayName || user?.username);
-  const avatarBg = user
-    ? ({ admin: ACCENT_PINK, author: ACCENT_GOLD, user: "#10B981" }[
-        user.role
-      ] ?? "#888")
-    : "#888";
+  const displayName = user?.fullName || "";
+  const compactName = displayName;
+  const avatarBg = user?.avatar ? user.avatar : DEFAULT_AVATAR_URL;
 
   return (
     <nav
@@ -287,12 +281,10 @@ export function Navbar() {
                   onClick={() => setDropdownOpen(!dropdownOpen)}
                   className="flex items-center gap-2 pl-1 pr-2 py-1 rounded-full transition-colors hover:bg-[#F0F0F0]"
                 >
-                  <div
+                  <img
+                    src={avatarBg}
                     className="w-8 h-8 rounded-full flex items-center justify-center text-white text-[12px] font-bold"
-                    style={{ backgroundColor: avatarBg }}
-                  >
-                    {initials}
-                  </div>
+                  />
                   <div className="hidden md:block text-left">
                     <p className="text-[12px] font-semibold text-[#000] leading-tight">
                       {compactName}

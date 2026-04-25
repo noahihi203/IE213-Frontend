@@ -2,20 +2,16 @@ import apiClient, { axiosClient } from "./client";
 import { ApiResponse, LoginData, RegisterData, LoginResponse } from "../types";
 
 export const authService = {
-  // Register new user
   register: async (data: RegisterData): Promise<ApiResponse<LoginResponse>> => {
     return await axiosClient.post("/register", data);
   },
 
-  // Login user
   login: async (data: LoginData): Promise<ApiResponse<LoginResponse>> => {
-    // 1. Ép kiểu trực tiếp (Type Assertion) để TypeScript hiểu cấu trúc thực sự của response
     const response = (await axiosClient.post(
       "/login",
       data,
     )) as unknown as ApiResponse<LoginResponse>;
 
-    // 2. Sử dụng response.metadata bình thường như code ban đầu của bạn!
     if (
       response.metadata?.tokens?.accessToken &&
       response.metadata?.user?._id
@@ -25,7 +21,6 @@ export const authService = {
         response.metadata.user._id,
       );
 
-      // Store user data
       if (typeof window !== "undefined") {
         localStorage.setItem("user", JSON.stringify(response.metadata.user));
       }
@@ -34,25 +29,20 @@ export const authService = {
     return response;
   },
 
-  // Logout user
   logout: async (): Promise<ApiResponse> => {
     try {
-      // Ép kiểu trực tiếp về ApiResponse và bỏ qua .data
       const response = (await axiosClient.post(
         "/logout",
       )) as unknown as ApiResponse;
       return response;
     } finally {
-      // Clear tokens regardless of API response
       apiClient.clearTokens();
     }
   },
 
-  // Refresh token
   refreshToken: async (
     refreshToken: string,
   ): Promise<ApiResponse<LoginResponse>> => {
-    // Ép kiểu trực tiếp về ApiResponse<LoginResponse>
     const response = (await axiosClient.post(
       "/refresh-token",
       {},
@@ -63,8 +53,6 @@ export const authService = {
       },
     )) as unknown as ApiResponse<LoginResponse>;
 
-    // Dùng thẳng response.metadata, không qua biến result nữa
-    // Update stored tokens
     if (
       response.metadata?.tokens?.accessToken &&
       response.metadata?.user?._id
@@ -78,7 +66,6 @@ export const authService = {
     return response;
   },
 
-  // Get current user from localStorage
   getCurrentUser: () => {
     if (typeof window !== "undefined") {
       const userStr = localStorage.getItem("user");
@@ -87,22 +74,31 @@ export const authService = {
     return null;
   },
 
-  // Check if user is authenticated
   isAuthenticated: (): boolean => {
     return apiClient.isAuthenticated();
   },
-  
+
   verifyEmail: async (data: { token: string }): Promise<ApiResponse> => {
-    return (await axiosClient.post("/verify-email", data)) as unknown as ApiResponse;
+    return (await axiosClient.post(
+      "/verify-email",
+      data,
+    )) as unknown as ApiResponse;
   },
 
-  // Forgot Password
   forgotPassword: async (data: { email: string }): Promise<ApiResponse> => {
-    return (await axiosClient.post("/forgot-password", data)) as unknown as ApiResponse;
+    return (await axiosClient.post(
+      "/forgot-password",
+      data,
+    )) as unknown as ApiResponse;
   },
 
-  // Reset Password
-  resetPassword: async (data: { token: string; newPassword: string }): Promise<ApiResponse> => {
-    return (await axiosClient.post("/reset-password", data)) as unknown as ApiResponse;
+  resetPassword: async (data: {
+    token: string;
+    newPassword: string;
+  }): Promise<ApiResponse> => {
+    return (await axiosClient.post(
+      "/reset-password",
+      data,
+    )) as unknown as ApiResponse;
   },
 };

@@ -25,7 +25,8 @@ interface DashboardSidebarProps {
 }
 
 type FollowModalType = "followers" | "following";
-
+const DEFAULT_AVATAR_URL =
+  "https://a.storyblok.com/f/178900/960x540/8f1554c4f8/chiikawa-movie-hero.png";
 const navItems: {
   tab: DashboardTab;
   icon: React.ReactNode;
@@ -130,17 +131,11 @@ export default function DashboardSidebar({
       <div className="sticky top-20 rounded-3xl border-[0.5px] border-slate-300 bg-white p-6">
         <div className="mb-6 text-center">
           <div className="mx-auto mb-3 h-20 w-20 overflow-hidden rounded-full bg-slate-200">
-            {user.avatar ? (
-              <img
-                src={user.avatar}
-                alt={user.fullName || user.username}
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              <div className="flex h-full w-full items-center justify-center text-2xl font-medium text-slate-700">
-                {user.username.charAt(0).toUpperCase()}
-              </div>
-            )}
+            <img
+              src={user.avatar ? user.avatar : DEFAULT_AVATAR_URL}
+              alt={user.fullName || user.username}
+              className="h-full w-full object-cover"
+            />
           </div>
           <h2 className="text-xl font-medium text-slate-900">
             {user.fullName}

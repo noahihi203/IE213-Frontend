@@ -1,55 +1,12 @@
+"use client";
+
+import {
+  GlobeHemisphereEastIcon,
+  HeartIcon,
+  RocketLaunchIcon,
+  Users,
+} from "@phosphor-icons/react";
 import Link from "next/link";
-
-export async function generateMetadata() {
-  const baseUrl = "https://your-domain.com";
-
-  return {
-    title: {
-      template: "%s | UniSync",
-      default: "Về chúng tôi | UniSync",
-    },
-
-    description:
-      "Tìm hiểu về UniSync – nền tảng blog dành cho sinh viên Việt Nam, nơi chia sẻ câu chuyện, kiến thức và định hướng nghề nghiệp trong môi trường đại học.",
-
-    keywords: [
-      "about unisync",
-      "về chúng tôi",
-      "blog sinh viên",
-      "nền tảng viết lách",
-      "định hướng đại học",
-      "câu chuyện startup việt",
-    ],
-
-    openGraph: {
-      title: "Về UniSync - Nền tảng viết lách cho sinh viên Việt Nam",
-      description:
-        "Khám phá hành trình xây dựng UniSync, sứ mệnh và giá trị cốt lõi trong việc phát triển cộng đồng viết lách và chia sẻ tri thức cho sinh viên.",
-
-      url: `${baseUrl}/about`,
-      siteName: "UniSync",
-
-      images: [
-        {
-          url: `./chikawa.webp`,
-          width: 1200,
-          height: 630,
-          alt: "UniSync - Câu chuyện và sứ mệnh",
-        },
-      ],
-
-      locale: "vi_VN",
-      type: "website",
-      countryName: "Việt Nam",
-    },
-
-    alternates: {
-      canonical: `${baseUrl}/about`,
-    },
-
-    metadataBase: new URL(`${baseUrl}/about`),
-  };
-}
 
 const ACCENT_GOLD = "#ED9F00";
 const ACCENT_PINK = "#DC0055";
@@ -137,82 +94,94 @@ function ArrowRightIcon({
 
 // ─── DATA ─────────────────────────────────────────────────────────────────────
 const stats = [
-  { value: "12K+", label: "Tác giả đang hoạt động", color: ACCENT_BLUE },
-  { value: "86K+", label: "Bài viết được xuất bản", color: ACCENT_GOLD },
+  { value: "12K+", label: "Sinh viên tham gia", color: ACCENT_BLUE },
+  { value: "86K+", label: "Bài viết", color: ACCENT_GOLD },
   { value: "2.4M", label: "Lượt đọc mỗi tháng", color: ACCENT_PINK },
-  { value: "2023", label: "Năm thành lập tại Việt Nam", color: "#10B981" },
+  {
+    value: "2026",
+    label: "Thành lập tại cái hóc bò tót TP.HCM",
+    color: "#10B981",
+  },
 ];
 
 const principles = [
   {
-    icon: "❤️",
+    icon: (
+      <HeartIcon weight="fill" className="text-accent-pink-500" size={24} />
+    ),
     color: ACCENT_PINK,
-    title: "Đặt Tác Giả Làm Trung Tâm",
-    desc: "Chúng tôi xây dựng mọi tính năng với một câu hỏi duy nhất: điều này có thực sự giúp tác giả viết tốt hơn và tiếp cận nhiều độc giả hơn không?",
+    title: "Chia sẻ thực tế",
+    desc: "Nội dung đến từ trải nghiệm thật của sinh viên, không phải lý thuyết chung chung.",
   },
   {
-    icon: "🏆",
+    icon: <Users weight="fill" className="text-accent-orange-500" size={24} />,
     color: ACCENT_GOLD,
-    title: "Chất Lượng Trên Số Lượng",
-    desc: "UniSync không chạy theo thuật toán chỉ ưu tiên nội dung viral. Chúng tôi tin vào giá trị của từng bài viết sâu sắc, có nghiên cứu và ý nghĩa.",
+    title: "Cộng đồng mở",
+    desc: "Mọi sinh viên đều có thể đặt câu hỏi, chia sẻ và tham gia thảo luận bla bla bla bla blo blo.",
   },
   {
-    icon: "🌐",
+    icon: (
+      <GlobeHemisphereEastIcon
+        weight="fill"
+        className="text-accent-blue-500"
+        size={24}
+      />
+    ),
     color: ACCENT_BLUE,
-    title: "Cởi Mở & Bao Dung",
-    desc: "Từ học sinh đến nhà nghiên cứu, từ blogger cá nhân đến nhà văn chuyên nghiệp — mọi giọng nói đều có chỗ đứng trên UniSync.",
+    title: "Học hỏi lẫn nhau",
+    desc: "Mỗi người một góc nhìn, cùng nhau tạo nên giá trị chung.",
   },
   {
-    icon: "🚀",
+    icon: <RocketLaunchIcon weight="fill" color="#10B981" size={24} />,
     color: "#10B981",
-    title: "Đổi Mới Không Ngừng",
-    desc: "Công nghệ không phải là mục đích mà là công cụ. Chúng tôi liên tục cải tiến nền tảng để mang lại trải nghiệm viết lách mượt mà và sáng tạo nhất.",
+    title: "Phát triển bền vững",
+    desc: "Không chỉ học tốt hơn, mà còn định hướng tốt hơn cho tương lai.",
   },
 ];
 
 const storyBullets = [
-  "Không thuật toán ưu tiên nội dung giật gân",
-  "Bảo vệ bản quyền cho tác giả",
-  "Cộng đồng kiểm duyệt dựa trên chất lượng",
-  "Công cụ phân tích minh bạch, không ẩn dữ liệu",
+  "Chia sẻ kinh nghiệm học tập và thi cử",
+  "Hỏi đáp về ngành học, môn học",
+  "Trao đổi về internship và định hướng nghề nghiệp",
+  "Kết nối với sinh viên từ các trường khác",
 ];
 
 const milestones = [
   {
     year: "2023",
     title: "Thành lập UniSync",
-    desc: "Ra mắt phiên bản beta với 50 tác giả đầu tiên tại Hà Nội và TP. Hồ Chí Minh.",
+    desc: "Bắt đầu với cộng đồng nhỏ sinh viên tại ĐHQG-HCM.",
     side: "left",
   },
   {
     year: "2024 Q1",
-    title: "Cột mốc 1,000 tác giả",
-    desc: "Vượt mốc 1,000 tác giả đăng ký và 5,000 bài viết xuất bản trong vòng 6 tháng.",
+    title: "Ra mắt nền tảng chia sẻ bài viết",
+    desc: "Cho phép sinh viên đăng bài và thảo luận.",
     side: "right",
   },
   {
     year: "2024 Q3",
-    title: "Ra mắt tính năng Analytics",
-    desc: "Trang tổng quan phân tích chuyên sâu giúp tác giả hiểu rõ hơn về độc giả của mình.",
+    title: "Mở rộng ra nhiều trường tại TP.HCM",
+    desc: "Kết nối sinh viên từ UIT, HCMUS, HCMUSSH, IU, UEL,...",
     side: "left",
   },
   {
     year: "2025",
-    title: "Mở rộng toàn quốc",
-    desc: "Cộng đồng UniSync phủ rộng 63 tỉnh thành, trở thành nền tảng xuất bản số 1 Việt Nam.",
+    title: "Đạt 15,000+ sinh viên",
+    desc: "Trở thành một trong những cộng đồng chia sẻ sinh viên tại TP.HCM.",
     side: "right",
   },
   {
     year: "2026",
     title: "12K+ Tác giả & Hơn thế nữa",
-    desc: "Hơn 12,000 tác giả, 86,000 bài viết và 2.4 triệu độc giả tin tưởng UniSync mỗi tháng.",
+    desc: "Hơn 12,000 tác giả, 86,000 bài viết và 2.4 triệu độcgiả tin tưởng UniSync mỗi tháng.",
     side: "left",
   },
 ];
 
 const team = [
   {
-    name: "Nguyễn Văn Minh",
+    name: "Jeon Jungkook",
     role: "CEO & Co-founder",
     bio: "Nhà văn, blogger công nghệ. Đam mê viết về AI và tương lai số.",
     followers: "1.240",
@@ -220,7 +189,7 @@ const team = [
     initials: "NM",
   },
   {
-    name: "Trần Thị Lan",
+    name: "Kim Taehyung",
     role: "Head of Content",
     bio: "Tác giả độc lập. Chuyên về văn học và nghệ thuật đương đại.",
     followers: "892",
@@ -228,7 +197,7 @@ const team = [
     initials: "TL",
   },
   {
-    name: "Phạm Đức Hùng",
+    name: "Martin",
     role: "Lead Engineer",
     bio: "Kỹ sư phần mềm. Viết về lập trình, open source và startup.",
     followers: "2.103",
@@ -236,7 +205,7 @@ const team = [
     initials: "PH",
   },
   {
-    name: "Lê Thu Hương",
+    name: "Ji Chang Wook",
     role: "Head of Design",
     bio: "Nhà thiết kế UX/UI. Chia sẻ về design thinking và sáng tạo.",
     followers: "678",
@@ -252,7 +221,7 @@ const team = [
     initials: "VH",
   },
   {
-    name: "Đinh Thanh Mai",
+    name: "Lee Min Ho",
     role: "Head of Community",
     bio: "Cựu biên tập viên báo Tuổi Trẻ. Xây dựng và vận hành cộng đồng tác giả UniSync.",
     followers: "1.890",
@@ -265,7 +234,7 @@ const testimonials = [
   {
     quote:
       "UniSync đã thay đổi hoàn toàn cách tôi chia sẻ kiến thức. Từ một blog cá nhân ít ai biết, giờ bài viết của tôi đến tay hàng chục nghìn độc giả mỗi tháng.",
-    name: "Nguyễn Văn Minh",
+    name: "MCK",
     role: "Tác giả công nghệ · 1,240 người theo dõi",
     initials: "NM",
     color: ACCENT_BLUE,
@@ -273,7 +242,7 @@ const testimonials = [
   {
     quote:
       "Giao diện sạch, công cụ mạnh và cộng đồng thực sự quan tâm đến nội dung. UniSync là nơi tôi tự hào gọi là 'nhà' của những bài viết của mình.",
-    name: "Trần Thị Lan",
+    name: "Obito",
     role: "Tác giả văn học · 892 người theo dõi",
     initials: "TL",
     color: ACCENT_PINK,
@@ -281,7 +250,7 @@ const testimonials = [
   {
     quote:
       "Là một developer, tôi đánh giá cao cách UniSync hỗ trợ Markdown và code syntax highlighting. Viết bài kỹ thuật chưa bao giờ dễ và đẹp đến vậy.",
-    name: "Phạm Đức Hùng",
+    name: "Vstra khóc sau cánh gà",
     role: "Tác giả kỹ thuật · 2,103 người theo dõi",
     initials: "PH",
     color: ACCENT_GOLD,
@@ -340,7 +309,7 @@ export default function CategoryDetailPage() {
                 </span>
                 <br />
                 <span className="font-extrabold" style={{ color: ACCENT_GOLD }}>
-                  Người Viết,
+                  Sinh Viên,
                 </span>
                 <br />
                 <span className="font-extrabold text-[#000]">
@@ -349,15 +318,8 @@ export default function CategoryDetailPage() {
               </h1>
 
               <p className="text-[#888] text-[15px] leading-relaxed max-w-md">
-                UniSync ra đời từ một câu hỏi đơn giản:{" "}
-                <em
-                  className="not-italic font-medium"
-                  style={{ color: ACCENT_GOLD }}
-                >
-                  Tại sao không có nơi nào thực sự xứng đáng với những câu
-                  chuyện Việt?
-                </em>{" "}
-                Chúng tôi đang xây dựng câu trả lời đó, từng dòng code một.
+                UniSync là nền tảng nơi sinh viên các trường đại học tại TP.HCM
+                chia sẻ kiến thức, kinh nghiệm và góc nhìn thực tế.
               </p>
             </div>
 
@@ -388,7 +350,7 @@ export default function CategoryDetailPage() {
                   <p className="text-[13px] font-bold text-[#000]">
                     Made in Vietnam
                   </p>
-                  <p className="text-[11px] text-[#888]">Thành lập 2023</p>
+                  <p className="text-[11px] text-[#888]">Thành lập 2026</p>
                 </div>
               </div>
             </div>
@@ -467,31 +429,25 @@ export default function CategoryDetailPage() {
               Nguồn gốc
             </span>
             <h2 className="text-[26px] md:text-[32px] leading-tight tracking-tight mb-5">
-              <span className="font-bold text-[#000]">Từ Nỗi Frustration</span>{" "}
-              <span className="font-normal text-[#888]">Đến Nền Tảng</span>
+              <span className="font-bold text-[#000]">Từ Nhu Cầu Thực Tế</span>{" "}
+              <span className="font-normal text-[#888]">Đến Một Cộng Đồng</span>
             </h2>
 
             <div className="flex flex-col gap-4 text-[14px] text-[#888] leading-relaxed mb-6">
               <p>
-                Năm 2022, những người sáng lập UniSync — lúc đó là các blogger
-                và kỹ sư — nhận ra rằng các nền tảng xuất bản quốc tế không thực
-                sự phù hợp với người dùng Việt Nam. Thuật toán ưu tiên nội dung
-                tiếng Anh, giao diện phức tạp, và không có cộng đồng địa phương
-                thực sự.
+                UniSync bắt đầu từ một vấn đề rất quen thuộc: sinh viên có rất
+                nhiều câu hỏi, nhưng không biết hỏi ở đâu để nhận được câu trả
+                lời thực tế.
               </p>
               <p>
-                Chúng tôi quyết định tự xây dựng một thứ gì đó khác biệt — một
-                nền tảng được{" "}
-                <span className="font-semibold text-[#000]">
-                  thiết kế từ đầu cho người Việt
-                </span>
-                , tôn trọng chất lượng nội dung và kết nối tác giả với đúng độc
-                giả của họ.
+                Mục tiêu của UniSync không chỉ là nơi đọc bài viết, mà là một
+                cộng đồng nơi mỗi người đều có thể đóng góp và học hỏi lẫn
+                nhau.{" "}
               </p>
               <p>
-                Hôm nay, UniSync tự hào là ngôi nhà của những giọng kể chuyện
-                Việt xuất sắc nhất — từ nhà văn, nhà báo đến các chuyên gia
-                trong từng lĩnh vực.
+                Các nền tảng hiện tại thường quá chung chung hoặc thiếu tính kết
+                nối giữa sinh viên với nhau. Vì vậy, UniSync được tạo ra như một
+                không gian nơi sinh viên có thể:
               </p>
             </div>
 
@@ -527,8 +483,8 @@ export default function CategoryDetailPage() {
               <span className="font-normal text-[#888]">Định Hình UniSync</span>
             </h2>
             <p className="text-[#888] text-[14px] mt-3 max-w-md">
-              Không chỉ là code hay thiết kế — đây là những nguyên tắc mà chúng
-              tôi đưa vào từng quyết định sản phẩm.
+              Không chỉ là đăng bài hay thảo luận — đây là những nguyên tắc mà
+              chúng mình đưa vào từng quyết định sản phẩm.
             </p>
           </div>
 
@@ -588,47 +544,50 @@ export default function CategoryDetailPage() {
             }}
           />
 
-          <div className="flex flex-col gap-12">
+          <div className="flex flex-col gap-16">
             {milestones.map((m, i) => (
               <div
                 key={i}
-                className={`relative flex items-start gap-8 ${m.side === "right" ? "flex-row-reverse" : ""}`}
+                className={`relative flex items-start ${m.side === "right" ? "flex-row-reverse" : ""}`}
               >
                 {/* content */}
-                <div
-                  className={`flex-1 ${m.side === "right" ? "text-right" : ""}`}
-                >
+                <div className="flex-1 flex justify-end">
                   <div
-                    className={`inline-flex items-center gap-2 px-3 py-1 rounded-full mb-2 ${m.side === "right" ? "flex-row-reverse" : ""}`}
-                    style={{
-                      backgroundColor: `${ACCENT_GOLD}12`,
-                      border: `1px solid ${ACCENT_GOLD}20`,
-                    }}
+                    className={`w-[100%] ${m.side === "right" ? "text-left pl-10" : "text-right pr-10"}`}
                   >
-                    <span
-                      className="text-[11px] font-semibold"
-                      style={{ color: ACCENT_GOLD }}
+                    <div
+                      className="inline-flex items-center px-3 py-0.5 rounded-full mb-2"
+                      style={{
+                        backgroundColor: `${ACCENT_GOLD}18`,
+                        border: `1px solid ${ACCENT_GOLD}30`,
+                      }}
                     >
-                      {m.year}
-                    </span>
+                      <span
+                        className="text-[11px] font-semibold"
+                        style={{ color: ACCENT_GOLD }}
+                      >
+                        {m.year}
+                      </span>
+                    </div>
+                    <h3 className="text-[#000] text-[16px] font-semibold mb-1">
+                      {m.title}
+                    </h3>
+                    <p className="text-[#888] text-[13px] leading-relaxed">
+                      {m.desc}
+                    </p>
                   </div>
-                  <h3 className="text-[#000] text-[16px] font-semibold mb-1">
-                    {m.title}
-                  </h3>
-                  <p className="text-[#888] text-[13px] leading-relaxed max-w-xs">
-                    {m.desc}
-                  </p>
                 </div>
+
                 {/* dot */}
                 <div
-                  className="absolute left-1/2 -translate-x-1/2 w-4 h-4 rounded-full border-4 border-white"
+                  className="absolute left-1/2 -translate-x-1/2 w-3 h-3 rounded-full border-[3px] border-white flex-shrink-0"
                   style={{
                     backgroundColor: ACCENT_GOLD,
-                    boxShadow: `0 0 12px ${ACCENT_GOLD}60`,
-                    top: "4px",
+                    top: "6px",
                   }}
                 />
-                {/* spacer */}
+
+                {/* spacer opposite side */}
                 <div className="flex-1" />
               </div>
             ))}
@@ -690,9 +649,8 @@ export default function CategoryDetailPage() {
                 <span className="font-normal text-[#888]">UniSync</span>
               </h2>
               <p className="text-[#888] text-[14px] mt-3 leading-relaxed max-w-md">
-                Chúng tôi là những người viết lách, kỹ sư, designer và những
-                người đam mê ngôn ngữ — đang cùng nhau xây dựng nền tảng mà
-                chúng tôi ước mình có ngay từ đầu.
+                Chúng mình là sinh viên và những người trẻ (có người cũng đã
+                già) đang xây dựng một không gian hữu ích cho cộng đồng.
               </p>
             </div>
             {/* team photo */}
@@ -770,8 +728,8 @@ export default function CategoryDetailPage() {
             Cộng đồng nói gì
           </span>
           <h2 className="text-[28px] md:text-[34px] leading-tight tracking-tight">
-            <span className="font-bold text-[#000]">Tiếng Nói</span>{" "}
-            <span className="font-normal text-[#888]">Từ Tác Giả</span>
+            <span className="font-bold text-[#000]">Sinh viên nói gì về</span>{" "}
+            <span className="font-extrabold text-[#888]">UniSync</span>
           </h2>
         </div>
 
@@ -844,8 +802,8 @@ export default function CategoryDetailPage() {
               Vị trí
             </span>
             <h2 className="text-[26px] md:text-[32px] leading-tight tracking-tight mb-4">
-              <span className="font-bold text-[#000]">Trụ Sở Tại</span>{" "}
-              <span className="font-normal text-[#888]">Trái Tim Việt Nam</span>
+              <span className="font-bold text-[#000]">Kết nối từ</span>{" "}
+              <span className="font-bold text-[#888]">Hồ Chí Minh</span>
             </h2>
             <p className="text-[#888] text-[14px] leading-relaxed mb-8">
               UniSync được xây dựng tại Việt Nam, bởi người Việt, dành cho người
