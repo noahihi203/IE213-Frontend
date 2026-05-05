@@ -14,8 +14,9 @@ export default function LoginPage() {
   const { login, isLoading, error, clearError } = useAuthStore();
 
   const [formData, setFormData] = useState({
-    email: "",
+    email: localStorage.getItem("rememberedEmail") ?? "",
     password: "",
+    rememberMe: !!localStorage.getItem("rememberedEmail"),
   });
 
   const [showPassword, setShowPassword] = useState(false);
@@ -23,6 +24,12 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     clearError();
+
+    if (formData.rememberMe) {
+      localStorage.setItem("rememberedEmail", formData.email);
+    } else {
+      localStorage.removeItem("rememberedEmail");
+    }
 
     try {
       await login(formData);
@@ -33,9 +40,10 @@ export default function LoginPage() {
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value,
+      [name]: type === "checkbox" ? checked : value,
     }));
   };
 
@@ -119,6 +127,9 @@ export default function LoginPage() {
             <label className="flex items-center gap-2 text-slate-600">
               <input
                 type="checkbox"
+                name="rememberMe"
+                checked={formData.rememberMe}
+                onChange={handleChange}
                 className="h-4 w-4 rounded border-slate-300 text-accent-orange-600 focus:ring-accent-orange-500"
               />
               Ghi nhớ cho lần sau
@@ -140,10 +151,10 @@ export default function LoginPage() {
             className="w-full py-3.5 rounded-xl font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-60 mt-1 bg-accent-orange-500 hover:accent-accent-orange-600"
           >
             {isLoading ? (
-              <>
+              <span className="flex items-center justify-center">
                 <CircleNotch size={20} className="mr-2 animate-spin" />
                 Đang đăng nhập...
-              </>
+              </span>
             ) : (
               "Đăng nhập"
             )}
