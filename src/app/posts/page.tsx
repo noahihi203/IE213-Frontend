@@ -26,8 +26,7 @@ function getCategoryColor(id: string) {
     hash = id.charCodeAt(i) + ((hash << 5) - hash);
   return CATEGORY_COLORS[Math.abs(hash) % CATEGORY_COLORS.length];
 }
-
-export function getReadingTime(text: string) {
+function getReadingTime(text: string) {
   if (!text) return 0;
   const wordCount = text.trim().split(/\s+/).filter(Boolean).length;
   return Math.ceil(wordCount / 200);
@@ -427,7 +426,7 @@ function PostCard({ post }: { post: Post }) {
           style={{ backgroundColor: "rgba(0,0,0,0.55)" }}
         >
           <span className="text-[11px] text-white">
-            {getReadingTime(post.content)} phút đọc
+            {post.content ? getReadingTime(post.content) : "36"} phút đọc
           </span>
         </div>
       </div>

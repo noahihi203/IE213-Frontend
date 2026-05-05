@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -13,11 +13,28 @@ export default function LoginPage() {
   const router = useRouter();
   const { login, isLoading, error, clearError } = useAuthStore();
 
+  // 1. Khởi tạo state trống để an toàn cho Server-side Rendering
   const [formData, setFormData] = useState({
-    email: localStorage.getItem("rememberedEmail") ?? "",
+    email: "",
     password: "",
-    rememberMe: !!localStorage.getItem("rememberedEmail"),
+    rememberMe: false,
   });
+
+  // 2. Dùng useEffect để đọc dữ liệu từ localStorage sau khi mount
+  useEffect(() => {
+    const rememberedEmail = localStorage.getItem("rememberedEmail");
+    if (rememberedEmail) {
+      setFormData((prev) => ({
+        ...prev,
+        email: rememberedEmail,
+        rememberMe: true,
+      }));
+    }
+
+    // Log token nếu cần (như code cũ của bạn)
+    const token = localStorage.getItem("token");
+    console.log(token);
+  }, []);
 
   const [showPassword, setShowPassword] = useState(false);
 

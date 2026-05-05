@@ -28,8 +28,12 @@ import {
 } from "../../../hooks/useComments";
 import CommentContent from "../../../components/CommentContent";
 import PostShareActions from "@/components/post/PostShareActions";
-import { getReadingTime } from "../page";
 
+function getReadingTime(text: string) {
+  if (!text) return 0;
+  const wordCount = text.trim().split(/\s+/).filter(Boolean).length;
+  return Math.ceil(wordCount / 200);
+}
 const MDPreview = dynamic(() => import("@uiw/react-markdown-preview"), {
   ssr: false,
 });
