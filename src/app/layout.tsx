@@ -37,7 +37,7 @@ export const metadata: Metadata = {
     url: `${baseUrl}`,
     siteName: "UniSync",
     images: {
-      url: "./chikawa.webp",
+      url: "./logo.pnp",
       width: 1200,
       height: 630,
       alt: "UniSync - Blog sinh viên và giáo dục",

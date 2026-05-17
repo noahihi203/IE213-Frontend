@@ -116,8 +116,8 @@ const principles = [
   {
     icon: <Users weight="fill" className="text-accent-orange-500" size={24} />,
     color: ACCENT_GOLD,
-    title: "Cộng đồng mở",
-    desc: "Mọi sinh viên đều có thể đặt câu hỏi, chia sẻ và tham gia thảo luận bla bla bla bla blo blo.",
+    title: "Nội dung đa chủ đề",
+    desc: "UniSync cung cấp nhiều nội dung về học tập, học phí, đời sống sinh viên và trải nghiệm quanh trường đại học.",
   },
   {
     icon: (
@@ -128,22 +128,22 @@ const principles = [
       />
     ),
     color: ACCENT_BLUE,
-    title: "Học hỏi lẫn nhau",
-    desc: "Mỗi người một góc nhìn, cùng nhau tạo nên giá trị chung.",
+    title: "Khám phá dễ dàng",
+    desc: "Thông tin được phân loại rõ ràng theo trường học và chủ đề để người dùng dễ dàng tìm kiếm.",
   },
   {
     icon: <RocketLaunchIcon weight="fill" color="#10B981" size={24} />,
     color: "#10B981",
-    title: "Phát triển bền vững",
-    desc: "Không chỉ học tốt hơn, mà còn định hướng tốt hơn cho tương lai.",
+    title: "Cập nhật liên tục",
+    desc: "Nội dung trên UniSync được cập nhật thường xuyên để phù hợp với nhu cầu tìm kiếm thông tin của sinh viên.",
   },
 ];
 
 const storyBullets = [
-  "Chia sẻ kinh nghiệm học tập và thi cử",
+  "Tìm đọc các thông tin về kinh nghiệm học tập và thi cử",
   "Hỏi đáp về ngành học, môn học",
-  "Trao đổi về internship và định hướng nghề nghiệp",
-  "Kết nối với sinh viên từ các trường khác",
+  "Cập nhật về internship và định hướng nghề nghiệp",
+  "Theo dõi đời sống sinh viên",
 ];
 
 const milestones = [
@@ -155,8 +155,8 @@ const milestones = [
   },
   {
     year: "2024 Q1",
-    title: "Ra mắt nền tảng chia sẻ bài viết",
-    desc: "Cho phép sinh viên đăng bài và thảo luận.",
+    title: "Ra mắt nền tảng thông tin sinh viên",
+    desc: "Cung cấp nội dung về trường học, học phí, review và đời sống quanh các trường đại học.",
     side: "right",
   },
   {
@@ -167,8 +167,8 @@ const milestones = [
   },
   {
     year: "2025",
-    title: "Đạt 15,000+ sinh viên",
-    desc: "Trở thành một trong những cộng đồng chia sẻ sinh viên tại TP.HCM.",
+    title: "Đạt 15,000+ lượt truy cập",
+    desc: "UniSync trở thành nền tảng được nhiều sinh viên sử dụng để tìm kiếm thông tin đại học.",
     side: "right",
   },
   {
@@ -299,7 +299,7 @@ export default function CategoryDetailPage() {
                   className="text-[11px] font-semibold"
                   style={{ color: ACCENT_GOLD }}
                 >
-                  Câu chuyện của chúng tôi
+                  Nền tảng thông tin đại học TP.HCM
                 </span>
               </div>
 
@@ -318,8 +318,8 @@ export default function CategoryDetailPage() {
               </h1>
 
               <p className="text-[#888] text-[15px] leading-relaxed max-w-md">
-                UniSync là nền tảng nơi sinh viên các trường đại học tại TP.HCM
-                chia sẻ kiến thức, kinh nghiệm và góc nhìn thực tế.
+                UniSync là nền tảng tổng hợp thông tin về trường đại học tại
+                TP.HCM.
               </p>
             </div>
 
@@ -330,7 +330,7 @@ export default function CategoryDetailPage() {
                 style={{ boxShadow: "0 8px 40px rgba(0,0,0,0.12)" }}
               >
                 <img
-                  src="https://images.alphacoders.com/134/thumb-1920-1345108.png"
+                  src="/images/about-us-image-1.webp"
                   alt="Việt Nam"
                   className="w-full object-cover aspect-video"
                 />
@@ -392,7 +392,7 @@ export default function CategoryDetailPage() {
               style={{ boxShadow: "0 4px 24px rgba(0,0,0,0.08)" }}
             >
               <img
-                src="https://images.alphacoders.com/134/thumb-1920-1345108.png"
+                src="/images/about-us-image-2.webp"
                 alt="Câu chuyện UniSync"
                 className="w-full object-cover aspect-[4/3]"
               />
@@ -430,24 +430,25 @@ export default function CategoryDetailPage() {
             </span>
             <h2 className="text-[26px] md:text-[32px] leading-tight tracking-tight mb-5">
               <span className="font-bold text-[#000]">Từ Nhu Cầu Thực Tế</span>{" "}
-              <span className="font-normal text-[#888]">Đến Một Cộng Đồng</span>
+              <span className="font-normal text-[#888]">Đến UniSync</span>
             </h2>
 
             <div className="flex flex-col gap-4 text-[14px] text-[#888] leading-relaxed mb-6">
               <p>
-                UniSync bắt đầu từ một vấn đề rất quen thuộc: sinh viên có rất
-                nhiều câu hỏi, nhưng không biết hỏi ở đâu để nhận được câu trả
-                lời thực tế.
+                UniSync được xây dựng với mục tiêu giúp mọi người có thể dễ dàng
+                tìm kiếm thông tin về các trường đại học tại TP.HCM một cách
+                trực quan và thực tế hơn.
               </p>
               <p>
-                Mục tiêu của UniSync không chỉ là nơi đọc bài viết, mà là một
-                cộng đồng nơi mỗi người đều có thể đóng góp và học hỏi lẫn
-                nhau.{" "}
+                Thay vì những thông tin rời rạc, UniSync tập trung tổng hợp
+                review trường học, học phí, môi trường học tập, đời sống sinh
+                viên và trải nghiệm thực tế vào cùng một nền tảng.{" "}
               </p>
               <p>
-                Các nền tảng hiện tại thường quá chung chung hoặc thiếu tính kết
-                nối giữa sinh viên với nhau. Vì vậy, UniSync được tạo ra như một
-                không gian nơi sinh viên có thể:
+                UniSync hướng đến việc giúp người dùng khám phá và so sánh thông
+                tin đại học dễ dàng hơn thông qua nội dung được phân loại rõ
+                ràng theo từng chủ đề và trường học. Tại UniSync, người dùng có
+                thể:
               </p>
             </div>
 
@@ -483,8 +484,8 @@ export default function CategoryDetailPage() {
               <span className="font-normal text-[#888]">Định Hình UniSync</span>
             </h2>
             <p className="text-[#888] text-[14px] mt-3 max-w-md">
-              Không chỉ là đăng bài hay thảo luận — đây là những nguyên tắc mà
-              chúng mình đưa vào từng quyết định sản phẩm.
+              Những nguyên tắc giúp UniSync xây dựng nền tảng thông tin dành cho
+              sinh viên TP.HCM.
             </p>
           </div>
 
@@ -728,7 +729,7 @@ export default function CategoryDetailPage() {
             Cộng đồng nói gì
           </span>
           <h2 className="text-[28px] md:text-[34px] leading-tight tracking-tight">
-            <span className="font-bold text-[#000]">Sinh viên nói gì về</span>{" "}
+            <span className="font-bold text-[#000]">Mọi người nói gì về</span>{" "}
             <span className="font-extrabold text-[#888]">UniSync</span>
           </h2>
         </div>
@@ -806,9 +807,12 @@ export default function CategoryDetailPage() {
               <span className="font-bold text-[#888]">Hồ Chí Minh</span>
             </h2>
             <p className="text-[#888] text-[14px] leading-relaxed mb-8">
-              UniSync được xây dựng tại Việt Nam, bởi người Việt, dành cho người
-              Việt. Chúng tôi có văn phòng tại Hà Nội và TP. Hồ Chí Minh — hai
-              trung tâm sáng tạo lớn nhất của đất nước.
+              UniSync được xây dựng và phát triển tại TP.HCM, nơi tập trung
+              nhiều trường đại học và cộng đồng sinh viên năng động. Đội ngũ
+              UniSync mong muốn tạo ra một không gian tổng hợp thông tin hữu
+              ích, giúp sinh viên dễ dàng tìm kiếm kiến thức, khám phá môi
+              trường học tập và cập nhật những trải nghiệm thực tế xoay quanh
+              đời sống đại học.
             </p>
 
             <div className="flex flex-col gap-3">
@@ -909,32 +913,31 @@ export default function CategoryDetailPage() {
                 background: `linear-gradient(135deg, ${ACCENT_GOLD}, #8B5CF6)`,
               }}
             >
-              ✍️
+              🔍
             </div>
 
-            <h2 className="text-white text-[30px] md:text-[38px] font-extrabold leading-tight tracking-tight mb-4">
-              Hãy Là Một Phần Của{" "}
-              <span style={{ color: ACCENT_GOLD }}>Câu Chuyện</span>
+            <h2 className="text-[#1A1A1A] text-[30px] md:text-[38px] font-extrabold leading-tight tracking-tight mb-4">
+              Khám phá{" "}
+              <span style={{ color: ACCENT_GOLD }}>thông tin cùng</span> UniSync
             </h2>
-            <p className="text-white/60 text-[15px] leading-relaxed mb-8">
-              Tham gia cùng hơn 12,000 tác giả đang viết nên những câu chuyện
-              Việt hay nhất. Miễn phí, mãi mãi.
+            <p className="text-[#666] text-[15px] leading-relaxed mb-8">
+              Bắt đầu tìm kiếm các thông tin hữu ích tại UniSync ngay hôm nay.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Link
-                href={`/bai-viet`}
-                className="flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl font-semibold text-[#000] hover:opacity-90 transition-opacity"
+                href="/dang-ky"
+                className="flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl font-semibold text-white hover:opacity-90 transition-opacity"
                 style={{ backgroundColor: ACCENT_GOLD }}
               >
                 <span>Tạo tài khoản miễn phí</span>
                 <span className="w-6 h-6 rounded-lg bg-black/15 flex items-center justify-center">
-                  <ArrowRightIcon color="#000" size={14} />
+                  <ArrowRightIcon color="#fff" size={14} />
                 </span>
               </Link>
               <Link
-                href={`/bai-viet`}
-                className="flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl font-semibold text-white/80 hover:text-white border border-white/15 hover:border-white/30 transition-all"
+                href="/posts"
+                className="flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl font-semibold text-[#444] hover:text-[#1A1A1A] border border-[#00000015] hover:border-[#00000030] transition-all"
               >
                 <span className="text-[13px]">🔍</span>
                 <span>Khám phá bài viết</span>

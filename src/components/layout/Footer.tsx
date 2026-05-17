@@ -63,8 +63,9 @@ export function Footer() {
             <span className="text-[#000] text-[16px] font-bold">UniSync</span>
           </div>
           <p className="text-[#888] text-[13px] leading-relaxed">
-            UniSync là diễn đàn dành cho sinh viên TP.HCM, nơi chia sẻ kiến
-            thức, kinh nghiệm và kết nối cộng đồng giữa các trường đại học.
+            UniSync là nơi đồng hành cùng mọi thế hệ trên hành trình đại học,
+            cung cấp thông tin chuẩn xác và những trải nghiệm thực tế từ các
+            trường đại học tại TP.HCM.
           </p>
           <div className="flex gap-2.5 mt-4">
             {socialLinks.map((social) => {

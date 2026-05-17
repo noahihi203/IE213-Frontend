@@ -49,7 +49,7 @@ export async function generateMetadata({
         url: `${baseUrl}`,
         siteName: "UniSync",
         images: {
-          url: "./chikawa.webp",
+          url: "./logo.pnp",
           width: 1200,
           height: 630,
           alt: "UniSync - Blog sinh viên và giáo dục",
@@ -88,7 +88,7 @@ export async function generateMetadata({
       url: `${baseUrl}/${params.slug}`,
       siteName: "UniSync",
       images: {
-        url: cat.icon ? `${toAbsoluteUrl(cat.icon)}` : "./chikawa.webp",
+        url: cat.icon ? `${toAbsoluteUrl(cat.icon)}` : "./logo.pnp",
         width: 1200,
         height: 630,
         alt: `[${cat.abbreviation}] ${cat.name}`,

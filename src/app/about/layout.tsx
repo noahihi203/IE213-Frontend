@@ -29,7 +29,7 @@ export async function generateMetadata() {
 
       images: [
         {
-          url: `./chikawa.webp`,
+          url: `./logo.pnp`,
           width: 1200,
           height: 630,
           alt: "UniSync - Câu chuyện và sứ mệnh",

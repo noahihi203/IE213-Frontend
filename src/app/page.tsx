@@ -21,15 +21,13 @@ const ACCENT_GOLD = "#ED9F00";
 const tickerItems = [
   "Cộng đồng Sinh Viên",
   "Kết nối đa trường",
-  "Không gian thảo luận",
-  "CHIA SẺ & HỌC HỎI",
+  "Khám phá trường học",
+  "Kinh nghiệm học tập",
   "SINH VIÊN TP.HCM",
-  "DIỄN ĐÀN TRAO ĐỔI",
+  "Góc nhìn đa chiều",
   "TRẢI NGHIỆM THỰC TẾ",
   "ĐÁNG TIN CẬY",
   "ĐẠI HỌC QUỐC GIA",
-  "86K+ Bài viết",
-  "2.4M Độc giả",
 ];
 
 /* ─── STEPS ─── */
@@ -116,8 +114,8 @@ const features = [
         <path d="M3.33 10h13.34" />
       </svg>
     ),
-    title: "Chia sẻ kiến thức",
-    desc: "Học tập, tài liệu, tips học hiệu quả từ sinh viên khác.",
+    title: "Review trường học",
+    desc: "Tìm hiểu môi trường học tập, cơ sở vật chất và trải nghiệm sinh viên.",
     color: ACCENT_GOLD,
   },
   {
@@ -135,8 +133,8 @@ const features = [
         <path d="M18 20V10M12 20V4M6 20v-6" />
       </svg>
     ),
-    title: "Hỏi đáp nhanh chóng",
-    desc: "Đặt câu hỏi và nhận câu trả lời từ cộng đồng.",
+    title: "Học phí & tuyển sinh",
+    desc: "Cập nhật thông tin học phí, ngành học và phương thức tuyển sinh.",
     color: ACCENT_BLUE,
   },
   {
@@ -156,7 +154,7 @@ const features = [
       </svg>
     ),
     title: "Cộng đồng đa trường",
-    desc: "Kết nối sinh viên từ nhiều trường đại học tại TP.HCM.",
+    desc: "Nguồn thông tin từ nhiều trường đại học tại TP.HCM.",
     color: ACCENT_PINK,
   },
   {
@@ -290,22 +288,25 @@ export default function HomePage() {
               className="text-[11px] font-bold tracking-[2px] uppercase"
               style={{ color: ACCENT_GOLD }}
             >
-              Nền tảng xuất bản thế hệ mới
+              Đồng bộ thông tin - kết nối tương lai
             </span>
           </div>
 
           {/* Headline */}
           <h1 className="text-[36px] md:text-[52px] leading-tight tracking-tight mb-6 max-w-3xl">
-            <span className="font-bold text-[#000]">Nền Tảng</span>{" "}
-            <span className="font-normal text-[#888]">kết nối</span>{" "}
+            <span className="font-bold text-[#000]">Điểm hẹn</span>{" "}
+            <span className="font-normal text-[#888]">giảng đường</span>{" "}
             <br className="hidden md:block" />
-            <span className="font-bold text-[#000]">Sinh viên</span>{" "}
+            <span className="font-bold text-[#000]">
+              Các trường đại học
+            </span>{" "}
             <span className="font-normal text-[#888]">TP.HCM</span>
           </h1>
 
-          <p className="text-[#888] text-[15px] md:text-[16px] leading-relaxed max-w-lg mb-10">
-            Nơi sinh viên các trường đại học chia sẻ kiến thức, kinh nghiệm và
-            câu chuyện thực tế.
+          <p className="text-[#888] text-[15px] md:text-[14px] leading-relaxed max-w-lg mb-10">
+            Cổng thông tin toàn diện về các trường đại học: Nơi tổng hợp kiến
+            thức, kinh nghiệm chọn ngành và những câu chuyện thực tế từ giảng
+            đường.
           </p>
 
           {/* CTAs */}
@@ -315,16 +316,16 @@ export default function HomePage() {
               className="flex-1 flex items-center justify-between px-6 py-3.5 rounded-2xl text-white hover:opacity-90 transition-opacity"
               style={{ backgroundColor: "#000" }}
             >
-              <span className="text-[14px] font-bold">Bắt đầu viết</span>
+              <span className="text-[10px] font-bold">Khám phá bài viết</span>
               <span className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center">
                 <ArrowRight />
               </span>
             </button>
             <button
               onClick={() => router.push("/posts")}
-              className="flex-1 flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl border border-[#E0E0E0] bg-white text-[14px] font-semibold text-[#000] hover:bg-[#F8F8F8] transition-colors"
+              className="flex-1 flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl border border-[#E0E0E0] bg-white text-[10px] font-semibold text-[#000] hover:bg-[#F8F8F8] transition-colors"
             >
-              Khám phá bài viết
+              Danh mục bài viết
             </button>
           </div>
 
@@ -492,11 +493,12 @@ export default function HomePage() {
             <h2 className="text-[28px] md:text-[36px] leading-tight tracking-tight">
               <span className="font-bold text-[#000]">Mọi thứ</span>{" "}
               <span className="font-normal text-[#888]">
-                bạn cần để kết nối sinh viên
+                bạn cần về các trường đại học tại TP.HCM
               </span>
             </h2>
             <p className="text-[#888] text-[14px] mt-3 max-w-md">
-              UniSync giúp bạn học hỏi, chia sẻ và phát triển.
+              UniSync tổng hợp thông tin, review và trải nghiệm xoay quanh đời
+              sống đại học tại TP.HCM.
             </p>
           </div>
 
@@ -761,9 +763,11 @@ export default function HomePage() {
                 aspectRatio: "16/9",
               }}
             >
-              <div className="w-full h-full flex items-center justify-center text-[#888]">
-                <span className="text-[12px]">Creator Image</span>
-              </div>
+              <img
+                src="/images/landing-page-image.webp"
+                alt="Creator"
+                className="w-full h-full object-cover"
+              />
             </div>
             {/* Floating badge */}
             <div
@@ -794,27 +798,29 @@ export default function HomePage() {
               Tính năng dành cho tác giả
             </span>
             <h2 className="text-[26px] md:text-[32px] leading-tight tracking-tight mb-4">
-              <span className="font-bold text-[#000]">Viết</span>{" "}
-              <span className="font-normal text-[#888]">
+              <span className="font-bold text-[#000]">
+                Vì sao nên chọn đọc ở UniSync?
+              </span>{" "}
+              {/* <span className="font-normal text-[#888]">
                 và chia sẻ dễ dàng
-              </span>
+              </span> */}
             </h2>
             <p className="text-[#888] text-[14px] leading-relaxed mb-6">
-              Chia sẻ kinh nghiệm, kiến thức hoặc câu chuyện của bạn với cộng
-              đồng chỉ trong vài bước.
+              Khám phá thông tin, review và trải nghiệm xoay quanh đời sống đại
+              học tại TP.HCM.
             </p>
             <div className="flex flex-col gap-3 mb-8">
               {[
                 {
-                  text: "Trình soạn thảo đơn giản, dễ sử dụng",
+                  text: "Thông tin được chọn lọc",
                   color: ACCENT_BLUE,
                 },
                 {
-                  text: "Hỗ trợ Markdown cơ bản",
+                  text: "Nội dung trực quan, dễ theo dõi",
                   color: ACCENT_PINK,
                 },
                 {
-                  text: "Nhận phản hồi từ cộng đồng",
+                  text: "Cập nhật xu hướng sinh viên",
                   color: ACCENT_GOLD,
                 },
               ].map((item, i) => (
@@ -838,11 +844,11 @@ export default function HomePage() {
               ))}
             </div>
             <button
-              onClick={() => router.push("/posts")}
+              onClick={() => router.push("/register")}
               className="flex items-center gap-3 px-6 py-3.5 rounded-2xl text-white hover:opacity-90 transition-opacity"
               style={{ backgroundColor: "#000" }}
             >
-              <span className="text-[14px] font-bold">Bắt đầu viết</span>
+              <span className="text-[14px] font-bold">Đăng ký thành viên</span>
               <span className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center">
                 <ArrowRight />
               </span>
