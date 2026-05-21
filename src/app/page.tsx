@@ -69,7 +69,7 @@ const steps = [
         <path d="M3 7l9-4 9 4M3 7v10l9 4 9-4V7M12 3v18" />
       </svg>
     ),
-    title: "Đăng bài / Thảo luận",
+    title: "Thảo luận",
     desc: "Đặt câu hỏi, chia sẻ kinh nghiệm học tập, đời sống sinh viên.",
     color: ACCENT_BLUE,
   },

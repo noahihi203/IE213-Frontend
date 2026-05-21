@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { CaretDown, Eye, PencilSimple } from "@phosphor-icons/react";
-import { Post } from "@/lib/types";
+import { Post, User } from "@/lib/types";
 
 interface PostCardProps {
+  user: User;
   post: Post;
   isAuthorOrAdmin: boolean;
   onEdit: (post: Post) => void;
@@ -25,6 +26,7 @@ const statusTextClass: Record<string, string> = {
 const statusOptions: Post["status"][] = ["draft", "published", "archived"];
 
 export default function PostCard({
+  user,
   post,
   isAuthorOrAdmin,
   onEdit,
@@ -124,20 +126,24 @@ export default function PostCard({
             <span>{post.commentsCount} comments</span>
           </div>
 
-          <div className="flex items-center space-x-3 pointer-events-auto">
-            <button
-              type="button"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                onEdit(post);
-              }}
-              className="rounded-md border-[0.5px] border-slate-300 bg-white p-1.5 text-slate-700 transition-colors hover:bg-slate-100 hover:text-slate-900"
-              title="Edit"
-            >
-              <PencilSimple size={20} weight="duotone" />
-            </button>
-          </div>
+          {post.authorId._id === user._id || user.role === "admin" ? (
+            <div className="flex items-center space-x-3 pointer-events-auto">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onEdit(post);
+                }}
+                className="rounded-md border-[0.5px] border-slate-300 bg-white p-1.5 text-slate-700 transition-colors hover:bg-slate-100 hover:text-slate-900"
+                title="Edit"
+              >
+                <PencilSimple size={20} weight="duotone" />
+              </button>
+            </div>
+          ) : (
+            <></>
+          )}
         </div>
       </div>
     </div>

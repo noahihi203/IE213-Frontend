@@ -27,7 +27,10 @@ export default function PostsTab({
   isLoading,
   onPostsRefresh,
 }: PostsTabProps) {
-  const isAuthorOrAdmin = user.role === "author" || user.role === "admin";
+  let isAuthorOrAdmin = false;
+  if (user.role === "author" || user.role === "admin") {
+    isAuthorOrAdmin = true;
+  }
   const [listMode, setListMode] = useState<"written" | "liked">(
     isAuthorOrAdmin ? "written" : "liked",
   );
@@ -164,6 +167,7 @@ export default function PostsTab({
         <div className="space-y-4">
           {filteredPosts.map((post) => (
             <PostCard
+              user={user}
               key={post._id}
               post={post}
               isAuthorOrAdmin={canManagePosts}
