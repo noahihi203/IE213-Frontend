@@ -397,9 +397,17 @@ export function useComments(
     try {
       setIsSubmittingComment(true);
       setCommentsError("");
-      await commentService.createComment({ postId: activePostId, content });
+      
+      const response = await commentService.createComment({ postId: activePostId, content });
+      const newComment = response.metadata;
+
+      setTopLevelComments((prev) => [
+        { ...newComment, depth: 0, replyCount: 0 },
+        ...prev,
+      ]);
+
       setNewCommentContent("");
-      await refreshAfterMutation();
+      if (onPostsRefresh) await onPostsRefresh(); 
     } catch (err: any) {
       setCommentsError(err?.message || "Không thể tạo bình luận.");
     } finally {
@@ -417,30 +425,42 @@ export function useComments(
 
     const parentComment =
       topLevelComments.find((item) => item._id === parentCommentId) ||
-      Object.values(repliesByParent)
-        .flat()
-        .find((item) => item._id === parentCommentId);
+      Object.values(repliesByParent).flat().find((item) => item._id === parentCommentId);
 
     const mentionPrefix = parentComment
-      ? `@${resolveCommentAuthorSummary(parentComment).mentionLabel} `
+      ? `@${resolveCommentAuthorSummary(parentComment, currentUser).mentionLabel} `
       : "";
+      
     const normalizedContent = mentionPrefix
-      ? content.startsWith(mentionPrefix)
-        ? content
-        : `${mentionPrefix}${content}`
+      ? content.startsWith(mentionPrefix) ? content : `${mentionPrefix}${content}`
       : content;
 
     try {
       setReplySubmittingFor(parentCommentId);
       setCommentsError("");
-      await commentService.createComment({
+      
+      const response = await commentService.createComment({
         postId: activePostId,
         content: normalizedContent,
         parentCommentId,
       });
+      const newReply = response.metadata;
+
+      setRepliesByParent((prev) => ({
+        ...prev,
+        [parentCommentId]: [...(prev[parentCommentId] || []), { ...newReply, depth: 1 }],
+      }));
+
+      setExpandedReplyParentIds((prev) => new Set(prev).add(parentCommentId));
+
+      setTopLevelComments((prev) =>
+        prev.map((c) =>
+          c._id === parentCommentId ? { ...c, replyCount: (c.replyCount || 0) + 1 } : c
+        )
+      );
+
       setReplyDrafts((prev) => ({ ...prev, [parentCommentId]: "" }));
       setActiveReplyCommentId(null);
-      await refreshAfterMutation();
     } catch (err: any) {
       setCommentsError(err?.message || "Không thể gửi phản hồi.");
     } finally {
@@ -491,13 +511,28 @@ export function useComments(
     try {
       setIsUpdatingComment(true);
       setCommentsError("");
+      
       await commentService.updateComment({
         commentId: editingCommentId,
         content,
       });
+
+      setTopLevelComments((prev) =>
+        prev.map((c) => (c._id === editingCommentId ? { ...c, content, isEdited: true } : c))
+      );
+
+      setRepliesByParent((prev) => {
+        const next = { ...prev };
+        Object.keys(next).forEach((parentId) => {
+          next[parentId] = next[parentId].map((c) =>
+            c._id === editingCommentId ? { ...c, content, isEdited: true } : c
+          );
+        });
+        return next;
+      });
+
       setEditingCommentId(null);
       setEditCommentContent("");
-      await refreshAfterMutation();
     } catch (err: any) {
       setCommentsError(err?.message || "Không thể cập nhật bình luận.");
     } finally {
