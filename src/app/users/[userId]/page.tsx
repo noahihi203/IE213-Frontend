@@ -114,10 +114,6 @@ export default function UserProfilePage() {
 
   useEffect(() => {
     if (!authInitialized) return;
-    if (!isAuthenticated) {
-      router.push("/login");
-      return;
-    }
 
     const loadProfile = async () => {
       if (!userId) {
@@ -133,7 +129,8 @@ export default function UserProfilePage() {
         const fetchedProfile = response.metadata || null;
         setProfile(fetchedProfile);
 
-        if (fetchedProfile) {
+        // Chỉ load relation stats khi đã đăng nhập
+        if (fetchedProfile && isAuthenticated) {
           await loadRelationStats(fetchedProfile._id, fetchedProfile.username);
         }
       } catch (err: any) {
@@ -224,7 +221,7 @@ export default function UserProfilePage() {
               </p>
             )}
 
-            {currentUser?._id !== profile._id && (
+            {isAuthenticated && currentUser?._id !== profile._id && (
               <button
                 onClick={handleFollowToggle}
                 disabled={isSubmittingFollow}

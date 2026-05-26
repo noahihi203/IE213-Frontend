@@ -28,6 +28,7 @@ import {
 } from "../../../hooks/useComments";
 import CommentContent from "../../../components/CommentContent";
 import PostShareActions from "@/components/post/PostShareActions";
+import { userService } from "@/lib/api/user.service";
 
 function getReadingTime(text: string) {
   if (!text) return 0;
@@ -39,8 +40,70 @@ const MDPreview = dynamic(() => import("@uiw/react-markdown-preview"), {
 });
 
 function AuthorCard({ author }: { author: User }) {
+  const [isSubmittingFollow, setIsSubmittingFollow] = useState(false);
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [followersCount, setFollowersCount] = useState(0);
+
+  const { user: currentUser } = useAuthStore();
+
   const initials =
     author.fullName?.split(" ").pop()?.charAt(0).toUpperCase() ?? "U";
+
+  const loadRelationStats = async (targetUserId: string, username: string) => {
+    try {
+      // Chỉ check isFollowing và followers khi đã đăng nhập
+      if (currentUser) {
+        const [followersRes] = await Promise.all([
+          userService.getUserFollowers(targetUserId, { page: 1, limit: 1 }),
+        ]);
+
+        setFollowersCount(
+          Number(followersRes.metadata?.pagination?.totalUsers || 0),
+        );
+        const myFollowingRes = await userService.getMyFollowing({
+          page: 1,
+          limit: 50,
+          search: username,
+        });
+        const myFollowingList = myFollowingRes.metadata?.following || [];
+        setIsFollowing(
+          myFollowingList.some((item) => item._id === targetUserId),
+        );
+      }
+    } catch (err) {
+      console.error("Failed to load relation stats", err);
+      setFollowersCount(0);
+      setIsFollowing(false);
+    }
+  };
+
+  useEffect(() => {
+    if (author._id && author.username) {
+      void loadRelationStats(author._id, author.username);
+    }
+  }, [author._id, currentUser]); // thêm currentUser để re-run khi đăng nhập
+
+  const handleFollowToggle = async () => {
+    if (!author || !currentUser || currentUser._id === author._id) return;
+
+    try {
+      setIsSubmittingFollow(true);
+
+      if (isFollowing) {
+        await userService.unfollowUser(author._id);
+        setIsFollowing(false);
+        setFollowersCount((prev) => Math.max(0, prev - 1));
+      } else {
+        await userService.followUser(author._id);
+        setIsFollowing(true);
+        setFollowersCount((prev) => prev + 1);
+      }
+    } catch (followError) {
+      console.error("Failed to toggle follow", followError);
+    } finally {
+      setIsSubmittingFollow(false);
+    }
+  };
 
   return (
     <div className="flex items-center gap-4 rounded-xl border border-[#F0F0F0] bg-white p-4">
@@ -49,7 +112,15 @@ function AuthorCard({ author }: { author: User }) {
         className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl text-base font-medium text-white"
         style={{ backgroundColor: "#DC0055" }}
       >
-        {initials}
+        {author.avatar ? (
+          <img
+            src={author.avatar}
+            alt={author.fullName}
+            className="h-full w-full rounded-xl object-cover"
+          />
+        ) : (
+          initials
+        )}
       </div>
 
       {/* Info */}
@@ -59,27 +130,41 @@ function AuthorCard({ author }: { author: User }) {
           Tác giả UniSync
         </p>
         <p className="text-[13px] text-[#888]">{author.bio}</p>
+        {/* Followers count */}
+        {currentUser && (
+          <p className="mt-1 text-[12px] text-[#aaa]">
+            {followersCount} người theo dõi
+          </p>
+        )}
       </div>
 
       {/* Follow button */}
-      <button
-        className="flex-shrink-0 rounded-full px-4 py-1.5 text-[13px] font-medium transition-all"
-        style={{
-          border: "1.5px solid #DC0055",
-          color: "#DC0055",
-          background: "transparent",
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.background = "#DC0055";
-          e.currentTarget.style.color = "#fff";
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.background = "transparent";
-          e.currentTarget.style.color = "#DC0055";
-        }}
-      >
-        + Theo dõi
-      </button>
+      {currentUser && currentUser?._id !== author._id && (
+        <button
+          onClick={handleFollowToggle}
+          disabled={isSubmittingFollow}
+          className="flex-shrink-0 rounded-full px-4 py-1.5 text-[13px] font-medium transition-all"
+          style={{
+            border: "1.5px solid #DC0055",
+            color: "#DC0055",
+            background: "transparent",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = "#DC0055";
+            e.currentTarget.style.color = "#fff";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = "transparent";
+            e.currentTarget.style.color = "#DC0055";
+          }}
+        >
+          {isSubmittingFollow
+            ? "Đang xử lý..."
+            : isFollowing
+              ? "Hủy theo dõi"
+              : "Theo dõi"}
+        </button>
+      )}
     </div>
   );
 }
@@ -317,7 +402,15 @@ export default function PostDetailPage() {
             {author && (
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 bg-[#000] rounded-full flex items-center justify-center text-white font-bold">
-                  {author?.username?.charAt(0)?.toUpperCase() || "U"}
+                  {author?.avatar ? (
+                    <img
+                      src={author.avatar}
+                      alt={author.fullName || author.username}
+                      className="w-full h-full object-cover rounded-full"
+                    />
+                  ) : (
+                    author?.username?.charAt(0)?.toUpperCase() || "U"
+                  )}
                 </div>
                 <div>
                   <p className="font-semibold text-[#000]">
@@ -403,7 +496,7 @@ export default function PostDetailPage() {
             isAuthenticated={isAuthenticated}
           />
         </div>
-        {post.authorId && <AuthorCard author={post.authorId} />}
+        {author && <AuthorCard author={author as User} />}
         {/* ── Comments section ────────────────────────────────────────────── */}
         <section className="py-6" style={{ borderTop: "1px solid #F0F0F0" }}>
           <div className="flex items-center justify-between mb-4">

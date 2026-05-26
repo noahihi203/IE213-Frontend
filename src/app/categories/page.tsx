@@ -558,7 +558,9 @@ export default function CategoriesPage() {
           <h2 className="text-[20px] font-bold text-[#000] tracking-tight">
             Tất Cả Danh Mục
           </h2>
-          <span className="text-[13px] text-[#888]">6 danh mục</span>
+          <span className="text-[13px] text-[#888]">
+            {enrichedCategories.length} danh mục
+          </span>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -606,7 +608,6 @@ export default function CategoriesPage() {
         </div>
       </section>
 
-      {/* ══════════ FEATURED AUTHORS ══════════ */}
       <section className="max-w-6xl mx-auto px-5 py-12">
         <div className="flex items-center gap-2.5 mb-6">
           <UserGroupIcon color={ACCENT_GOLD} />
@@ -617,8 +618,9 @@ export default function CategoriesPage() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {enrichedTopAuthors.map((author) => (
-            <div
+            <Link
               key={author._id}
+              href={`/users/${author._id}`}
               className="bg-white flex items-center gap-3 p-4 rounded-2xl cursor-pointer hover:shadow-md transition-shadow"
               style={{
                 boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
@@ -629,23 +631,29 @@ export default function CategoriesPage() {
                 className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 text-white text-[13px] font-bold overflow-hidden"
                 style={{ backgroundColor: author.color }}
               >
-                <img
-                  src={
-                    typeof author.avatar === "string" &&
-                    author.avatar.trim().startsWith("http")
-                      ? author.avatar
-                      : DEFAULT_AVATAR_URL
-                  }
-                  alt={author.fullName}
-                  className="w-full h-full object-cover"
-                />
+                {typeof author.avatar === "string" &&
+                author.avatar.trim().startsWith("http") ? (
+                  <img
+                    src={author.avatar}
+                    alt={author.fullName}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  // fallback initials
+                  (author.fullName?.split(" ").pop()?.charAt(0).toUpperCase() ??
+                  "U")
+                )}
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-[#000] text-[13px] font-semibold truncate">
                   {author.fullName}
                 </p>
                 <p className="text-[#888] text-[11px] truncate">
-                  {author.role}
+                  {author?.role === "admin"
+                    ? "Quản trị viên"
+                    : author?.role === "author"
+                      ? "Tác giả"
+                      : "Người dùng"} UniSync
                 </p>
                 <p
                   className="text-[11px] font-medium mt-0.5"
@@ -654,7 +662,7 @@ export default function CategoriesPage() {
                   {author.postCount} bài viết
                 </p>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </section>

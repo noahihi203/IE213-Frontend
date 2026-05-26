@@ -29,7 +29,7 @@ export async function generateMetadata() {
 
       images: [
         {
-          url: `./logo.pnp`,
+          url: `/about-us-logo.png`,
           width: 1200,
           height: 630,
           alt: "UniSync - Câu chuyện và sứ mệnh",

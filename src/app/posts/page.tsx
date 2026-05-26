@@ -478,10 +478,10 @@ function PostCard({ post }: { post: Post }) {
             <CommentIcon />
             <span>{post.commentsCount}</span>
           </div>
-          <div className="ml-auto">
+          <div className="ml-auto min-w-0">
             {post.tags?.[0] && (
               <span
-                className="rounded-md px-2 py-0.5 text-[11px] font-medium"
+                className="block rounded-md px-2 py-0.5 text-[11px] font-medium truncate max-w-[100px]"
                 style={{ color, backgroundColor: `${color}15` }}
               >
                 {post.tags[0].name}

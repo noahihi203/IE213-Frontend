@@ -7,10 +7,17 @@ import {
   Users,
 } from "@phosphor-icons/react";
 import Link from "next/link";
-
+import rakko from "../../../public/images/rakko.webp";
+import hachiware from "../../../public/images/hachiware.webp";
+import usagi from "../../../public/images/usagi.webp";
+import momoga from "../../../public/images/momoga.webp";
+import chiikawa from "../../../public/images/chiikawa.webp";
 const ACCENT_GOLD = "#ED9F00";
 const ACCENT_PINK = "#DC0055";
 const ACCENT_BLUE = "#0087CE";
+import Image from "next/image";
+import { commentService } from "../../lib/api/comment.service";
+import { useEffect, useState } from "react";
 
 // ─── icons ────────────────────────────────────────────────────────────────────
 function StarFill({ color = ACCENT_GOLD }: { color?: string }) {
@@ -181,53 +188,53 @@ const milestones = [
 
 const team = [
   {
-    name: "Jeon Jungkook",
-    role: "CEO & Co-founder",
-    bio: "Nhà văn, blogger công nghệ. Đam mê viết về AI và tương lai số.",
+    name: "Vũ Quang Huy",
+    role: "Leader",
+    bio: "Nhóm trưởng của nhóm, có vai trò quan trọng trong quá trình làm dự án.",
     followers: "1.240",
     color: ACCENT_BLUE,
-    initials: "NM",
+    avatar: rakko,
   },
   {
-    name: "Kim Taehyung",
-    role: "Head of Content",
-    bio: "Tác giả độc lập. Chuyên về văn học và nghệ thuật đương đại.",
+    name: "Nguyễn Trần Hương Giang",
+    role: "Designer",
+    bio: "Thành viên kế chính giao diện của toàn bộ trang web.",
     followers: "892",
     color: ACCENT_PINK,
-    initials: "TL",
+    avatar: momoga,
   },
   {
-    name: "Martin",
-    role: "Lead Engineer",
-    bio: "Kỹ sư phần mềm. Viết về lập trình, open source và startup.",
+    name: "Châu Trần Vỹ Linh",
+    role: "Co-designer",
+    bio: "Thành viên cùng tham gia vào quá trình thiết kế web cùng với Designer.",
     followers: "2.103",
     color: ACCENT_GOLD,
-    initials: "PH",
+    avatar: chiikawa,
   },
   {
-    name: "Ji Chang Wook",
-    role: "Head of Design",
-    bio: "Nhà thiết kế UX/UI. Chia sẻ về design thinking và sáng tạo.",
+    name: "Chung Kiết Lâm",
+    role: "Business Analyst",
+    bio: "Thành viên phân tích nghiệp vụ góp ý vào dự án dựa trên góc nhìn người dùng.",
     followers: "678",
     color: "#10B981",
-    initials: "LH",
+    avatar: usagi,
   },
   {
-    name: "Vũ Quang Huy",
-    role: "CTO & Co-founder",
-    bio: "Kỹ sư backend với 10 năm kinh nghiệm. Xây dựng hạ tầng cho hàng triệu người dùng.",
+    name: "Bùi Quốc Lâm",
+    role: "Coder",
+    bio: "Thành viên viết code trong dự án.",
     followers: "3.401",
     color: "#8B5CF6",
-    initials: "VH",
+    avatar: hachiware,
   },
-  {
-    name: "Lee Min Ho",
-    role: "Head of Community",
-    bio: "Cựu biên tập viên báo Tuổi Trẻ. Xây dựng và vận hành cộng đồng tác giả UniSync.",
-    followers: "1.890",
-    color: "#06B6D4",
-    initials: "DM",
-  },
+  // {
+  //   name: "Lee Min Ho",
+  //   role: "Head of Community",
+  //   bio: "Cựu biên tập viên báo Tuổi Trẻ. Xây dựng và vận hành cộng đồng tác giả UniSync.",
+  //   followers: "1.890",
+  //   color: "#06B6D4",
+  //   initials: "DM",
+  // },
 ];
 
 const testimonials = [
@@ -266,7 +273,45 @@ const media = [
   "TechInAsia",
 ];
 
+const getInitials = (fullName: string) => {
+  return fullName
+    .split(" ")
+    .map((word) => word[0])
+    .slice(-2) // lấy 2 chữ cái cuối
+    .join("")
+    .toUpperCase();
+};
+
+export type TopComment = {
+  postId: { slug: string };
+  userId: {
+    fullName: string;
+    avatar: string;
+    role: string;
+    followers: any[];
+  };
+  content: string;
+};
+
 export default function CategoryDetailPage() {
+  const [topComments, setTopComments] = useState<TopComment[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    loadTopComments();
+  }, []);
+
+  const loadTopComments = async () => {
+    try {
+      const response = await commentService.getUserTopComments("3");
+      setTopComments(Array.isArray(response.metadata) ? response.metadata : []);
+    } catch (error) {
+      console.error("Không thể tải top comments!", error);
+      setTopComments([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
   return (
     <div className="pb-32">
       {/* ══════════════════════ HERO ══════════════════════ */}
@@ -681,15 +726,14 @@ export default function CategoryDetailPage() {
                 }}
               >
                 <div className="flex items-center gap-3">
-                  <div
-                    className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 text-white text-[14px] font-bold"
-                    style={{
-                      backgroundColor: m.color,
-                      border: `2px solid ${m.color}40`,
-                    }}
-                  >
-                    {m.initials}
-                  </div>
+                  <Image
+                    src={m.avatar}
+                    alt={m.name}
+                    width={48}
+                    height={48}
+                    className="rounded-full flex-shrink-0 object-cover"
+                    style={{ border: `2px solid ${m.color}40` }}
+                  />
                   <div>
                     <p className="text-[#000] text-[14px] font-semibold">
                       {m.name}
@@ -735,40 +779,55 @@ export default function CategoryDetailPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {testimonials.map((t, i) => (
-            <div
-              key={i}
-              className="bg-white flex flex-col p-6 rounded-2xl"
-              style={{
-                boxShadow: "0 2px 10px rgba(0,0,0,0.06)",
-                border: "1px solid #F0F0F0",
-              }}
-            >
-              {/* stars */}
-              <div className="flex gap-1 mb-4">
-                {[1, 2, 3, 4, 5].map((s) => (
-                  <StarFill key={s} color={ACCENT_GOLD} />
-                ))}
-              </div>
-              <p className="text-[#555] text-[13px] leading-relaxed italic flex-1 mb-5">
-                "{t.quote}"
-              </p>
-              <div className="flex items-center gap-3 border-t border-[#F0F0F0] pt-4">
-                <div
-                  className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 text-white text-[12px] font-bold"
-                  style={{ backgroundColor: t.color }}
-                >
-                  {t.initials}
+          {topComments.map((t, i) => {
+            const user = t.userId;
+            const hasAvatar = !!user.avatar;
+
+            return (
+              <div
+                key={i}
+                className="bg-white flex flex-col p-6 rounded-2xl"
+                style={{
+                  boxShadow: "0 2px 10px rgba(0,0,0,0.06)",
+                  border: "1px solid #F0F0F0",
+                }}
+              >
+                {/* stars */}
+
+                <p className="text-[#555] text-[13px] leading-relaxed italic flex-1 mb-5">
+                  "{t.content}"
+                </p>
+                <div className="flex items-center gap-3 border-t border-[#F0F0F0] pt-4">
+                  {hasAvatar ? (
+                    <img
+                      src={user.avatar}
+                      alt={user.fullName}
+                      className="w-10 h-10 rounded-full flex-shrink-0 object-cover"
+                    />
+                  ) : (
+                    <div
+                      className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 text-white text-[12px] font-bold"
+                      style={{ backgroundColor: ACCENT_BLUE }}
+                    >
+                      {getInitials(user.fullName)}
+                    </div>
+                  )}
+                  <div>
+                    <p className="text-[#000] text-[13px] font-semibold">
+                      {user.fullName}
+                    </p>
+                    <p className="text-[#888] text-[11px]">
+                      {user?.role === "admin"
+                        ? "Quản trị viên"
+                        : user?.role === "author"
+                          ? "Tác giả"
+                          : "Người dùng"}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-[#000] text-[13px] font-semibold">
-                    {t.name}
-                  </p>
-                  <p className="text-[#888] text-[11px]">{t.role}</p>
-                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </section>
 

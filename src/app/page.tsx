@@ -322,7 +322,7 @@ export default function HomePage() {
               </span>
             </button>
             <button
-              onClick={() => router.push("/posts")}
+              onClick={() => router.push("/categories")}
               className="flex-1 flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl border border-[#E0E0E0] bg-white text-[10px] font-semibold text-[#000] hover:bg-[#F8F8F8] transition-colors"
             >
               Danh mục bài viết
@@ -730,7 +730,7 @@ export default function HomePage() {
                         {a.tags.map((tag: Tag) => (
                           <span
                             key={tag._id}
-                            className="text-[11px] font-medium px-2 py-0.5 rounded-md"
+                            className="text-[11px] font-medium px-2 py-0.5 rounded-md truncate max-w-[100px]"
                             style={{
                               color: tagColor,
                               backgroundColor: `${tagColor}15`,

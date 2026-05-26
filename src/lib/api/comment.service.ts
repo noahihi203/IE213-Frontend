@@ -1,5 +1,6 @@
 import { axiosClient } from "./client";
 import { ApiResponse, Comment } from "../types";
+import { TopComment } from "@/app/about/page";
 
 export interface CreateCommentPayload {
   postId: string;
@@ -61,6 +62,13 @@ export const commentService = {
       ? `/posts/${postId}/comments?${query}`
       : `/posts/${postId}/comments`;
 
+    return await axiosClient.get(endpoint);
+  },
+
+  getUserTopComments: async (
+    limit: string,
+  ): Promise<ApiResponse<TopComment[]>> => {
+    const endpoint = `comments/top-comments/${limit}`;
     return await axiosClient.get(endpoint);
   },
 

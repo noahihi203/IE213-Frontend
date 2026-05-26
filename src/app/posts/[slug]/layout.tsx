@@ -49,14 +49,14 @@ export async function generateMetadata({
         url: `${baseUrl}`,
         siteName: "UniSync",
         images: {
-          url: "./logo.pnp",
+          url: "/about-us-logo.png",
           width: 1200,
           height: 630,
           alt: "UniSync - Blog sinh viên và giáo dục",
         },
         locale: "vi_VN",
         phoneNumbers: "0363636363",
-        emails: "hoaThanhQue@gmail.com",
+        emails: "22520733@gm.uit.edu.vn",
         type: "website",
         countryName: "Việt Nam",
       },
@@ -90,14 +90,14 @@ export async function generateMetadata({
       images: {
         url: post.coverImage
           ? `${toAbsoluteUrl(post.coverImage)}`
-          : "./logo.pnp",
+          : "/about-us-logo.png",
         width: 1200,
         height: 630,
         alt: `${post.title}`,
       },
       locale: "vi_VN",
       phoneNumbers: "0363636363",
-      emails: "hoaThanhQue@gmail.com",
+      emails: "22520733@gm.uit.edu.vn",
       type: "website",
       countryName: "Việt Nam",
     },

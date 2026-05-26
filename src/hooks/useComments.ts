@@ -60,6 +60,12 @@ export const resolveCommentAuthorSummary = (
   currentUser?: User | null,
 ): CommentAuthorSummary => {
   const commentUserId = resolveCommentUserId(comment);
+
+  // Thêm dòng này để debug
+  console.log("comment raw:", comment);
+  console.log("resolved userId:", commentUserId);
+  console.log("profileHref:", commentUserId ? `/users/${commentUserId}` : null);
+
   const rawCommentUser = comment.userId ?? comment.authorId;
   const commentUser =
     rawCommentUser && typeof rawCommentUser === "object"
@@ -82,7 +88,7 @@ export const resolveCommentAuthorSummary = (
     mentionLabel,
     avatar: commentUser?.avatar || null,
   };
-};
+};;
 
 export function useComments(
   currentUser: User | null,
