@@ -181,7 +181,7 @@ const milestones = [
   {
     year: "2026",
     title: "12K+ Tác giả & Hơn thế nữa",
-    desc: "Hơn 12,000 tác giả, 86,000 bài viết và 2.4 triệu độcgiả tin tưởng UniSync mỗi tháng.",
+    desc: "Hơn 12,000 tác giả, 86,000 bài viết và 2.4 triệu độc giả tin tưởng UniSync mỗi tháng.",
     side: "left",
   },
 ];
@@ -189,24 +189,24 @@ const milestones = [
 const team = [
   {
     name: "Vũ Quang Huy",
-    role: "Leader",
-    bio: "Nhóm trưởng của nhóm, có vai trò quan trọng trong quá trình làm dự án.",
+    role: "Tech Lead",
+    bio: "Chịu trách nhiệm cao nhất về mặt kiến trúc công nghệ, quản lý tiến độ và chất lượng đầu ra của toàn bộ dự án.",
     followers: "1.240",
     color: ACCENT_BLUE,
     avatar: rakko,
   },
   {
     name: "Nguyễn Trần Hương Giang",
-    role: "Designer",
-    bio: "Thành viên kế chính giao diện của toàn bộ trang web.",
-    followers: "892",
+    role: "Product Designer",
+    bio: "Định hình, thiết kế trải nghiệm người dùng và tối ưu hóa thứ hạng tìm kiếm của website/app trên Google.",
+    followers: "2.892",
     color: ACCENT_PINK,
     avatar: momoga,
   },
   {
     name: "Châu Trần Vỹ Linh",
-    role: "Co-designer",
-    bio: "Thành viên cùng tham gia vào quá trình thiết kế web cùng với Designer.",
+    role: "Content Moderator",
+    bio: "Vận hành dữ liệu, đảm bảo nội dung bài viết của website luôn chính xác, chất lượng và chuẩn SEO.",
     followers: "2.103",
     color: ACCENT_GOLD,
     avatar: chiikawa,
@@ -214,15 +214,15 @@ const team = [
   {
     name: "Chung Kiết Lâm",
     role: "Business Analyst",
-    bio: "Thành viên phân tích nghiệp vụ góp ý vào dự án dựa trên góc nhìn người dùng.",
+    bio: "Cầu nối giữa bài toán thực tế (thông tin đại học, nhu cầu của học sinh) và đội ngũ kỹ thuật.",
     followers: "678",
     color: "#10B981",
     avatar: usagi,
   },
   {
     name: "Bùi Quốc Lâm",
-    role: "Coder",
-    bio: "Thành viên viết code trong dự án.",
+    role: "Web Developer",
+    bio: "Toàn quyền quản trị hệ thống về mặt cấu trúc, quản lý mã nguồn, cơ sở dữ liệu và triển khai (deploy) ứng dụng.",
     followers: "3.401",
     color: "#8B5CF6",
     avatar: hachiware,
@@ -268,9 +268,9 @@ const media = [
   "VnExpress",
   "Tuổi Trẻ",
   "Dân Trí",
-  "Zing News",
-  "Cafef",
-  "TechInAsia",
+  "Threads",
+  "Reddit",
+  "Báo Hoa học trò",
 ];
 
 const getInitials = (fullName: string) => {
@@ -358,7 +358,7 @@ export default function CategoryDetailPage() {
                 </span>
                 <br />
                 <span className="font-extrabold text-[#000]">
-                  Dành Cho Người Viết
+                  Dành Cho Sinh viên
                 </span>
               </h1>
 
@@ -695,8 +695,8 @@ export default function CategoryDetailPage() {
                 <span className="font-normal text-[#888]">UniSync</span>
               </h2>
               <p className="text-[#888] text-[14px] mt-3 leading-relaxed max-w-md">
-                Chúng mình là sinh viên và những người trẻ (có người cũng đã
-                già) đang xây dựng một không gian hữu ích cho cộng đồng.
+                Chúng mình là sinh viên và những người trẻ đang xây dựng một
+                không gian hữu ích cho cộng đồng.
               </p>
             </div>
             {/* team photo */}
@@ -877,14 +877,14 @@ export default function CategoryDetailPage() {
             <div className="flex flex-col gap-3">
               {[
                 {
-                  city: "Hà Nội",
+                  city: "TP. Hồ Chí Minh",
                   badge: "Trụ sở chính",
-                  addr: "18 Lý Thường Kiệt, Quận Hoàn Kiếm",
+                  addr: "Trường Đại học Công nghệ Thông tin, ĐHQG TP.HCM",
                 },
                 {
-                  city: "TP. Hồ Chí Minh",
-                  badge: "Văn phòng phía Nam",
-                  addr: "72 Lê Thánh Tôn, Quận 1",
+                  city: "Đà Nẵng",
+                  badge: "Văn phòng chi nhánh miền Trung",
+                  addr: "Hải Phòng, quận Hải Châu",
                 },
               ].map((loc) => (
                 <div
@@ -944,7 +944,7 @@ export default function CategoryDetailPage() {
 
       {/* ══════════════════════ CTA ══════════════════════ */}
       <section className="max-w-6xl mx-auto px-5 pb-8">
-        <div className="relative rounded-3xl overflow-hidden px-8 py-16 flex flex-col items-center text-center bg-accent-orange-100">
+        <div className="relative rounded-3xl overflow-hidden px-8 py-16 flex flex-col items-center text-center bg-black">
           {/* blobs */}
           <div
             className="absolute top-0 left-1/2 -translate-x-1/2 w-80 h-80 rounded-full pointer-events-none opacity-20"
@@ -969,13 +969,13 @@ export default function CategoryDetailPage() {
             <div
               className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 text-[28px]"
               style={{
-                background: `linear-gradient(135deg, ${ACCENT_GOLD}, #8B5CF6)`,
+                backgroundColor: ACCENT_GOLD,
               }}
             >
               🔍
             </div>
 
-            <h2 className="text-[#1A1A1A] text-[30px] md:text-[38px] font-extrabold leading-tight tracking-tight mb-4">
+            <h2 className="text-[#ffffff] text-[30px] md:text-[38px] font-extrabold leading-tight tracking-tight mb-4">
               Khám phá{" "}
               <span style={{ color: ACCENT_GOLD }}>thông tin cùng</span> UniSync
             </h2>
@@ -990,13 +990,13 @@ export default function CategoryDetailPage() {
                 style={{ backgroundColor: ACCENT_GOLD }}
               >
                 <span>Tạo tài khoản miễn phí</span>
-                <span className="w-6 h-6 rounded-lg bg-black/15 flex items-center justify-center">
+                <span className="w-6 h-6 rounded-lg flex items-center justify-center">
                   <ArrowRightIcon color="#fff" size={14} />
                 </span>
               </Link>
               <Link
                 href="/posts"
-                className="flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl font-semibold text-[#444] hover:text-[#1A1A1A] border border-[#00000015] hover:border-[#00000030] transition-all"
+                className="flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl font-semibold text-[#fff] hover:text-[rgb(182,182,182)] border border-[#ffffff] hover:border-[hsla(0,0%,73%,0)] transition-all"
               >
                 <span className="text-[13px]">🔍</span>
                 <span>Khám phá bài viết</span>
