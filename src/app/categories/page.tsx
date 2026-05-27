@@ -495,24 +495,9 @@ export default function CategoriesPage() {
           </h1>
 
           <p className="text-[#888] text-[15px] leading-relaxed max-w-lg mb-8">
-            Từ công nghệ đến văn chương, từ khởi nghiệp đến khoa học — UniSync
-            quy tụ những bài viết chất lượng nhất trong từng lĩnh vực.
+            Từ đời sống thường nhật đến giảng đường, từ chia sẻ đến tin tức mới
+            - UniSync quy tụ những bài viết chất lượng nhất trong từng lĩnh vực.
           </p>
-
-          {/* Search */}
-          <div
-            className="flex items-center gap-3 w-full max-w-md bg-[#F8F8F8] rounded-2xl px-4 py-3"
-            style={{ border: "1.5px solid #E8E8E8" }}
-          >
-            <SearchIcon />
-            <input
-              type="text"
-              placeholder="Tìm danh mục..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="flex-1 bg-transparent text-[14px] text-[#000] placeholder-[#888] outline-none"
-            />
-          </div>
         </div>
       </section>
 
@@ -653,7 +638,8 @@ export default function CategoriesPage() {
                     ? "Quản trị viên"
                     : author?.role === "author"
                       ? "Tác giả"
-                      : "Người dùng"} UniSync
+                      : "Người dùng"}{" "}
+                  UniSync
                 </p>
                 <p
                   className="text-[11px] font-medium mt-0.5"
