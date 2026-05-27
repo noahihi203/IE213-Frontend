@@ -78,8 +78,20 @@ export function Navbar() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const searchContainerRef = useRef<HTMLFormElement | null>(null);
+  const drawerSearchRef = useRef<HTMLInputElement | null>(null);
 
-  // Close suggestions when clicking outside
+  // Mobile / tablet
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Lock scroll when drawer open
+  useEffect(() => {
+    document.body.style.overflow = mobileMenuOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobileMenuOpen]);
+
+  // Close desktop suggestions on outside click
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (
@@ -89,16 +101,13 @@ export function Navbar() {
         setShowSuggestions(false);
       }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Handle search suggestions
+  // Fetch suggestions (shared between desktop & drawer search)
   useEffect(() => {
-    if (searchTimeoutRef.current) {
-      clearTimeout(searchTimeoutRef.current);
-    }
+    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
 
     if (!searchValue.trim()) {
       setSuggestions([]);
@@ -114,13 +123,11 @@ export function Navbar() {
           limit: 5,
           status: "published",
         });
-
         const posts = Array.isArray(response.metadata)
           ? response.metadata
           : Array.isArray(response.metadata?.data)
             ? response.metadata.data
             : [];
-
         setSuggestions(posts as Post[]);
         setShowSuggestions(true);
       } catch (error) {
@@ -132,9 +139,7 @@ export function Navbar() {
     }, 300);
 
     return () => {
-      if (searchTimeoutRef.current) {
-        clearTimeout(searchTimeoutRef.current);
-      }
+      if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
     };
   }, [searchValue]);
 
@@ -153,82 +158,288 @@ export function Navbar() {
   const avatarBg = user?.avatar ? user.avatar : DEFAULT_AVATAR_URL;
 
   return (
-    <nav
-      className={`${montserrat.className} sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-[#F0F0F0]`}
-      style={{ boxShadow: "0 2px 16px rgba(0,0,0,0.04)" }}
-    >
-      <div className="max-w-6xl mx-auto px-5 h-16 flex items-center justify-between gap-4">
-        <button
-          onClick={() => router.push("/")}
-          className="flex items-center gap-2.5 flex-shrink-0"
-        >
-          <div className="w-8 h-8 rounded-xl flex items-center justify-center">
-            <Image src={Logo} alt="Logo" width={32} height={32} />
-          </div>
-          <div>
-            <span className="text-[#000] text-[17px] font-bold tracking-tight">
-              UniSync
-            </span>
-          </div>
-        </button>
+    <>
+      <nav
+        className={`${montserrat.className} sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-[#F0F0F0]`}
+        style={{ boxShadow: "0 2px 16px rgba(0,0,0,0.04)" }}
+      >
+        <div className="max-w-6xl mx-auto px-5 h-16 flex items-center justify-between gap-4">
+          {/* ── Logo ── */}
+          <button
+            onClick={() => router.push("/")}
+            className="flex items-center gap-2.5 flex-shrink-0"
+          >
+            <div className="w-8 h-8 rounded-xl flex items-center justify-center">
+              <Image src={Logo} alt="Logo" width={32} height={32} />
+            </div>
+            <div>
+              <span className="text-[#000] text-[17px] font-bold tracking-tight">
+                UniSync
+              </span>
+            </div>
+          </button>
 
-        <div className="hidden md:flex items-center gap-1">
-          {navLinks.map((item) => {
-            const isActive =
-              pathname === item.path ||
-              (item.path !== "/" && pathname.startsWith(item.path));
-            return (
-              <button
-                key={item.label}
-                onClick={() => router.push(item.path)}
-                className="relative px-4 py-2 text-[14px] font-medium transition-colors hover:text-accent-pink-950"
-                style={{ color: isActive ? "#000" : "#888" }}
+          {/* ── Nav links — desktop xl+ (chữ không xuống dòng) ── */}
+          <div className="hidden xl:flex items-center gap-1 flex-shrink-0">
+            {navLinks.map((item) => {
+              const isActive =
+                pathname === item.path ||
+                (item.path !== "/" && pathname.startsWith(item.path));
+              return (
+                <button
+                  key={item.label}
+                  onClick={() => router.push(item.path)}
+                  className="relative px-4 py-2 text-[14px] font-medium transition-colors hover:text-black whitespace-nowrap"
+                  style={{ color: isActive ? "#000" : "#888" }}
+                >
+                  {item.label}
+                  {isActive && (
+                    <span
+                      className="absolute bottom-0 left-4 right-4 h-0.5 rounded-full"
+                      style={{ backgroundColor: ACCENT_PINK }}
+                    />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* ── Search bar — desktop xl+ ── */}
+          <form
+            ref={searchContainerRef}
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (searchValue.trim()) {
+                router.push(`/posts?search=${encodeURIComponent(searchValue)}`);
+                setShowSuggestions(false);
+              }
+            }}
+            className="relative flex-1 max-w-xs hidden xl:flex items-center gap-2.5 bg-[#F8F8F8] rounded-full px-4 py-2.5"
+          >
+            <SearchIcon />
+            <input
+              type="text"
+              placeholder="Tìm kiếm bài viết..."
+              value={searchValue}
+              onChange={(event) => setSearchValue(event.target.value)}
+              onFocus={() => searchValue.trim() && setShowSuggestions(true)}
+              className="bg-transparent text-[13px] text-[#000] placeholder-[#888] outline-none flex-1 min-w-0"
+            />
+            {showSuggestions && searchValue.trim() && (
+              <div
+                className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-lg border border-[#F0F0F0] z-50 overflow-hidden"
+                style={{ boxShadow: "0 8px 30px rgba(0,0,0,0.12)" }}
               >
-                {item.label}
-                {isActive && (
-                  <span
-                    className="absolute bottom-0 left-4 right-4 h-0.5 rounded-full"
-                    style={{ backgroundColor: ACCENT_PINK }}
-                  />
+                {isLoadingSuggestions ? (
+                  <div className="px-4 py-3 text-center text-[13px] text-[#888]">
+                    Đang tìm kiếm...
+                  </div>
+                ) : suggestions.length > 0 ? (
+                  <div className="max-h-96 overflow-y-auto">
+                    {suggestions.map((post) => (
+                      <button
+                        key={post._id}
+                        type="button"
+                        onClick={() => {
+                          router.push(`/posts/${post.slug}`);
+                          setSearchValue("");
+                          setShowSuggestions(false);
+                        }}
+                        className="w-full text-left px-4 py-3 hover:bg-[#F8F8F8] transition-colors border-b border-[#F0F0F0] last:border-b-0 flex items-start gap-3"
+                      >
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[13px] font-medium text-[#000] truncate">
+                            {post.title}
+                          </p>
+                          <p className="text-[11px] text-[#888] truncate mt-0.5">
+                            {post.excerpt}
+                          </p>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="px-4 py-3 text-center text-[13px] text-[#888]">
+                    Không tìm thấy bài viết
+                  </div>
                 )}
-              </button>
-            );
-          })}
+              </div>
+            )}
+          </form>
+
+          {/* ── Right actions ── */}
+          <div className="flex items-center gap-2">
+            {/* Auth — desktop xl+ */}
+            {isAuthenticated && user ? (
+              <div className="hidden xl:flex items-center gap-2">
+                <NotificationBell />
+                <div className="relative">
+                  <button
+                    onClick={() => setDropdownOpen(!dropdownOpen)}
+                    className="flex items-center gap-2 pl-1 pr-2 py-1 rounded-full transition-colors hover:bg-[#F0F0F0]"
+                  >
+                    <img
+                      src={avatarBg}
+                      className="w-8 h-8 rounded-full object-cover"
+                    />
+                    <div className="text-left">
+                      <p className="text-[12px] font-semibold text-[#000] leading-tight whitespace-nowrap">
+                        {compactName}
+                      </p>
+                      <span
+                        className="text-[10px] font-bold px-1.5 py-0.5 rounded-full text-white"
+                        style={{ backgroundColor: roleBg }}
+                      >
+                        {roleLabel}
+                      </span>
+                    </div>
+                    <ChevronIcon />
+                  </button>
+                  {dropdownOpen && (
+                    <>
+                      <div
+                        className="fixed inset-0 z-40"
+                        onClick={() => setDropdownOpen(false)}
+                      />
+                      <div
+                        className="absolute right-0 top-12 w-48 bg-white rounded-2xl py-2 z-50"
+                        style={{
+                          boxShadow: "0 8px 30px rgba(0,0,0,0.12)",
+                          border: "1px solid #F0F0F0",
+                        }}
+                      >
+                        <div className="px-3 py-2 border-b border-[#F8F8F8] mb-1">
+                          <p className="text-[12px] font-semibold text-[#000]">
+                            {displayName}
+                          </p>
+                          <p className="text-[11px] text-[#888]">
+                            {user.email}
+                          </p>
+                        </div>
+                        <button
+                          onClick={() => {
+                            router.push("/dashboard");
+                            setDropdownOpen(false);
+                          }}
+                          className="w-full text-left px-3 py-2 text-[13px] text-[#000] hover:bg-[#F8F8F8] transition-colors flex items-center gap-2"
+                        >
+                          Dashboard
+                        </button>
+                        <div className="border-t border-[#F8F8F8] mt-1 pt-1">
+                          <button
+                            onClick={async () => {
+                              await logout();
+                              setDropdownOpen(false);
+                              router.push("/login");
+                            }}
+                            className="w-full text-left px-3 py-2 text-[13px] hover:bg-[#F8F8F8] transition-colors flex items-center gap-2"
+                            style={{ color: ACCENT_PINK }}
+                          >
+                            Đăng xuất
+                          </button>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div className="hidden xl:flex items-center gap-2">
+                <button
+                  onClick={() => router.push("/login")}
+                  className="px-4 py-2 rounded-full text-[13px] font-semibold text-[#000] hover:bg-[#F0F0F0] transition-colors whitespace-nowrap"
+                >
+                  Đăng nhập
+                </button>
+                <button
+                  onClick={() => router.push("/register")}
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-full text-[13px] font-semibold text-white transition-opacity hover:opacity-90 whitespace-nowrap"
+                  style={{ backgroundColor: "#000" }}
+                >
+                  Đăng ký
+                  <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
+                    <path
+                      d="M2 6h8M6 2l4 4-4 4"
+                      stroke="white"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </button>
+              </div>
+            )}
+
+            {/* ── Hamburger — hiện dưới xl ── */}
+            <button
+              onClick={() => setMobileMenuOpen((v) => !v)}
+              className="xl:hidden w-9 h-9 rounded-full bg-[#F8F8F8] flex flex-col items-center justify-center gap-[5px] border-none cursor-pointer flex-shrink-0"
+            >
+              <span
+                className={`block w-[18px] h-[2px] bg-black rounded-full transition-all duration-300 origin-center ${mobileMenuOpen ? "translate-y-[7px] rotate-45" : ""}`}
+              />
+              <span
+                className={`block w-[18px] h-[2px] bg-black rounded-full transition-all duration-300 ${mobileMenuOpen ? "opacity-0 scale-x-0" : ""}`}
+              />
+              <span
+                className={`block w-[18px] h-[2px] bg-black rounded-full transition-all duration-300 origin-center ${mobileMenuOpen ? "-translate-y-[7px] -rotate-45" : ""}`}
+              />
+            </button>
+          </div>
         </div>
+      </nav>
 
-        <form
-          ref={searchContainerRef}
-          onSubmit={(e) => {
-            e.preventDefault();
-            if (searchValue.trim()) {
-              router.push(`/posts?search=${encodeURIComponent(searchValue)}`);
-              setShowSuggestions(false);
-            }
-          }}
-          className="relative flex-1 max-w-xs hidden md:flex items-center gap-2.5 bg-[#F8F8F8] rounded-full px-4 py-2.5"
-        >
-          <SearchIcon />
-          <input
-            type="text"
-            placeholder="Tìm kiếm bài viết..."
-            value={searchValue}
-            onChange={(event) => setSearchValue(event.target.value)}
-            onFocus={() => searchValue.trim() && setShowSuggestions(true)}
-            className="bg-transparent text-[13px] text-[#000] placeholder-[#888] outline-none flex-1 min-w-0"
-          />
+      {/* ── Backdrop ── */}
+      <div
+        className={`fixed inset-0 bg-black/30 z-40 xl:hidden transition-opacity duration-300 ${
+          mobileMenuOpen
+            ? "opacity-100 pointer-events-auto"
+            : "opacity-0 pointer-events-none"
+        }`}
+        onClick={() => setMobileMenuOpen(false)}
+      />
 
-          {/* Search suggestions dropdown */}
+      {/* ── Drawer ── */}
+      <div
+        className={`fixed top-16 right-0 bottom-0 w-[min(300px,85vw)] bg-white z-50 flex flex-col xl:hidden transition-transform duration-300 ease-in-out ${
+          mobileMenuOpen ? "translate-x-0" : "translate-x-full"
+        }`}
+        style={{ boxShadow: "-8px 0 30px rgba(0,0,0,0.12)" }}
+      >
+        {/* Search trong drawer */}
+        <div className="px-4 pt-4 pb-3 border-b border-[#F0F0F0]">
+          <div className="flex items-center gap-2.5 bg-[#F8F8F8] rounded-full px-4 py-2.5">
+            <SearchIcon />
+            <input
+              ref={drawerSearchRef}
+              type="text"
+              placeholder="Tìm kiếm bài viết..."
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && searchValue.trim()) {
+                  router.push(
+                    `/posts?search=${encodeURIComponent(searchValue)}`,
+                  );
+                  setMobileMenuOpen(false);
+                  setSearchValue("");
+                }
+              }}
+              className="bg-transparent text-[13px] text-[#000] placeholder-[#888] outline-none flex-1 min-w-0"
+            />
+          </div>
+          {/* Suggestions trong drawer */}
           {showSuggestions && searchValue.trim() && (
             <div
-              className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-lg border border-[#F0F0F0] z-50 overflow-hidden"
-              style={{ boxShadow: "0 8px 30px rgba(0,0,0,0.12)" }}
+              className="mt-2 bg-white rounded-2xl border border-[#F0F0F0] overflow-hidden"
+              style={{ boxShadow: "0 4px 16px rgba(0,0,0,0.08)" }}
             >
               {isLoadingSuggestions ? (
                 <div className="px-4 py-3 text-center text-[13px] text-[#888]">
                   Đang tìm kiếm...
                 </div>
               ) : suggestions.length > 0 ? (
-                <div className="max-h-96 overflow-y-auto">
+                <div className="max-h-60 overflow-y-auto">
                   {suggestions.map((post) => (
                     <button
                       key={post._id}
@@ -237,17 +448,16 @@ export function Navbar() {
                         router.push(`/posts/${post.slug}`);
                         setSearchValue("");
                         setShowSuggestions(false);
+                        setMobileMenuOpen(false);
                       }}
-                      className="w-full text-left px-4 py-3 hover:bg-[#F8F8F8] transition-colors border-b border-[#F0F0F0] last:border-b-0 flex items-start gap-3"
+                      className="w-full text-left px-4 py-3 hover:bg-[#F8F8F8] transition-colors border-b border-[#F0F0F0] last:border-b-0"
                     >
-                      <div className="flex-1 min-w-0">
-                        <p className="text-[13px] font-medium text-[#000] truncate">
-                          {post.title}
-                        </p>
-                        <p className="text-[11px] text-[#888] truncate mt-0.5">
-                          {post.excerpt}
-                        </p>
-                      </div>
+                      <p className="text-[13px] font-medium text-[#000] truncate">
+                        {post.title}
+                      </p>
+                      <p className="text-[11px] text-[#888] truncate mt-0.5">
+                        {post.excerpt}
+                      </p>
                     </button>
                   ))}
                 </div>
@@ -258,97 +468,98 @@ export function Navbar() {
               )}
             </div>
           )}
-        </form>
+        </div>
 
-        <div className="flex items-center gap-2">
-          <button className="w-9 h-9 rounded-full bg-[#F8F8F8] flex items-center justify-center md:hidden">
-            <SearchIcon />
-          </button>
+        {/* Nav links */}
+        <div className="flex-1 py-2 overflow-y-auto">
+          {navLinks.map((item) => {
+            const isActive =
+              pathname === item.path ||
+              (item.path !== "/" && pathname.startsWith(item.path));
+            return (
+              <button
+                key={item.label}
+                onClick={() => {
+                  router.push(item.path);
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full flex items-center gap-3 px-5 py-3 text-[15px] font-medium text-left transition-colors hover:bg-[#F8F8F8]"
+                style={{ color: isActive ? "#000" : "#888" }}
+              >
+                <span
+                  className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+                  style={{
+                    backgroundColor: isActive ? ACCENT_PINK : "#E0E0E0",
+                  }}
+                />
+                {item.label}
+              </button>
+            );
+          })}
+        </div>
 
+        {/* Footer: auth hoặc user info */}
+        <div className="p-4 border-t border-[#F0F0F0] flex flex-col gap-2">
           {isAuthenticated && user ? (
             <>
-              <NotificationBell />
-
-              <div className="relative">
-                <button
-                  onClick={() => setDropdownOpen(!dropdownOpen)}
-                  className="flex items-center gap-2 pl-1 pr-2 py-1 rounded-full transition-colors hover:bg-[#F0F0F0]"
+              <div className="flex items-center gap-3 px-1 pb-2">
+                <img
+                  src={avatarBg}
+                  className="w-10 h-10 rounded-full object-cover flex-shrink-0"
+                />
+                <div className="min-w-0">
+                  <p className="text-[13px] font-semibold text-[#000] truncate">
+                    {displayName}
+                  </p>
+                  <p className="text-[11px] text-[#888] truncate">
+                    {user.email}
+                  </p>
+                </div>
+                <span
+                  className="text-[10px] font-bold px-1.5 py-0.5 rounded-full text-white flex-shrink-0 ml-auto"
+                  style={{ backgroundColor: roleBg }}
                 >
-                  <img
-                    src={avatarBg}
-                    className="w-8 h-8 rounded-full flex items-center justify-center text-white text-[12px] font-bold"
-                  />
-                  <div className="hidden md:block text-left">
-                    <p className="text-[12px] font-semibold text-[#000] leading-tight">
-                      {compactName}
-                    </p>
-                    <span
-                      className="text-[10px] font-bold px-1.5 py-0.5 rounded-full text-white"
-                      style={{ backgroundColor: roleBg }}
-                    >
-                      {roleLabel}
-                    </span>
-                  </div>
-                  <ChevronIcon />
-                </button>
-
-                {dropdownOpen && (
-                  <>
-                    <div
-                      className="fixed inset-0 z-40"
-                      onClick={() => setDropdownOpen(false)}
-                    />
-                    <div
-                      className="absolute right-0 top-12 w-48 bg-white rounded-2xl py-2 z-50"
-                      style={{
-                        boxShadow: "0 8px 30px rgba(0,0,0,0.12)",
-                        border: "1px solid #F0F0F0",
-                      }}
-                    >
-                      <div className="px-3 py-2 border-b border-[#F8F8F8] mb-1">
-                        <p className="text-[12px] font-semibold text-[#000]">
-                          {displayName}
-                        </p>
-                        <p className="text-[11px] text-[#888]">{user.email}</p>
-                      </div>
-                      <button
-                        onClick={() => {
-                          router.push("/dashboard");
-                          setDropdownOpen(false);
-                        }}
-                        className="w-full text-left px-3 py-2 text-[13px] text-[#000] hover:bg-[#F8F8F8] transition-colors flex items-center gap-2"
-                      >
-                        Dashboard
-                      </button>
-                      <div className="border-t border-[#F8F8F8] mt-1 pt-1">
-                        <button
-                          onClick={async () => {
-                            await logout();
-                            setDropdownOpen(false);
-                            router.push("/login");
-                          }}
-                          className="w-full text-left px-3 py-2 text-[13px] hover:bg-[#F8F8F8] transition-colors flex items-center gap-2"
-                          style={{ color: ACCENT_PINK }}
-                        >
-                          Đăng xuất
-                        </button>
-                      </div>
-                    </div>
-                  </>
-                )}
+                  {roleLabel}
+                </span>
               </div>
+              <button
+                onClick={() => {
+                  router.push("/dashboard");
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full py-2.5 rounded-full text-[13px] font-semibold text-[#000] border border-[#E0E0E0] hover:bg-[#F8F8F8] transition-colors"
+              >
+                Dashboard
+              </button>
+              <button
+                onClick={async () => {
+                  await logout();
+                  setMobileMenuOpen(false);
+                  router.push("/login");
+                }}
+                className="w-full py-2.5 rounded-full text-[13px] font-semibold transition-colors hover:bg-[#FFF0F4]"
+                style={{ color: ACCENT_PINK }}
+              >
+                Đăng xuất
+              </button>
             </>
           ) : (
-            <div className="flex items-center gap-2">
+            <>
               <button
-                onClick={() => router.push("/login")}
-                className="hidden md:block px-4 py-2 rounded-full text-[13px] font-semibold text-[#000] hover:bg-[#F0F0F0] transition-colors"
+                onClick={() => {
+                  router.push("/login");
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full py-2.5 rounded-full text-[13px] font-semibold text-[#000] border border-[#E0E0E0] hover:bg-[#F8F8F8] transition-colors"
               >
                 Đăng nhập
               </button>
               <button
-                onClick={() => router.push("/register")}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-full text-[13px] font-semibold text-white transition-opacity hover:opacity-90"
+                onClick={() => {
+                  router.push("/register");
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-full text-[13px] font-semibold text-white hover:opacity-90 transition-opacity"
                 style={{ backgroundColor: "#000" }}
               >
                 Đăng ký
@@ -362,10 +573,10 @@ export function Navbar() {
                   />
                 </svg>
               </button>
-            </div>
+            </>
           )}
         </div>
       </div>
-    </nav>
+    </>
   );
 }
