@@ -7,7 +7,8 @@ import {
   Student,
   TwitterLogo,
 } from "@phosphor-icons/react/dist/ssr";
-
+import Image from "next/image";
+import Logo from "../../../public/images/logo-hz-dep-trai-vip-pro-123.svg"
 const montserrat = Montserrat({
   subsets: ["latin", "vietnamese"],
   weight: ["400", "500", "600", "700"],
@@ -57,8 +58,8 @@ export function Footer() {
         {/* Brand */}
         <div className="col-span-1">
           <div className="flex items-center gap-2.5 mb-3">
-            <div className="w-8 h-8 rounded-xl bg-black flex items-center justify-center">
-              <span className="text-white text-[14px] font-bold">U</span>
+            <div className="w-8 h-8 rounded-xl flex items-center justify-center">
+              <Image src={Logo} alt="Logo" width={32} height={32} />
             </div>
             <span className="text-[#000] text-[16px] font-bold">UniSync</span>
           </div>
