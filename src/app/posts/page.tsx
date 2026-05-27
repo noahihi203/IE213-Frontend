@@ -221,8 +221,8 @@ function PostsPageContent() {
         {/* Header */}
         <div className="mb-8 max-w-3xl">
           <h1 className="text-4xl leading-tight tracking-tight">
-            <span className="font-bold text-[#000]">Bài</span>
-            <span className="font-normal text-[#888]"> viết</span>
+            <span className="font-bold text-[#000]">Bản tin</span>
+            <span className="font-normal text-[#888]"> đại học</span>
           </h1>
           <p className="mt-1.5 text-[14px] text-[#888]">
             Khám phá các bài viết từ sinh viên các trường đại học tại TP.HCM
