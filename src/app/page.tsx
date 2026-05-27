@@ -316,14 +316,14 @@ export default function HomePage() {
               className="flex-1 flex items-center justify-between px-6 py-3.5 rounded-2xl text-white hover:opacity-90 transition-opacity"
               style={{ backgroundColor: "#000" }}
             >
-              <span className="text-[10px] font-bold">Khám phá bài viết</span>
+              <span className="text-[14px] font-bold">Khám phá bài viết</span>
               <span className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center">
                 <ArrowRight />
               </span>
             </button>
             <button
               onClick={() => router.push("/categories")}
-              className="flex-1 flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl border border-[#E0E0E0] bg-white text-[10px] font-semibold text-[#000] hover:bg-[#F8F8F8] transition-colors"
+              className="flex-1 flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl border border-[#E0E0E0] bg-white text-[14px] font-semibold text-[#000] hover:bg-[#F8F8F8] transition-colors"
             >
               Danh mục bài viết
             </button>
