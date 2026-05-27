@@ -7,6 +7,8 @@ import { Montserrat } from "next/font/google";
 import { postService } from "@/lib/api/post.service";
 import { Post } from "@/lib/types";
 import NotificationBell from "../NotificationBell";
+import Logo from "../../../public/images/logo-hz-dep-trai-vip-pro-123.svg";
+import Image from "next/image";
 
 const montserrat = Montserrat({
   subsets: ["latin", "vietnamese"],
@@ -160,21 +162,12 @@ export function Navbar() {
           onClick={() => router.push("/")}
           className="flex items-center gap-2.5 flex-shrink-0"
         >
-          <div className="w-8 h-8 rounded-xl bg-black flex items-center justify-center">
-            <span className="text-white text-[14px] font-bold">U</span>
+          <div className="w-8 h-8 rounded-xl flex items-center justify-center">
+            <Image src={Logo} alt="Logo" width={32} height={32} />
           </div>
           <div>
-            <span className="text-accent-pink-500 text-[17px] font-bold tracking-tight">
-              U
-            </span>
-            <span className="text-accent-blue-500 text-[17px] font-bold tracking-tight">
-              n
-            </span>
-            <span className="text-accent-orange-500 text-[17px] font-bold tracking-tight">
-              i
-            </span>
             <span className="text-[#000] text-[17px] font-bold tracking-tight">
-              Sync
+              UniSync
             </span>
           </div>
         </button>
