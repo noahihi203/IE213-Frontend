@@ -11,7 +11,14 @@ const ACCENT_GOLD = "#ED9F00";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login, isLoading, error, clearError } = useAuthStore();
+  const {
+    login,
+    isLoading,
+    error,
+    clearError,
+    isAuthenticated,
+    authInitialized,
+  } = useAuthStore();
 
   // 1. Khởi tạo state trống để an toàn cho Server-side Rendering
   const [formData, setFormData] = useState({
@@ -35,6 +42,13 @@ export default function LoginPage() {
     const token = localStorage.getItem("token");
     console.log(token);
   }, []);
+
+  useEffect(() => {
+    if (!authInitialized) return;
+    if (isAuthenticated) {
+      router.replace("/");
+    }
+  }, [authInitialized, isAuthenticated, router]);
 
   const [showPassword, setShowPassword] = useState(false);
 

@@ -317,16 +317,6 @@ export default function CategoryDetailPage() {
       {/* ══════════════════════ HERO ══════════════════════ */}
       <section className="relative overflow-hidden border-b border-[#F0F0F0]">
         {/* decorative blobs */}
-        <div
-          className="absolute inset-0 pointer-events-none"
-          aria-hidden="true"
-        >
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[500px] opacity-30">
-            <svg viewBox="0 0 700 500" fill="none" className="w-full h-full">
-              <ellipse cx="350" cy="240" rx="320" ry="200" fill="#FFF3CC" />
-            </svg>
-          </div>
-        </div>
 
         <div className="relative z-10 max-w-6xl mx-auto px-5 pt-14 pb-12">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">

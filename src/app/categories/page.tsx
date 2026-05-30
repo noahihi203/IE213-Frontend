@@ -162,39 +162,132 @@ const stats = [
 
 // ── COMPONENTS ────────────────────────────────────────────────────────────────
 
+// function FeaturedCard({ cat }: { cat: Category }) {
+//   return (
+//     <div
+//       className="bg-white flex flex-col overflow-hidden rounded-2xl group cursor-pointer"
+//       style={{
+//         boxShadow: `0 2px 16px ${cat.accentColor}18, 0 1px 4px rgba(0,0,0,0.06)`,
+//         border: `1px solid ${cat.accentColor}20`,
+//       }}
+//     >
+//       {/* Cover image */}
+//       <div className="relative overflow-hidden" style={{ height: "160px" }}>
+//         <img
+//           src={cat.image}
+//           alt={cat.slug}
+//           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+//         />
+//         {/* gradient overlay */}
+//         <div
+//           className="absolute inset-0"
+//           style={{
+//             background: `linear-gradient(to top, white 0%, ${cat.gradientColor} 100%)`,
+//           }}
+//         />
+//         {/* Rank badge */}
+//         <div
+//           className="absolute top-3 left-3 w-9 h-7 rounded-xl flex items-center justify-center"
+//           style={{ backgroundColor: cat.color }}
+//         >
+//           <span className="text-white text-[11px] font-black">{cat.rank}</span>
+//         </div>
+//       </div>
+
+//       {/* Body */}
+//       <div className="flex flex-col p-5 gap-3 flex-1">
+//         {/* Icon + title row */}
+//         <div className="flex items-center gap-3">
+//           <div
+//             className="w-9 h-9 rounded-xl flex items-center justify-center text-[16px] flex-shrink-0 overflow-hidden"
+//             style={{
+//               backgroundColor: `${cat.accentColor}12`,
+//               border: `1px solid ${cat.accentColor}20`,
+//             }}
+//           >
+//             {typeof cat.icon === "string" && cat.icon.startsWith("http") ? (
+//               <img
+//                 src={cat.icon}
+//                 alt={cat.name}
+//                 className="w-full h-full object-cover"
+//               />
+//             ) : (
+//               cat.icon
+//             )}
+//           </div>
+//           <div>
+//             <p className="text-[#000] text-[15px] font-semibold leading-tight">
+//               {cat.name}
+//             </p>
+//           </div>
+//         </div>
+
+//         <p className="text-[#888] text-[13px] leading-relaxed">
+//           {cat.description}
+//         </p>
+
+//         {/* Article preview */}
+//         <div
+//           className="flex items-center gap-3 p-3 rounded-xl"
+//           style={{ backgroundColor: "#F8F8F8", border: "1px solid #F0F0F0" }}
+//         >
+//           <img
+//             src={cat.topPost?.coverImage}
+//             alt=""
+//             className="w-11 h-11 rounded-lg object-cover flex-shrink-0"
+//           />
+//           <div className="flex-1 min-w-0">
+//             <p className="text-[#000] text-[12px] font-medium line-clamp-2 leading-snug">
+//               {cat.topPost?.tittle}
+//             </p>
+//             <div className="flex items-center gap-1 mt-1">
+//               <EyeIcon />
+//               <span className="text-[#888] text-[11px]">
+//                 {cat.topPost?.viewCount} lượt xem
+//               </span>
+//             </div>
+//           </div>
+//         </div>
+
+//         {/* Footer */}
+//         <div className="flex items-center justify-between pt-1">
+//           <div
+//             className="flex items-center gap-1.5 px-3 py-1 rounded-full text-[12px] font-semibold"
+//             style={{
+//               color: cat.accentColor,
+//               backgroundColor: `${cat.accentColor}12`,
+//               border: `1px solid ${cat.accentColor}20`,
+//             }}
+//           >
+//             <span
+//               className="w-1.5 h-1.5 rounded-full"
+//               style={{ backgroundColor: cat.accentColor }}
+//             />
+//             {cat.postCount} bài viết
+//           </div>
+//           <button
+//             className="flex items-center gap-1.5 text-[12px] font-semibold transition-all group-hover:gap-2.5"
+//             style={{ color: cat.accentColor }}
+//           >
+//             Xem tất cả
+//             <ArrowRight color={cat.accentColor} size={12} />
+//           </button>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
+
 function FeaturedCard({ cat }: { cat: Category }) {
   return (
-    <div
-      className="bg-white flex flex-col overflow-hidden rounded-2xl group cursor-pointer"
+    <Link
+      href={`categories/${cat.slug}`}
+      className="bg-white flex flex-col overflow-hidden rounded-2xl group cursor-pointer h-full"
       style={{
         boxShadow: `0 2px 16px ${cat.accentColor}18, 0 1px 4px rgba(0,0,0,0.06)`,
         border: `1px solid ${cat.accentColor}20`,
       }}
     >
-      {/* Cover image */}
-      <div className="relative overflow-hidden" style={{ height: "160px" }}>
-        <img
-          src={cat.image}
-          alt={cat.slug}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-        />
-        {/* gradient overlay */}
-        <div
-          className="absolute inset-0"
-          style={{
-            background: `linear-gradient(to top, white 0%, ${cat.gradientColor} 100%)`,
-          }}
-        />
-        {/* Rank badge */}
-        <div
-          className="absolute top-3 left-3 w-9 h-7 rounded-xl flex items-center justify-center"
-          style={{ backgroundColor: cat.color }}
-        >
-          <span className="text-white text-[11px] font-black">{cat.rank}</span>
-        </div>
-      </div>
-
-      {/* Body */}
       <div className="flex flex-col p-5 gap-3 flex-1">
         {/* Icon + title row */}
         <div className="flex items-center gap-3">
@@ -215,14 +308,13 @@ function FeaturedCard({ cat }: { cat: Category }) {
               cat.icon
             )}
           </div>
-          <div>
-            <p className="text-[#000] text-[15px] font-semibold leading-tight">
-              {cat.name}
-            </p>
-          </div>
+          <p className="text-[#000] text-[15px] font-semibold leading-tight">
+            {cat.name}
+          </p>
         </div>
 
-        <p className="text-[#888] text-[13px] leading-relaxed">
+        {/* Description — flex-1 để đẩy phần dưới xuống đáy */}
+        <p className="text-[#888] text-[13px] leading-relaxed flex-1">
           {cat.description}
         </p>
 
@@ -274,7 +366,7 @@ function FeaturedCard({ cat }: { cat: Category }) {
           </button>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }
 
@@ -454,19 +546,7 @@ export default function CategoriesPage() {
     <div className="pb-32">
       {/* ══════════ HERO ══════════ */}
       <section className="relative overflow-hidden bg-white border-b border-[#F0F0F0]">
-        {/* blobs */}
-        <div
-          className="absolute -top-24 left-1/2 -translate-x-1/2 w-[600px] h-[400px] pointer-events-none"
-          aria-hidden="true"
-        >
-          <svg
-            viewBox="0 0 600 400"
-            fill="none"
-            className="w-full h-full opacity-50"
-          >
-            <ellipse cx="300" cy="180" rx="280" ry="160" fill="#F4F0FF" />
-          </svg>
-        </div>
+
 
         <div className="relative z-10 max-w-6xl mx-auto px-5 pt-14 pb-12 flex flex-col items-center text-center">
           {/* pill badge */}

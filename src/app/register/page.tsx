@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -15,7 +15,14 @@ import {
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { register, isLoading, error, clearError } = useAuthStore();
+  const {
+    register,
+    isLoading,
+    error,
+    clearError,
+    isAuthenticated,
+    authInitialized,
+  } = useAuthStore();
 
   const [isSuccess, setIsSuccess] = useState(false);
 
@@ -30,6 +37,13 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [validationError, setValidationError] = useState("");
+
+  useEffect(() => {
+    if (!authInitialized) return;
+    if (isAuthenticated) {
+      router.replace("/");
+    }
+  }, [authInitialized, isAuthenticated, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

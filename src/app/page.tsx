@@ -7,6 +7,7 @@ import { Montserrat } from "next/font/google";
 import { categoryService } from "@/lib/api/category.service";
 import { Category, Post, Tag, TrendingPosts } from "@/lib/types";
 import { postService } from "@/lib/api/post.service";
+import { useAuthStore } from "@/store/authStore";
 
 const montserrat = Montserrat({
   subsets: ["latin", "vietnamese"],
@@ -222,6 +223,7 @@ export default function HomePage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoadingCategories, setIsLoadingCategories] = useState(true);
   const [isLoadingTrendingPosts, setIsLoadingTrendingPosts] = useState(true);
+  const { user, isAuthenticated, authInitialized, logout } = useAuthStore();
 
   useEffect(() => {
     fetchCategories();
@@ -260,17 +262,6 @@ export default function HomePage() {
           HERO
       ══════════════════════════════════════ */}
       <section className="relative max-w-6xl mx-auto px-5 pt-16 pb-20">
-        {/* Blob behind hero */}
-        <div
-          className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[500px] pointer-events-none"
-          aria-hidden="true"
-          style={{ zIndex: 0 }}
-        >
-          <svg viewBox="0 0 700 500" fill="none" className="w-full h-full">
-            <ellipse cx="350" cy="250" rx="340" ry="220" fill="#F0F0F0" />
-          </svg>
-        </div>
-
         <div className="relative z-10 flex flex-col items-center text-center">
           {/* Eyebrow */}
           <div
@@ -313,17 +304,19 @@ export default function HomePage() {
           <div className="flex flex-col sm:flex-row gap-3 w-full max-w-sm">
             <button
               onClick={() => router.push("/posts")}
-              className="flex-1 flex items-center justify-between px-6 py-3.5 rounded-2xl text-white hover:opacity-90 transition-opacity"
+              className="flex-1 flex items-center justify-between px-6 py-3.5 rounded-2xl text-white hover:opacity-90 transition-opacity gap-1"
               style={{ backgroundColor: "#000" }}
             >
-              <span className="text-[14px] font-bold">Khám phá bài viết</span>
+              <span className="text-[14px] font-bold whitespace-nowrap">
+                Khám phá bài viết
+              </span>
               <span className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center">
                 <ArrowRight />
               </span>
             </button>
             <button
               onClick={() => router.push("/categories")}
-              className="flex-1 flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl border border-[#E0E0E0] bg-white text-[14px] font-semibold text-[#000] hover:bg-[#F8F8F8] transition-colors"
+              className="flex-1 flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl border border-[#E0E0E0] bg-white text-[14px] font-semibold text-[#000] hover:bg-[#F8F8F8] transition-colors  whitespace-nowrap"
             >
               Danh mục bài viết
             </button>
@@ -843,16 +836,20 @@ export default function HomePage() {
                 </div>
               ))}
             </div>
-            <button
-              onClick={() => router.push("/register")}
-              className="flex items-center gap-3 px-6 py-3.5 rounded-2xl text-white hover:opacity-90 transition-opacity"
-              style={{ backgroundColor: "#000" }}
-            >
-              <span className="text-[14px] font-bold">Đăng ký thành viên</span>
-              <span className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center">
-                <ArrowRight />
-              </span>
-            </button>
+            {!isAuthenticated && (
+              <button
+                onClick={() => router.push("/register")}
+                className="flex items-center gap-3 px-6 py-3.5 rounded-2xl text-white hover:opacity-90 transition-opacity"
+                style={{ backgroundColor: "#000" }}
+              >
+                <span className="text-[14px] font-bold">
+                  Đăng ký thành viên
+                </span>
+                <span className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center">
+                  <ArrowRight />
+                </span>
+              </button>
+            )}
           </div>
         </div>
       </section>
@@ -883,35 +880,33 @@ export default function HomePage() {
             </div>
 
             {/* Subscribe form */}
-            <div className="w-full md:w-auto flex-shrink-0">
-              <div
-                className="bg-white rounded-2xl p-5 flex flex-col gap-3"
-                style={{
-                  boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
-                  minWidth: "300px",
-                }}
-              >
-                <input
-                  type="email"
-                  placeholder="Email của bạn..."
-                  className="w-full bg-[#F8F8F8] rounded-xl px-4 py-3 text-[13px] text-[#000] placeholder-[#888] outline-none border border-[#F0F0F0] focus:border-[#000] transition-colors"
-                />
-                <button
-                  className="w-full flex items-center justify-between px-5 py-3 rounded-xl text-white hover:opacity-90 transition-opacity"
-                  style={{ backgroundColor: "#000" }}
+            {!isAuthenticated && (
+              <div className="w-full md:w-auto flex-shrink-0">
+                <div
+                  className="bg-white rounded-2xl p-5 flex flex-col gap-3"
+                  style={{
+                    boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
+                    minWidth: "300px",
+                  }}
                 >
-                  <span className="text-[14px] font-bold">
-                    Đăng ký nhận bản tin
-                  </span>
-                  <span className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center">
-                    <ArrowRight size={13} />
-                  </span>
-                </button>
-                <p className="text-[11px] text-[#888] text-center">
-                  Miễn phí · Hủy bất kỳ lúc nào
-                </p>
+                  <Link
+                    href={`/register`}
+                    className="w-full flex items-center justify-between px-5 py-3 rounded-xl text-white hover:opacity-90 transition-opacity"
+                    style={{ backgroundColor: "#000" }}
+                  >
+                    <span className="text-[14px] font-bold">
+                      Đăng ký nhận bản tin
+                    </span>
+                    <span className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center">
+                      <ArrowRight size={13} />
+                    </span>
+                  </Link>
+                  <p className="text-[11px] text-[#888] text-center">
+                    Miễn phí · Hủy bất kỳ lúc nào
+                  </p>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </section>
