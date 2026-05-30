@@ -754,7 +754,7 @@ export default function CategoryDetailPage() {
       </section>
 
       {/* ══════════════════════ TESTIMONIALS ══════════════════════ */}
-      <section className="max-w-6xl mx-auto px-5 py-16">
+      {/* <section className="max-w-6xl mx-auto px-5 py-16">
         <div className="flex flex-col items-center text-center mb-10">
           <span
             className="text-[11px] font-bold tracking-[2px] uppercase mb-3"
@@ -782,7 +782,6 @@ export default function CategoryDetailPage() {
                   border: "1px solid #F0F0F0",
                 }}
               >
-                {/* stars */}
 
                 <p className="text-[#555] text-[13px] leading-relaxed italic flex-1 mb-5">
                   "{t.content}"
@@ -819,7 +818,7 @@ export default function CategoryDetailPage() {
             );
           })}
         </div>
-      </section>
+      </section> */}
 
       {/* ══════════════════════ MEDIA / PRESS ══════════════════════ */}
       <div className="border-y border-[#F0F0F0] bg-[#F8F8F8] py-8">
