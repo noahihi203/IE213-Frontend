@@ -44,6 +44,7 @@ interface CommentsModalProps {
   onToggleLike: (commentId: string) => void;
   onReportComment: (commentId: string) => void;
   onToggleReplies: (parentId: string) => void;
+  likedCommentIds: Set<string>;
 }
 
 export default function CommentsModal({
@@ -80,6 +81,7 @@ export default function CommentsModal({
   onToggleLike,
   onReportComment,
   onToggleReplies,
+  likedCommentIds,
 }: CommentsModalProps) {
   if (!isOpen || !targetPost) return null;
 
@@ -252,17 +254,29 @@ export default function CommentsModal({
                       </div>
 
                       <div className="flex items-center space-x-2">
-                        <button
-                          type="button"
-                          onClick={() => onToggleLike(comment._id)}
-                          disabled={likingCommentId === comment._id}
-                          className="inline-flex items-center space-x-1 text-rose-600 hover:text-rose-700 disabled:opacity-60"
-                        >
-                          <Heart size={15} weight="fill" />
-                          <span className="text-xs">
-                            {comment.likesCount || 0}
-                          </span>
-                        </button>
+                        {(() => {
+                          const isLiked = likedCommentIds.has(comment._id);
+                          return (
+                            <button
+                              type="button"
+                              onClick={() => onToggleLike(comment._id)}
+                              disabled={likingCommentId === comment._id}
+                              className={`inline-flex items-center space-x-1 transition-colors disabled:opacity-60 ${
+                                isLiked
+                                  ? "text-rose-500 hover:text-rose-400"
+                                  : "text-slate-400 hover:text-rose-500"
+                              }`}
+                            >
+                              <Heart
+                                size={15}
+                                weight={isLiked ? "fill" : "regular"}
+                              />
+                              <span className="text-xs">
+                                {comment.likesCount || 0}
+                              </span>
+                            </button>
+                          );
+                        })()}
 
                         <button
                           type="button"

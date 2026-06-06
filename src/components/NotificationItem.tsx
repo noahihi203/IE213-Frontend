@@ -7,6 +7,7 @@ import { postService } from "@/lib/api/post.service";
 import { formatDistanceToNow } from "date-fns";
 import { vi } from "date-fns/locale";
 import { Trash } from "lucide-react";
+import { commentService } from "@/lib/api/comment.service";
 
 interface Props {
   item: NotiItemType;
@@ -61,9 +62,20 @@ export default function NotificationItem({
       case "post":
         router.push(await resolvePostPath(item.targetId));
         break;
-      case "comment":
-        router.push(`/posts/${item.targetId}#comment-${item._id}`);
+      case "comment": {
+        try {
+          const res = await commentService.getCommentById(item.targetId);
+          const post = res?.metadata?.postId as any;
+          const slug = post?.slug;
+          if (slug) {
+            router.push(`/posts/${slug}#comment-${item.targetId}`);
+          }
+        } catch {
+          // fallback
+          router.push(`/posts`);
+        }
         break;
+      }
       case "user":
         router.push(`/users/${item.targetId}`);
         break;

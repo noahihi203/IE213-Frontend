@@ -256,6 +256,7 @@ export default function PostsTab({
         onToggleLike={(id) => void comments.handleToggleLikeComment(id)}
         onReportComment={(id) => void comments.handleReportComment(id)}
         onToggleReplies={(id) => void comments.toggleRepliesForComment(id)}
+        likedCommentIds={comments.likedCommentIds}
       />
     </>
   );

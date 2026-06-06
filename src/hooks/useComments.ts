@@ -88,7 +88,7 @@ export const resolveCommentAuthorSummary = (
     mentionLabel,
     avatar: commentUser?.avatar || null,
   };
-};;
+};
 
 export function useComments(
   currentUser: User | null,
@@ -259,6 +259,29 @@ export function useComments(
     });
 
     const payload = toTopLevelPayload(response.metadata);
+    // DEBUG
+    console.log("=== DEBUG LIKED ===");
+    console.log("raw metadata:", response.metadata);
+    console.log(
+      "comments liked status:",
+      payload.comments.map((c) => ({
+        id: c._id,
+        isLiked: (c as any).isLikedByCurrentUser,
+      })),
+    );
+
+    setLikedCommentIds((prev) => {
+      const next = new Set(prev);
+      payload.comments.forEach((c) => {
+        if ((c as any).isLikedByCurrentUser) {
+          next.add(c._id);
+        } else if (!append) {
+          next.delete(c._id);
+        }
+      });
+      return next;
+    });
+
     setTopLevelComments((prev) => {
       if (!append) return payload.comments;
       const existing = new Set(prev.map((comment) => comment._id));
@@ -319,6 +342,17 @@ export function useComments(
       const replies = toCommentArray(response.metadata).sort(
         (a, b) => (a.commentLeft ?? 0) - (b.commentLeft ?? 0),
       );
+
+      // Thêm đoạn này — seed liked state cho replies
+      setLikedCommentIds((prev) => {
+        const next = new Set(prev);
+        replies.forEach((r) => {
+          if ((r as any).isLikedByCurrentUser) {
+            next.add(r._id);
+          }
+        });
+        return next;
+      });
 
       setRepliesByParent((prev) => ({ ...prev, [parentCommentId]: replies }));
       setExpandedReplyParentIds((prev) => {

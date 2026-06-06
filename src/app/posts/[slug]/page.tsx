@@ -204,8 +204,36 @@ export default function PostDetailPage() {
 
   // Load comments khi post._id sẵn sàng
   useEffect(() => {
-    if (post?._id) void comments.loadCommentsForPost(post._id);
-  }, [post?._id]);
+    console.log("=== AUTH CHECK ===", {
+      postId: post?._id,
+      authInitialized,
+    });
+    if (post?._id && authInitialized) {
+      console.log("=== CALLING loadCommentsForPost ===");
+      void comments.loadCommentsForPost(post._id);
+    }
+  }, [post?._id, authInitialized]);
+
+  useEffect(() => {
+    if (comments.isLoadingComments) return;
+    if (comments.commentsWithDepth.length === 0) return;
+
+    const hash = window.location.hash;
+    if (!hash.startsWith("#comment-")) return;
+
+    const commentId = hash.replace("#comment-", "");
+    const el = document.getElementById(`comment-${commentId}`);
+    if (!el) return;
+
+    setTimeout(() => {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+      el.style.transition = "background-color 0.5s";
+      el.style.backgroundColor = "#FFF3CD";
+      setTimeout(() => {
+        el.style.backgroundColor = "";
+      }, 2000);
+    }, 100);
+  }, [comments.isLoadingComments, comments.commentsWithDepth]);
 
   useEffect(() => {
     if (!comments.hasMoreTopLevelComments) return;
@@ -659,6 +687,7 @@ export default function PostDetailPage() {
                   return (
                     <div
                       key={comment._id}
+                      id={`comment-${comment._id}`}
                       className="rounded-lg bg-white p-4"
                       style={{
                         marginLeft: leftIndent,
